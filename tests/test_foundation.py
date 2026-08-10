@@ -11,7 +11,7 @@ class FoundationTests(unittest.TestCase):
     def test_settings_defaults(self) -> None:
         settings = Settings()
         self.assertEqual(settings.project_name, "RAFIQ")
-        self.assertEqual(settings.version, "0.1.0")
+        self.assertEqual(settings.version, "0.7.0")
         self.assertTrue(settings.offline_mode)
 
     def test_project_paths_created(self) -> None:

@@ -9,7 +9,7 @@ from typing import Dict
 
 
 PROJECT_NAME = "RAFIQ"
-PROJECT_VERSION = "0.1.0"
+PROJECT_VERSION = "0.7.0"
 
 
 @dataclass(slots=True)
