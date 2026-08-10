@@ -1,2 +1,3 @@
-# Foundation dependencies for RAFIQ
-# No external packages are required for phase 01.
+# RAFIQ dependencies
+# Standard-library only — no external packages are required (through phase 07).
+# The Python Brain uses only the built-in `ast` module.
