@@ -1,0 +1,2 @@
+# Foundation dependencies for RAFIQ
+# No external packages are required for phase 01.
