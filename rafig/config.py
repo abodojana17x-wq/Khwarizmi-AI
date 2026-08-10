@@ -3,13 +3,25 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict
 
 
 PROJECT_NAME = "RAFIQ"
 PROJECT_VERSION = "0.1.0"
+
+
+@dataclass(slots=True)
+class MemorySettings:
+    """Tunables for the RAFIQ memory subsystem (Phase 05)."""
+
+    working_capacity: int = 64
+    conversation_max: int = 200
+    episodic_max: int = 5000
+    semantic_max: int = 5000
+    project_max: int = 2000
+    db_filename: str = "rafiq_memory.db"
 
 
 @dataclass(slots=True)
@@ -21,6 +33,7 @@ class Settings:
     offline_mode: bool = True
     project_root: Path | None = None
     log_level: str = "INFO"
+    memory: MemorySettings = field(default_factory=MemorySettings)
 
     def __post_init__(self) -> None:
         if self.project_root is None:
@@ -49,6 +62,7 @@ def get_project_paths(settings: Settings | None = None) -> Dict[str, Path]:
         "root": root,
         "logs": root / "logs",
         "data": root / "data",
+        "memory": root / "data" / "memory",
         "tests": root / "tests",
     }
     for path in paths.values():

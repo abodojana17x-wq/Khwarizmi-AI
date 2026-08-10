@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import PROJECT_VERSION, Settings, get_settings
+from .memory import MemoryManager
 from .paths import ensure_project_directories
 
 
@@ -32,6 +33,7 @@ class Rafiq:
         self.settings = settings or get_settings()
         self.logger = self._build_logger()
         self.paths = ensure_project_directories(self.settings)
+        self.memory: MemoryManager | None = None
         self.started = False
         self._diagnostics: DiagnosticReport | None = None
 
@@ -49,6 +51,7 @@ class Rafiq:
         """Initialize the project and mark startup complete."""
         self.logger.info("Starting RAFIQ foundation...")
         self._diagnostics = self._collect_diagnostics()
+        self.memory = self._init_memory()
         self.started = True
         self.logger.info("RAFIQ started successfully. Foundation modules are ready.")
 
@@ -57,12 +60,39 @@ class Rafiq:
         if not self.started:
             raise RuntimeError("Rafiq has not been started")
         self.logger.info("RAFIQ is running in offline mode without external services.")
+        if self.memory is not None:
+            diag = self.memory.diagnostics()
+            self.logger.info(
+                "Memory system ready: %d conversation turns, %d episodic, %d semantic, %d project",
+                diag.conversation_size,
+                diag.episodic_size,
+                diag.semantic_size,
+                diag.project_size,
+            )
 
     def shutdown(self) -> None:
         """Clean shutdown for the foundation phase."""
+        if self.memory is not None:
+            try:
+                self.memory.close()
+            except Exception as exc:  # pragma: no cover - defensive guard
+                self.logger.warning("Memory close error: %s", exc)
+            self.memory = None
         if self.started:
             self.logger.info("Shutting down RAFIQ cleanly.")
         self.started = False
+
+    def _init_memory(self) -> MemoryManager:
+        mem = self.settings.memory
+        db_path = self.paths["memory"] / mem.db_filename
+        return MemoryManager(
+            db_path=db_path,
+            working_capacity=mem.working_capacity,
+            conversation_max=mem.conversation_max,
+            episodic_max=mem.episodic_max,
+            semantic_max=mem.semantic_max,
+            project_max=mem.project_max,
+        )
 
     def _collect_diagnostics(self) -> DiagnosticReport:
         return DiagnosticReport(

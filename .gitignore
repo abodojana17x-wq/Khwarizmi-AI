@@ -3,6 +3,10 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Runtime databases (Phase 05)
+*.db
+data/memory/
+
 # C extensions
 *.so
 

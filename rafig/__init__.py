@@ -1,6 +1,7 @@
 """RAFIQ package foundation."""
 
-from .config import Settings, get_settings
+from .config import MemorySettings, Settings, get_settings
+from .memory import MemoryManager
 from .rafig import Rafiq
 
-__all__ = ["Rafiq", "Settings", "get_settings"]
+__all__ = ["MemoryManager", "MemorySettings", "Rafiq", "Settings", "get_settings"]
