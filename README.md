@@ -1,6 +1,11 @@
-# RAFIQ (Khwarizmi-AI)
+# Khwarizmi AI (formerly RAFIQ)
 
-RAFIQ is a completely offline AI assistant built from scratch in Python.
+> **Architecture reset in progress.** This repository is being re-architected from a
+> deterministic symbolic engine (RAFIQ) into a clean, offline-first, reasoning-focused neural
+> system. **Start with [`BLUEPRINT.md`](BLUEPRINT.md)** — the Phase 0 blueprint — and the
+> planning docs in [`docs/`](docs/).
+
+RAFIQ was a completely offline AI assistant built from scratch in Python.
 The long-term goal is a lightweight assistant specialized in Python that
 understands Arabic, English, Egyptian Arabic, and basic Franco-Arabic —
 with language understanding, memory, reasoning, code generation, and code
