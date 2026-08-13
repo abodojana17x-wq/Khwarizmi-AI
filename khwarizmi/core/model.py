@@ -82,14 +82,20 @@ class KhwarizmiModel(nn.Module):
         # 3. Cognitive Router
         self.cognitive_router = CognitiveRouter(config)
 
-        # 4. Sparse Mixture-of-Experts Specialists
-        specialists = create_standard_specialists(config)
-        self.shared_moe_layer = SparseMoELayer(config, experts=specialists)
+        # 4. Sparse Mixture-of-Experts Specialists (Phase 4).
+        # Configurable via config.enable_moe: when disabled, every residual
+        # block carries a dense FFN and no experts/router are built, preserving
+        # the pre-Phase-4 dense behavior.
+        if config.enable_moe:
+            specialists = create_standard_specialists(config)
+            self.shared_moe_layer = SparseMoELayer(config, experts=specialists)
+        else:
+            self.shared_moe_layer = None
 
         # 5. KSC Residual Blocks Sequence
         self.layers = nn.ModuleList()
         for i in range(config.n_layers):
-            is_moe = (i + 1) % config.moe_frequency == 0
+            is_moe = config.enable_moe and ((i + 1) % config.moe_frequency == 0)
             block = KSCResidualBlock(config, is_moe_layer=is_moe)
             self.layers.append(block)
 

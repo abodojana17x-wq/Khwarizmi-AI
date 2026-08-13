@@ -100,6 +100,7 @@
 ---
 
 ### Phase 4: Sparse Mixture-of-Experts (MoE) Prototype
+* **Status:** Implemented — `khwarizmi/experts/moe_layer.py` + `khwarizmi/experts/specialists.py`, 57 tests in `tests/test_moe.py`, benchmark in `benchmarks/phase4_sparse_moe.py`; see `ARCHITECTURE.md` §4.4 and `BENCHMARKS.md` §7.
 * **Objective:** Implement Sparse Top-$K$ Noisy Gated MoE layers with auxiliary load-balancing loss and measure parameter efficiency and latency.
 * **Exact Deliverables:** `khwarizmi/experts/moe_layer.py`, `khwarizmi/experts/specialists.py`.
 * **Files/Modules:** `khwarizmi/experts/*`, `tests/test_moe.py`.

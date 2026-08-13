@@ -134,6 +134,41 @@ To scale knowledge and domain capability without inflating offline inference RAM
 * **Expert Specialization:** Initial candidate specializations include: *(1) Multilingual Language/Arabic, (2) Egyptian Arabic/Dialect, (3) Python/Coding, (4) Software Engineering/Architecture, (5) Mathematical/Symbolic Reasoning, (6) Project Planning/DAGs, (7) Tool Use/Verification, (8) General Fact Recall.*
 * **Validation Mandate:** The router learnability and expert distinctiveness are experimentally measured. If MoE routing overhead or RAM fragmentation on edge devices outweighs the quality gain, **MoE will be pruned or replaced by a denser, smaller layer during ablation.**
 
+#### Phase 4 Implementation Status (Sparse MoE)
+
+Implemented in `khwarizmi/experts/moe_layer.py` and `khwarizmi/experts/specialists.py`, tested in
+`tests/test_moe.py` (57 tests), benchmarked by `benchmarks/phase4_sparse_moe.py`:
+
+* **Experts:** `ExpertLayer` — independently parameterized Swish FFNs `d_model → d_ff → d_model`
+  (per-expert width configurable via `config.expert_d_ff`). All experts share input/output
+  dimensions so the router can combine them. `create_standard_specialists` instantiates the 8
+  named specializations (names are metadata only).
+* **Router:** two parameterized projections `W_gate` and `W_noise` (both `d_model → E`). Noisy
+  gating `H(z) = z W_g + ε·softplus(z W_noise)` is applied **only during training**; inference
+  uses clean logits and is fully deterministic (Top-K ties resolved deterministically by
+  `torch.topk` for a given input). `MoERoutingDecision` exposes the full routing state.
+* **Top-K selection & weights:** `G(z) = Softmax(TopK(H(z), K))` — routing weights are positive,
+  normalized (sum to 1), and differentiable through the selected logits. `1 ≤ K ≤ E` enforced.
+* **Sparse execution:** `forward` gathers tokens per *selected* expert and calls only experts
+  that received tokens — unselected experts perform zero computation (no dense masking).
+  Executed expert ids are recorded in `SparseMoELayer.last_routed_experts`.
+* **Load-balancing loss:** `L_balance = α_moe · E · Σ_i f_i·P_i` (Section 5.4), returned by
+  `forward`/`route` and independently testable via `compute_load_balance_loss`; differentiable
+  w.r.t. the router (gradient reaches gating rows of *all* experts, including unselected ones).
+  It detects collapse (16× higher at full collapse) and — as a training regularizer — prevents
+  it (benchmark §7); it cannot repair an already fully saturated router (gradient vanishes).
+* **Integration point:** `KhwarizmiModel` wires one shared `SparseMoELayer` into every
+  `moe_frequency`-th KSC residual block (cognitive-router pathway flags may bypass it at
+  runtime). `config.enable_moe=False` disables MoE entirely: all blocks become dense FFN
+  blocks, no experts/router are built, and the model behaves exactly as the pre-Phase-4 dense
+  architecture.
+* **Configuration:** `num_experts`, `top_k_experts`, `moe_frequency`, `enable_moe`,
+  `moe_noise_enabled`, `expert_d_ff`, `load_balance_alpha` (all validated: e.g. `num_experts ≥ 1`,
+  `1 ≤ top_k ≤ num_experts`, `α ≥ 0` finite).
+* **Known limitations:** the roadmap's perplexity-vs-dense-baseline and CPU-latency-overhead
+  gates require Phase 9/10 data + training; CPU per-expert gather/scatter makes the sparse
+  layer slower than a single equal-active dense FFN at small scale (see `BENCHMARKS.md` §7).
+
 ### 4.5 Adaptive Compute & Recurrent Reasoning
 Instead of spending identical compute on simple and difficult tokens, Khwarizmi introduces **Adaptive Recurrent Reasoning Cycles (ARRC)**:
 * **Recurrent Depth:** Certain residual blocks can be executed iteratively $k$ times ($k \in [1, K_{\max}]$) on the same token or reasoning intermediate representation.
