@@ -32,6 +32,7 @@ def get_tiny_test_config() -> KhwarizmiConfig:
         max_recurrent_cycles=3,
         memory_dim=64,
         memory_slots=16,
+        short_term_capacity=128,
         num_pathways=5,
         dropout=0.0,
         temperature=1.0,
