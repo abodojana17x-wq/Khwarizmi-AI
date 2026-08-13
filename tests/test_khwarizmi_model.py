@@ -26,6 +26,12 @@ from khwarizmi.core import KhwarizmiModel, KhwarizmiOutput
 
 class TestKhwarizmiModel(unittest.TestCase):
     def setUp(self) -> None:
+        # Deterministic initialization: the Cognitive Router selects its pathway
+        # from randomly-initialized parameters, which gates whether the Sparse-MoE
+        # sub-layer is executed. Seeding avoids an order-dependent flake where the
+        # router would pick the FAST pathway (MoE bypassed) and MoE parameters
+        # legitimately receive no gradient.
+        torch.manual_seed(0)
         self.config = get_tiny_test_config()
         self.model = KhwarizmiModel(self.config)
 

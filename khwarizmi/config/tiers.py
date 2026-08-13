@@ -45,6 +45,12 @@ def get_tiny_test_config() -> KhwarizmiConfig:
 def get_prototype_config() -> KhwarizmiConfig:
     """
     Return Prototype Tier configuration (approx. 50M-150M parameters).
+
+    Retained for backwards compatibility with the full KhwarizmiModel tests
+    (it is imported directly by ``tests/test_khwarizmi_model.py`` and must
+    keep ``tier_name == "Prototype"``). The two purpose-built Phase 2
+    prototype configurations are :func:`get_prototype_50m_config` and
+    :func:`get_prototype_150m_config`.
     """
     return KhwarizmiConfig(
         vocab_size=32768,
@@ -65,6 +71,68 @@ def get_prototype_config() -> KhwarizmiConfig:
         num_pathways=5,
         dropout=0.1,
         tier_name="Prototype",
+    )
+
+
+def get_prototype_50m_config() -> KhwarizmiConfig:
+    """
+    Return the Phase 2 *50M* Prototype Tier configuration.
+
+    A minimal KSC-only language-modeling configuration (~50M parameters when
+    instantiated through :class:`khwarizmi.core.prototype.KhwarizmiKSCPrototype`).
+    ``max_seq_len`` is raised to 16384 so the sinusoidal positional buffer covers
+    the Phase 2 latency/memory benchmarks at 4K and 16K context.
+    """
+    return KhwarizmiConfig(
+        vocab_size=32768,
+        d_model=512,
+        n_layers=8,
+        n_heads=8,
+        d_expansion=32,
+        d_ff=1024,
+        num_experts=8,
+        top_k_experts=2,
+        moe_frequency=4,
+        max_seq_len=16384,
+        gamma_min=0.85,
+        gamma_max=0.999,
+        max_recurrent_cycles=4,
+        memory_dim=512,
+        memory_slots=256,
+        num_pathways=5,
+        dropout=0.1,
+        tier_name="Prototype-50M",
+    )
+
+
+def get_prototype_150m_config() -> KhwarizmiConfig:
+    """
+    Return the Phase 2 *150M* Prototype Tier configuration.
+
+    A minimal KSC-only language-modeling configuration (~150M parameters when
+    instantiated through :class:`khwarizmi.core.prototype.KhwarizmiKSCPrototype`).
+    ``max_seq_len`` is raised to 16384 so the sinusoidal positional buffer covers
+    the Phase 2 latency/memory benchmarks at 4K and 16K context.
+    """
+    return KhwarizmiConfig(
+        vocab_size=32768,
+        d_model=768,
+        n_layers=16,
+        n_heads=12,
+        d_expansion=48,
+        d_ff=2048,
+        num_experts=8,
+        top_k_experts=2,
+        moe_frequency=4,
+        max_seq_len=16384,
+        gamma_min=0.85,
+        gamma_max=0.999,
+        max_recurrent_cycles=4,
+        memory_dim=768,
+        memory_slots=384,
+        num_pathways=5,
+        dropout=0.1,
+        tier_name="Prototype-150M",
     )
 
 

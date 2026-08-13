@@ -1,8 +1,8 @@
 # Khwarizmi AI: Highly Intelligent, Fully Offline Reasoning & Project Assistant
 **Project Name:** Khwarizmi AI (formerly RAFIQ foundation)  
-**Version:** 2.1.0 (Phase 1 Foundational Neural Architecture Layer Complete)  
+**Version:** 2.2.0 (Phase 2 Minimal KSC Prototype Complete)  
 **Date:** 2026-08-11  
-**Status:** Phase 1 Complete (Foundational Architecture Verified on CPU; Ready for Phase 2 Prototype)  
+**Status:** Phase 2 Complete (Minimal KSC Prototype trained & benchmarked; Ready for Phase 3 Dual Memory)  
 
 ---
 
@@ -106,7 +106,7 @@ Instead, Khwarizmi AI enforces a strict **Layered Separation of Concerns**:
 | :---: | :--- | :---: | :--- |
 | **00** | **Repository Audit + Architecture Reset** | ✅ **COMPLETE** | Full Architecture Blueprint & Master Documentation |
 | **01** | **Foundational Neural Architecture Layer** | ✅ **COMPLETE** | Fully Differentiable CPU Core, KSC, Dual Memory, Router, MoE & Tools Bridge (`v0.1.0-phase1`) |
-| **02** | **Minimal KSC Prototype (50M–150M)** | ⏳ **IMMEDIATE NEXT** | KSC residual blocks & language modeling prototype training |
+| **02** | **Minimal KSC Prototype (50M–150M)** | ✅ **COMPLETE** | KSC residual blocks, Prototype 50M/150M configs & language-modeling prototype (`v0.2.0-phase2`) |
 | **03** | **Dual Memory Architecture Prototype** | ⏳ Planned | Short-Term state & Utility-Gated Persistent KV store training |
 | **04** | **Sparse Mixture-of-Experts (MoE) Prototype**| ⏳ Planned | Top-2/8 noisy gated experts + CPU RAM ablation gate |
 | **05** | **Adaptive Compute & Learned Halting** | ⏳ Planned | Adaptive Recurrent Reasoning Cycles (ARRC) & ponder loss training |
@@ -206,10 +206,45 @@ Following the Phase 0 blueprint instructions, components whose mathematical spec
 * **Low-Level SIMD / Quantization:** Custom C++/CUDA kernel bindings and 4-bit/5-bit/8-bit GGUF quantization are deferred to Phase 12 and Phase 15.
 
 ### 5.7 What Phase 2 Will Build
-**Phase 2: Minimal Khwarizmi State Cell (KSC) Prototype (50M–150M)** will build upon this verified architecture to:
+**Phase 2: Minimal Khwarizmi State Cell (KSC) Prototype (50M–150M)** builds upon this verified architecture to:
 1. Scale `KhwarizmiConfig` to the `Prototype` tier (50M–150M parameters).
 2. Train the KSC sequence modeling core on initial language modeling and sequence benchmarks.
 3. Quantitatively compare perplexity, sub-quadratic sequence scaling, and context memory footprint against an equal-sized dense Transformer baseline.
+
+> **Phase 2 Status (2026-08-12): ✅ COMPLETE.** See Section 5.8 for the implemented deliverables and `BENCHMARKS.md` §6 for measured results.
+
+### 5.8 Phase 2: Minimal KSC Prototype — Implementation Summary
+Phase 2 delivers a **clean, modular KSC-only language-modeling prototype** built exclusively from Phase 1 components. It deliberately excludes Sparse MoE, Dual Memory, the Cognitive Router, and Adaptive Compute (all deferred to Phase 3+), keeping the prototype faithful to the roadmap's "No sparse experts / no external memory" boundary.
+
+**Deliverables implemented:**
+* **`khwarizmi/core/ksc_block.py`** — `KSCResidualBlock` (LayerNorm → KSC → residual; LayerNorm → FFN → residual) and `FeedForwardNetwork`. Hardened with explicit input/state validation that raises `ValueError` on malformed tensors (consistent with the Phase 1 `KhwarizmiStateCell`).
+* **`khwarizmi/core/embeddings.py`** — `KhwarizmiEmbeddings` (token + sinusoidal positional encoding, LayerNorm, dropout) carried over from Phase 1 and reused directly.
+* **`khwarizmi/core/prototype.py` (new)** — `KhwarizmiKSCPrototype`: a trainable LM head stacking `KhwarizmiEmbeddings` + `N × KSCResidualBlock` + final LayerNorm + LM head. Provides both a batched `forward` (prefill) and a single-token `step` (autoregressive decode with an `O(1)`-in-sequence-length recurrent state). Factories `build_ksc_prototype("50m" | "150m")` build the tier models.
+* **`khwarizmi/config/tiers.py`** — Two new Prototype Tier configurations: `get_prototype_50m_config()` (~51.4M params) and `get_prototype_150m_config()` (~150.4M params), both with `max_seq_len = 16384` for the 4K/16K context benchmarks. `get_prototype_config()` is retained unchanged for backward compatibility (used by `tests/test_khwarizmi_model.py`).
+* **Tests:** `tests/test_ksc_block.py` (15 tests) and `tests/test_ksc_prototype.py` (13 tests) — forward/backward shape, gradient-flow, recurrence-consistency (vectorized == token-by-token), retention-gate bounds, O(1) decoding memory, causality, state-reuse regression, and invalid-input handling.
+* **Benchmark:** `benchmarks/phase2_ksc_prototype.py` — footprint, sub-quadratic-memory, latency, and an equal-sized Transformer LM comparison.
+
+**Key interfaces (stable, backward-compatible):**
+* `KhwarizmiKSCPrototype(input_ids[, state][, return_retention]) -> KSCPrototypeOutput(logits, states, retention_history)` — returns a dataclass, not a tuple (does not break the Phase 1 `KhwarizmiModel`/`KhwarizmiOutput` contract).
+* `KhwarizmiKSCPrototype.step(token_id, state, position) -> (logits, new_state)` — autoregressive decode.
+* All existing `khwarizmi` public symbols and the 173 Phase 1 tests remain unchanged.
+
+**How to run:**
+```bash
+# Phase 2 unit tests
+python -m unittest tests.test_ksc_block tests.test_ksc_prototype -v
+
+# Full regression suite (Phase 1 + Phase 2)
+python -m unittest discover -s tests -p "test_*.py"
+
+# Phase 2 benchmark (CPU, deterministic)
+python benchmarks/phase2_ksc_prototype.py
+```
+
+**Known limitations (documented, not implemented — future phases):**
+* **WikiText-103 perplexity comparison:** the roadmap's literal success criterion requires the Phase 9 dataset pipeline + Phase 10 training, which are out of Phase 2 scope. The benchmark substitutes a deterministic causal synthetic LM task as a faithful offline proxy; the `KhwarizmiKSCPrototype` learns it and converges toward the equal-size Transformer baseline with training (see `BENCHMARKS.md` §6).
+* **Pretrained weights:** the prototype ships with orthogonal/Xavier initialization; it is not yet trained on real multilingual/coding corpora.
+* **Inference speed:** `forward` uses an unoptimized Python recurrent scan; sub-quadratic *memory* is proven, while SIMD/quantized *latency* optimization is deferred to Phase 12/15.
 
 ---
 
@@ -228,5 +263,15 @@ Every implementation phase in Khwarizmi AI must pass rigorous verification gates
 |  [x] Zero large datasets, pretrained models, or binaries accidentally added        |
 |  [x] Architecture parameterized (KhwarizmiConfig) to scale without core rewriting  |
 |  [x] Complete differentiable gradient path proven across all neural modules        |
++-----------------------------------------------------------------------------------+
+|                        PHASE 2 IMPLEMENTATION QUALITY GATE                         |
++-----------------------------------------------------------------------------------+
+|  [x] Phase 1 suite intact (173 tests) + 28 new Phase 2 tests (201 total passing)   |
+|  [x] KSC residual block + Prototype 50M/150M configs + KSC prototype LM delivered   |
+|  [x] Sub-quadratic inference memory proven (O(1) decode state; ~1024x < Transformer |
+|      KV-cache at 16K context)                                                       |
+|  [x] Forward/backward + recurrence-consistency + causality tests passing          |
+|  [x] No Phase 1 public interface broken (KhwarizmiModel/KhwarizmiOutput unchanged) |
+|  [x] No sparse experts / external memory introduced (Phase 3+ boundary respected)   |
 +-----------------------------------------------------------------------------------+
 ```

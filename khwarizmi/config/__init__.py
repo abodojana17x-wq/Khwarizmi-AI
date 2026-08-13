@@ -6,6 +6,8 @@ from .settings import KhwarizmiConfig
 from .tiers import (
     get_tiny_test_config,
     get_prototype_config,
+    get_prototype_50m_config,
+    get_prototype_150m_config,
     get_small_config,
     get_edge_config,
 )
@@ -14,6 +16,8 @@ __all__ = [
     "KhwarizmiConfig",
     "get_tiny_test_config",
     "get_prototype_config",
+    "get_prototype_50m_config",
+    "get_prototype_150m_config",
     "get_small_config",
     "get_edge_config",
 ]
