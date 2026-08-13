@@ -130,6 +130,7 @@ class KhwarizmiKSCPrototype(nn.Module):
         input_ids: torch.Tensor,
         state: Optional[List[torch.Tensor]] = None,
         return_retention: bool = False,
+        memory_conditioning: Optional[torch.Tensor] = None,
     ) -> KSCPrototypeOutput:
         """
         Batched, vectorized prefill over a full token sequence.
@@ -140,6 +141,10 @@ class KhwarizmiKSCPrototype(nn.Module):
                 each layer is initialized to a zero state.
             return_retention: If ``True``, also returns the stacked KSC
                 retention gates for numerical-stability inspection.
+            memory_conditioning: Optional Dual Memory recall vector of shape
+                ``(batch_size, d_model)`` added residually to the embedded input
+                (Phase 3 integration point). ``None`` (default) preserves the
+                exact Phase 2 behavior.
 
         Returns:
             :class:`KSCPrototypeOutput` with ``logits`` and updated ``states``.
@@ -169,6 +174,15 @@ class KhwarizmiKSCPrototype(nn.Module):
 
         x = self.embeddings(input_ids)  # (B, L, D)
 
+        if memory_conditioning is not None:
+            if memory_conditioning.shape != (batch_size, self.config.d_model):
+                raise ValueError(
+                    f"memory_conditioning must have shape "
+                    f"(batch_size, d_model)={(batch_size, self.config.d_model)}, "
+                    f"got {tuple(memory_conditioning.shape)}"
+                )
+            x = x + memory_conditioning.unsqueeze(1)
+
         new_states: List[torch.Tensor] = []
         retention_history: Optional[List[torch.Tensor]] = [] if return_retention else None
 
@@ -193,6 +207,7 @@ class KhwarizmiKSCPrototype(nn.Module):
         token_id: torch.Tensor,
         state: List[torch.Tensor],
         position: int = 0,
+        memory_conditioning: Optional[torch.Tensor] = None,
     ) -> Tuple[torch.Tensor, List[torch.Tensor]]:
         """
         Decode a single token autoregressively.
@@ -203,6 +218,10 @@ class KhwarizmiKSCPrototype(nn.Module):
                 previous ``step`` call).
             position: Absolute sequence position of ``token_id`` (used to pick
                 the correct sinusoidal positional encoding).
+            memory_conditioning: Optional Dual Memory recall vector of shape
+                ``(batch_size, d_model)`` added residually to the embedded input
+                (Phase 3 integration point). ``None`` (default) preserves the
+                exact Phase 2 behavior.
 
         Returns:
             Tuple of:
@@ -224,6 +243,15 @@ class KhwarizmiKSCPrototype(nn.Module):
             )
 
         x = self._embed_step(token_id, position)  # (B, 1, D)
+
+        if memory_conditioning is not None:
+            if memory_conditioning.shape != (token_id.size(0), self.config.d_model):
+                raise ValueError(
+                    f"memory_conditioning must have shape "
+                    f"(batch_size, d_model)={(token_id.size(0), self.config.d_model)}, "
+                    f"got {tuple(memory_conditioning.shape)}"
+                )
+            x = x + memory_conditioning.unsqueeze(1)
 
         new_states: List[torch.Tensor] = []
         for i, layer in enumerate(self.layers):

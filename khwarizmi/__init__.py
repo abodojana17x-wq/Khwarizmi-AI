@@ -1,7 +1,7 @@
 """
 Khwarizmi AI: System Architecture Core Namespace.
 
-Version: 0.1.0-phase1
+Version: 0.3.0-phase3
 Provides foundational implementations of:
     - Khwarizmi State Cell (KSC) & Residual Blocks
     - Short-Term Working State & Utility-Gated Long-Term Persistent Memory
@@ -12,7 +12,7 @@ Provides foundational implementations of:
     - Layered Agent Orchestrator & Legacy Deterministic Tool Bridge
 """
 
-__version__ = "0.1.0-phase1"
+__version__ = "0.3.0-phase3"
 
 from .config import (
     KhwarizmiConfig,
@@ -32,6 +32,8 @@ from .core import (
     KhwarizmiKSCPrototype,
     KSCPrototypeOutput,
     build_ksc_prototype,
+    KhwarizmiDualMemoryPrototype,
+    KhwarizmiDualMemoryOutput,
     OutputPathway,
     KhwarizmiModel,
     KhwarizmiOutput,
@@ -39,7 +41,15 @@ from .core import (
 from .memory import (
     ShortTermWorkingState,
     MemoryGatingController,
+    UtilityGatingPolicy,
     LongTermPersistentMemory,
+    DualMemory,
+    DualMemoryOutput,
+    RETAIN,
+    WRITE,
+    UPDATE,
+    FORGET,
+    DECISION_NAMES,
 )
 from .routing import (
     CognitiveRouter,
@@ -87,12 +97,22 @@ __all__ = [
     "KhwarizmiKSCPrototype",
     "KSCPrototypeOutput",
     "build_ksc_prototype",
+    "KhwarizmiDualMemoryPrototype",
+    "KhwarizmiDualMemoryOutput",
     "OutputPathway",
     "KhwarizmiModel",
     "KhwarizmiOutput",
     "ShortTermWorkingState",
     "MemoryGatingController",
+    "UtilityGatingPolicy",
     "LongTermPersistentMemory",
+    "DualMemory",
+    "DualMemoryOutput",
+    "RETAIN",
+    "WRITE",
+    "UPDATE",
+    "FORGET",
+    "DECISION_NAMES",
     "CognitiveRouter",
     "PathwayDispatcher",
     "PathwayExecutionFlags",

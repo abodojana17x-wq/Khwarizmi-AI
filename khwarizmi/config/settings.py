@@ -33,6 +33,15 @@ class KhwarizmiConfig:
         max_recurrent_cycles: Max ARRC recurrent reasoning cycles (K_max).
         memory_dim: Key/Value feature dimension for Long-Term Persistent Memory.
         memory_slots: Maximum capacity of slots in Long-Term Persistent Memory table.
+        short_term_capacity: Bounded capacity (token window) of Short-Term Working State.
+        utility_threshold: Minimum utility score for a WRITE/promotion decision.
+        read_threshold: Gating probability threshold for the READ operation.
+        write_threshold: Gating probability threshold for the WRITE operation.
+        update_threshold: Gating probability threshold for the UPDATE operation.
+        forget_threshold: Gating probability threshold for the FORGET operation.
+        update_similarity_threshold: Cosine-similarity threshold above which a
+            candidate is merged into an existing slot (UPDATE) rather than inserted.
+        utility_decay_lambda: Exponential time-decay constant for utility eviction.
         num_pathways: Number of discrete computational pathways in Cognitive Router.
         dropout: Regularization dropout probability.
         temperature: Router softmax sampling temperature.
@@ -56,6 +65,14 @@ class KhwarizmiConfig:
     max_recurrent_cycles: int = 3
     memory_dim: int = 64
     memory_slots: int = 32
+    short_term_capacity: int = 512
+    utility_threshold: float = 0.8
+    read_threshold: float = 0.5
+    write_threshold: float = 0.5
+    update_threshold: float = 0.5
+    forget_threshold: float = 0.7
+    update_similarity_threshold: float = 0.88
+    utility_decay_lambda: float = 0.01
     num_pathways: int = 5
     dropout: float = 0.1
     temperature: float = 1.0
@@ -109,6 +126,25 @@ class KhwarizmiConfig:
         if self.memory_slots < 1 or self.memory_dim <= 0:
             raise ValueError(
                 f"Invalid long-term memory configuration: slots={self.memory_slots}, dim={self.memory_dim}"
+            )
+        if self.short_term_capacity < 1:
+            raise ValueError(
+                f"short_term_capacity must be >= 1, got {self.short_term_capacity}"
+            )
+        for name in (
+            "utility_threshold",
+            "read_threshold",
+            "write_threshold",
+            "update_threshold",
+            "forget_threshold",
+            "update_similarity_threshold",
+        ):
+            value = getattr(self, name)
+            if not (0.0 <= value <= 1.0):
+                raise ValueError(f"{name} must be in [0, 1], got {value}")
+        if self.utility_decay_lambda < 0.0:
+            raise ValueError(
+                f"utility_decay_lambda must be >= 0, got {self.utility_decay_lambda}"
             )
         if self.num_pathways < 1:
             raise ValueError(f"num_pathways must be >= 1, got {self.num_pathways}")

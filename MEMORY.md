@@ -1,7 +1,7 @@
 # Khwarizmi AI: Dual Memory System Architecture Specification
-**Document Version:** 2.0 (Phase 0 Architecture Reset)  
-**Date:** 2026-08-11  
-**Status:** Implementation-Ready Technical Blueprint  
+**Document Version:** 2.1 (Phase 3 Implementation Complete)  
+**Date:** 2026-08-13  
+**Status:** Phase 3 Implemented — §6 documents the delivered API and known limitations  
 
 ---
 
@@ -111,3 +111,87 @@ To certify that Dual Memory provides measurable improvement without inflating RA
    * Must achieve $\ge 90\%$ precision in writing Architectural Decision Records (ADRs) while rejecting 100% of casual filler sentences.
 3. **Forgetting Verification Test:**
    * Must achieve 100% successful purging of obsolete port numbers or deprecated API constraints when an explicit contradicting instruction is provided.
+
+---
+
+## 6. Phase 3 Implementation Status (Documentation of Delivered Functionality)
+
+This section documents **only the functionality that actually exists** as of Phase 3
+(`v0.3.0`). It is the authoritative reference for the implemented API.
+
+### 6.1 Implemented Modules & Interfaces
+
+| Module | Class | Role |
+| :--- | :--- | :--- |
+| `khwarizmi/memory/short_term.py` | `ShortTermWorkingState` | Bounded short-term working state: KSC recurrent state + rolling token window capped at `short_term_capacity`. Operations `read` / `write` / `forget`, plus `get_summary_vector` and backward-compatible `update`. |
+| `khwarizmi/memory/long_term.py` | `LongTermPersistentMemory` | Fixed-capacity (`memory_slots`) associative key-value store with real `read` / `write` / `update` / `forget` operations. |
+| `khwarizmi/memory/gating.py` | `MemoryGatingController` | Learned READ/WRITE/UPDATE/FORGET probability heads. |
+| `khwarizmi/memory/gating.py` | `UtilityGatingPolicy` | Deterministic, parameter-free decision policy → `RETAIN` / `WRITE` / `UPDATE` / `FORGET`. |
+| `khwarizmi/memory/dual_memory.py` | `DualMemory` | Facade composing the above into one bounded lifecycle (`init_state`, `read`, `forward`). |
+| `khwarizmi/core/memory_prototype.py` | `KhwarizmiDualMemoryPrototype` | Compositional integration of `KhwarizmiKSCPrototype` + `DualMemory`. |
+
+### 6.2 Operations (explicit, testable, real state transitions)
+
+* **READ** — `LongTermPersistentMemory.read(query, table, g_read, step)` and
+  `DualMemory.read(...)`: scaled dot-product attention over valid slots, gated by
+  `g_read`; an empty table returns exact zeros (no `out_proj` bias leak).
+* **WRITE** — `LongTermPersistentMemory.write(candidate, table, g_write, step, threshold[, similarity_threshold])`:
+  inserts a candidate when the write gate exceeds `threshold`; evicts the slot with
+  the minimum time-decayed utility when full; with `similarity_threshold` set,
+  near-duplicate candidates are merged instead of inserted.
+* **UPDATE** — `LongTermPersistentMemory.update(candidate, table, g_update, step, threshold[, similarity_threshold])`:
+  merges a candidate into the most-similar existing slot (equal-weight EMA value
+  blend, `utility = max(old, new)`, timestamp refresh) when the gate is active and
+  top-1 cosine similarity ≥ threshold. Never adds slots (no duplication).
+* **FORGET** — `LongTermPersistentMemory.forget(table, g_forget, threshold[, slot_index])`:
+  gate-driven eviction of the lowest-utility valid slot, or explicit eviction of a
+  given slot id (out-of-range / already-empty ids raise `ValueError`).
+
+### 6.3 Utility Gating (deterministic decision policy)
+
+`UtilityGatingPolicy.decide(gates, utilities, max_similarity)` resolves each batch
+item to exactly one action, with strict priority:
+
+1. `FORGET` — `g_forget ≥ forget_threshold`.
+2. `UPDATE` — `max_similarity ≥ update_similarity_threshold` **and** `g_update ≥ update_threshold`.
+3. `WRITE` — `utility ≥ utility_threshold` **and** `g_write ≥ write_threshold`.
+4. `RETAIN` — otherwise (information stays in short-term memory only).
+
+### 6.4 Configuration (`KhwarizmiConfig`)
+
+| Field | Default | Meaning |
+| :--- | :--- | :--- |
+| `short_term_capacity` | `512` | Bounded rolling-window size (short-term). |
+| `memory_slots` | `32` | Persistent-table slot capacity. |
+| `memory_dim` | `64` | Key/value embedding dimension. |
+| `utility_threshold` | `0.8` | Minimum utility for a WRITE/promotion decision. |
+| `read_threshold` / `write_threshold` / `update_threshold` / `forget_threshold` | `0.5` / `0.5` / `0.5` / `0.7` | Per-operation gate activation thresholds. |
+| `update_similarity_threshold` | `0.88` | Cosine-similarity threshold for UPDATE/merge. |
+| `utility_decay_lambda` | `0.01` | Exponential time-decay constant for eviction. |
+
+All fields are validated at construction; the `TinyTest` tier pins
+`short_term_capacity = 128`.
+
+### 6.5 Capacity / Boundedness Guarantees
+
+* Both stores are **pre-allocated tensors**: short-term `(batch, capacity, d_model)`,
+  persistent `(batch, memory_slots, memory_dim)` (+ scalar/bool tables). No Python
+  list/dict grows with sequence length or operation count.
+* Tests cover empty memory, full memory, repeated writes/updates/forgets,
+  duplicate/near-duplicate entries, invalid memory ids, invalid states, capacity
+  limits, and long-running sequences; `benchmarks/phase3_dual_memory.py` exercises
+  10,000 lifecycle cycles and confirms boundedness.
+
+### 6.6 Known Limitations (documented, deferred to later phases)
+
+* **Learned gate policy**: the gate *network* ships with conservative
+  (negatively-biased) initialization and is **not yet trained**; the decision
+  *policy* is deterministic but gate probabilities only become meaningful after
+  Phase 8–10 gradient training. Consequently the roadmap's NIAH-32K (≥95%) and
+  selective-write (≥90%) success criteria are not yet measurable — they require
+  the Phase 9/10 dataset + training pipeline.
+* **Symbolic DAG project store**: the associative KV tier is implemented; the
+  symbolic DAG integration with `rafig/reasoning` remains a Phase 13 tool-layer
+  concern.
+* **Latent ARRC reasoning buffer**: intermediate ARRC latent vectors are a Phase 5
+  concern and are not part of the Phase 3 short-term store.

@@ -1,8 +1,8 @@
 # Khwarizmi AI: Highly Intelligent, Fully Offline Reasoning & Project Assistant
 **Project Name:** Khwarizmi AI (formerly RAFIQ foundation)  
-**Version:** 2.2.0 (Phase 2 Minimal KSC Prototype Complete)  
-**Date:** 2026-08-11  
-**Status:** Phase 2 Complete (Minimal KSC Prototype trained & benchmarked; Ready for Phase 3 Dual Memory)  
+**Version:** 2.3.0 (Phase 3 Dual Memory Architecture Prototype Complete)  
+**Date:** 2026-08-13  
+**Status:** Phase 3 Complete (Dual Memory — Short-Term + Utility-Gated Persistent Memory — implemented & verified)  
 
 ---
 
@@ -107,7 +107,7 @@ Instead, Khwarizmi AI enforces a strict **Layered Separation of Concerns**:
 | **00** | **Repository Audit + Architecture Reset** | ✅ **COMPLETE** | Full Architecture Blueprint & Master Documentation |
 | **01** | **Foundational Neural Architecture Layer** | ✅ **COMPLETE** | Fully Differentiable CPU Core, KSC, Dual Memory, Router, MoE & Tools Bridge (`v0.1.0-phase1`) |
 | **02** | **Minimal KSC Prototype (50M–150M)** | ✅ **COMPLETE** | KSC residual blocks, Prototype 50M/150M configs & language-modeling prototype (`v0.2.0-phase2`) |
-| **03** | **Dual Memory Architecture Prototype** | ⏳ Planned | Short-Term state & Utility-Gated Persistent KV store training |
+| **03** | **Dual Memory Architecture Prototype** | ✅ **COMPLETE** | Short-Term Working State + Utility-Gated Persistent KV store with READ/WRITE/UPDATE/FORGET |
 | **04** | **Sparse Mixture-of-Experts (MoE) Prototype**| ⏳ Planned | Top-2/8 noisy gated experts + CPU RAM ablation gate |
 | **05** | **Adaptive Compute & Learned Halting** | ⏳ Planned | Adaptive Recurrent Reasoning Cycles (ARRC) & ponder loss training |
 | **06** | **Neural Reasoning Core** | ⏳ Planned | Latent state synthesis & self-checking verification |
@@ -246,6 +246,26 @@ python benchmarks/phase2_ksc_prototype.py
 * **Pretrained weights:** the prototype ships with orthogonal/Xavier initialization; it is not yet trained on real multilingual/coding corpora.
 * **Inference speed:** `forward` uses an unoptimized Python recurrent scan; sub-quadratic *memory* is proven, while SIMD/quantized *latency* optimization is deferred to Phase 12/15.
 
+### 5.9 Phase 3: Dual Memory Architecture Prototype — Implementation Summary
+
+Phase 3 delivers a **bounded, utility-gated Dual Memory system** composed (not rewritten) on top of the Phase 1/Phase 2 components. It implements the two-tier memory architecture specified in `MEMORY.md` and integrates it with the KSC prototype via a clean compositional interface.
+
+**Deliverables implemented:**
+* **`khwarizmi/memory/short_term.py`** — `ShortTermWorkingState`: the bounded short-term working state (KSC recurrent state + rolling token window). The window is hard-capped at `config.short_term_capacity`; it exposes deterministic `read` / `write` / `forget` operations plus `get_summary_vector` (used by the router/gating) and the backward-compatible `update` integration entry point.
+* **`khwarizmi/memory/long_term.py`** — `LongTermPersistentMemory`: the fixed-capacity (`config.memory_slots`) non-parametric key-value store with real `READ` (associative retrieval), `WRITE` (selective insertion + time-decayed utility eviction), `UPDATE` (similarity-gated merge into an existing slot, no duplication), and `FORGET` (gate-driven lowest-utility eviction or explicit slot-id eviction). Near-duplicate detection is supported in `WRITE`.
+* **`khwarizmi/memory/gating.py`** — `MemoryGatingController` (learned READ/WRITE/UPDATE/FORGET probabilities) plus the new **`UtilityGatingPolicy`**: a deterministic, parameter-free decision policy resolving each candidate to `RETAIN` / `WRITE` / `UPDATE` / `FORGET` (priority: FORGET > UPDATE > WRITE > RETAIN).
+* **`khwarizmi/memory/dual_memory.py` (new)** — `DualMemory`: a facade composing the three modules + policy into one bounded memory lifecycle (`init_state`, `read`, `forward`).
+* **`khwarizmi/core/memory_prototype.py` (new)** — `KhwarizmiDualMemoryPrototype`: composes `KhwarizmiKSCPrototype` with `DualMemory`; recalled memory conditions the KSC pass via the new optional `memory_conditioning` argument (a minimal, backward-compatible addition to the Phase 2 prototype), and the post-KSC candidate flows through the utility-gated write/update/forget lifecycle.
+* **`khwarizmi/config/settings.py`** — new Phase 3 configuration: `short_term_capacity`, `utility_threshold`, `read_threshold`, `write_threshold`, `update_threshold`, `forget_threshold`, `update_similarity_threshold`, `utility_decay_lambda` (all validated; defaults preserve existing tier configs).
+* **Tests:** `tests/test_dual_memory_phase3.py` (33 tests) and `tests/test_dual_memory_integration.py` (14 tests) — initialization, READ/WRITE/UPDATE/FORGET, utility gating, capacity limits, eviction, near-duplicates, determinism, invalid inputs, KSC-prototype integration, and Phase 1/Phase 2 regression.
+* **Benchmark:** `benchmarks/phase3_dual_memory.py` — bounded footprint, 10,000-cycle long-sequence stability, per-operation throughput, and bottom-10% utility-eviction quality.
+
+**Boundedness guarantee:** both stores are fixed-size tensors — the short-term window is capped at `short_term_capacity` and the persistent table at `memory_slots` — so memory usage is `O(1)` in sequence length and operation count (verified by tests and the benchmark).
+
+**Known limitations (documented, not implemented — future phases):**
+* **Learned gating policy:** the READ/WRITE/UPDATE/FORGET *gate network* ships with conservative (negatively-biased) initialization and is not yet trained; the decision *policy* is deterministic but the gate probabilities only become meaningful after Phase 8–10 training. NIAH ≥95% and selective-write precision are therefore deferred to the trained phases (see `MEMORY.md` §6).
+* **DAG project store:** the symbolic DAG integration with `rafig/reasoning` remains a Phase 13 tool concern; Phase 3 implements the associative KV tier only.
+
 ---
 
 ## 6. Verification & Quality Gates
@@ -273,5 +293,15 @@ Every implementation phase in Khwarizmi AI must pass rigorous verification gates
 |  [x] Forward/backward + recurrence-consistency + causality tests passing          |
 |  [x] No Phase 1 public interface broken (KhwarizmiModel/KhwarizmiOutput unchanged) |
 |  [x] No sparse experts / external memory introduced (Phase 3+ boundary respected)   |
++-----------------------------------------------------------------------------------+
+|                        PHASE 3 IMPLEMENTATION QUALITY GATE                         |
++-----------------------------------------------------------------------------------+
+|  [x] Phase 1 + Phase 2 suite intact (201 tests) + 47 new Phase 3 tests (248 total) |
+|  [x] Short-Term Working State (bounded) + Persistent KV store with READ/WRITE/     |
+|      UPDATE/FORGET + deterministic UtilityGatingPolicy delivered                   |
+|  [x] Memory strictly bounded (short-term window + fixed-capacity table) —          |
+|      no unbounded Python list/dict growth (verified over 10,000-cycle benchmark)   |
+|  [x] KSC prototype integration via composition; Phase 1/2 interfaces unchanged      |
+|  [x] No Sparse MoE / Adaptive Compute / Router redesign / dataset work (Phase 4+)   |
 +-----------------------------------------------------------------------------------+
 ```
