@@ -71,6 +71,27 @@ class KSCResidualBlock(nn.Module):
                 aux_loss: Load balancing auxiliary loss if MoE was executed, else None.
                 ret_history: Retention gates history if requested, else None.
         """
+        if x.dim() not in (2, 3):
+            raise ValueError(
+                f"KSCResidualBlock expects a 2D or 3D input, got shape {x.shape}"
+            )
+        if x.size(-1) != self.config.d_model:
+            raise ValueError(
+                f"Input feature dimension must be d_model ({self.config.d_model}), "
+                f"got {x.size(-1)}"
+            )
+        if state is not None and state.shape != (
+            x.size(0),
+            self.config.n_heads,
+            self.config.d_k,
+            self.config.d_expansion,
+        ):
+            raise ValueError(
+                f"state shape mismatch: expected "
+                f"{(x.size(0), self.config.n_heads, self.config.d_k, self.config.d_expansion)}, "
+                f"got {tuple(state.shape)}"
+            )
+
         # Step 1: KSC sequence sub-layer with pre-layer normalization
         normed_x = self.norm1(x)
         ksc_out, new_state, ret_history = self.ksc(
