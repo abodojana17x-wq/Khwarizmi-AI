@@ -37,7 +37,19 @@ class KhwarizmiConfig:
         max_seq_len: Maximum supported sequence length for windowing/embeddings.
         gamma_min: Minimum retention eigenvalue bound for KSC stability.
         gamma_max: Maximum retention eigenvalue bound for KSC stability.
-        max_recurrent_cycles: Max ARRC recurrent reasoning cycles (K_max).
+        max_recurrent_cycles: Max ARRC recurrent reasoning cycles (K_max). Hard
+            upper bound on adaptive computation — recurrence always terminates
+            by this step.
+        min_recurrent_cycles: Min ARRC recurrent reasoning cycles (K_min). No
+            token may halt before this step. Must satisfy
+            1 <= min_recurrent_cycles <= max_recurrent_cycles.
+        enable_adaptive_compute: Master switch for the Phase 5 Adaptive Compute /
+            ARRC halting engine. When False, the model performs a single fixed
+            pass with no recurrent reasoning cycles, no halting gates are built,
+            and ponder loss is exactly zero (pre-Phase-5-compatible path).
+        halting_epsilon: Halting threshold slack epsilon. A token halts at the
+            first cycle k where the accumulated halting probability satisfies
+            sum_{j<=k} p_j >= 1 - epsilon. Must be in (0, 1).
         memory_dim: Key/Value feature dimension for Long-Term Persistent Memory.
         memory_slots: Maximum capacity of slots in Long-Term Persistent Memory table.
         short_term_capacity: Bounded capacity (token window) of Short-Term Working State.
@@ -73,6 +85,9 @@ class KhwarizmiConfig:
     gamma_min: float = 0.85
     gamma_max: float = 0.999
     max_recurrent_cycles: int = 3
+    min_recurrent_cycles: int = 1
+    enable_adaptive_compute: bool = True
+    halting_epsilon: float = 0.01
     memory_dim: int = 64
     memory_slots: int = 32
     short_term_capacity: int = 512
@@ -146,6 +161,23 @@ class KhwarizmiConfig:
         if self.max_recurrent_cycles < 1:
             raise ValueError(
                 f"max_recurrent_cycles must be >= 1, got {self.max_recurrent_cycles}"
+            )
+        if self.min_recurrent_cycles < 1:
+            raise ValueError(
+                f"min_recurrent_cycles must be >= 1, got {self.min_recurrent_cycles}"
+            )
+        if self.min_recurrent_cycles > self.max_recurrent_cycles:
+            raise ValueError(
+                f"min_recurrent_cycles ({self.min_recurrent_cycles}) must be <= "
+                f"max_recurrent_cycles ({self.max_recurrent_cycles})"
+            )
+        if not (0.0 < self.halting_epsilon < 1.0):
+            raise ValueError(
+                f"halting_epsilon must be in (0, 1), got {self.halting_epsilon}"
+            )
+        if not (math.isfinite(self.ponder_cost_beta) and self.ponder_cost_beta >= 0.0):
+            raise ValueError(
+                f"ponder_cost_beta must be a finite non-negative value, got {self.ponder_cost_beta}"
             )
         if self.memory_slots < 1 or self.memory_dim <= 0:
             raise ValueError(

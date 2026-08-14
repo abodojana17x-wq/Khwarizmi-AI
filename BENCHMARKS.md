@@ -240,3 +240,82 @@ baseline and the CPU latency-overhead ablation on *trained* routers — require 
 dataset pipeline and Phase 10 training. Phase 4 delivers and verifies the trainable mechanism:
 gradient flow (experts, router, routing weights, noise projection, auxiliary loss — unit-tested),
 true sparse execution, load-balancing behavior, and MoE-disabled backward compatibility.
+
+---
+
+## 8. Phase 5 Results — Adaptive Compute & Learned Halting (ARRC)
+
+Implemented in `khwarizmi/reasoning/adaptive_compute.py` and measured by
+`benchmarks/phase5_adaptive_compute.py` (deterministic, CPU-only, 4 threads).
+Configuration: **d_model=128, K_min=1, K_max=6, ε=0.05, β_ponder=0.01**, batch 16×32 = 512 tokens.
+
+**Methodology.** Per-token ACT-style halting: each token accumulates p_k = σ(w_h·z⁽ᵏ⁾ + b_h) and
+halts at the first cycle k ≥ K_min with Σp_j ≥ 1 − ε (force-halted with the remainder at K_max).
+Two execution modes are compared on the same weights:
+* **ADAPTIVE COMPUTE** — learned per-token halting (`forward(x)`).
+* **FIXED COMPUTE** — every token forced to execute exactly K_max cycles (`force_cycles=K_max`).
+
+### 8.1 Halting distribution (untrained gate, bias −0.5, random inputs — adaptivity evidence)
+
+| Step | Tokens halting | % |
+| ---: | ---: | ---: |
+| 1 | 17 | 3.3% |
+| 2 | 211 | 41.2% |
+| 3 | 77 | 15.0% |
+| 4 | 40 | 7.8% |
+| 5 | 22 | 4.3% |
+| 6 (K_max) | 145 | 28.3% |
+
+min steps = **1**, avg steps = **3.54**, max steps = **6**; early-halting rate (halted before
+K_max) = **71.7%**. Tokens spread across all six depths — computation is genuinely per-token
+adaptive, not a fixed-depth loop in disguise.
+
+### 8.2 Easy vs Hard compute comparison (60 training steps: reconstruction + ponder loss)
+
+| Input regime | K_avg | Halting profile |
+| --- | ---: | --- |
+| **EASY** (low-variance latents) | **1.209** | 79.1% halt at step 1, 20.9% at step 2, none deeper |
+| **HARD** (high-variance mixed-mode latents) | **1.465** | 65.0% at step 1, tail through step 6 |
+
+→ Compute differentiation **+0.256 cycles** (hard − easy). Easy inputs halt earlier; hard
+inputs continue longer. The roadmap's literal gates (K_avg ≤ 1.2 easy / ≥ 2.5 hard with ≥15%
+accuracy gain on hard math/logic) are defined over a *trained language model* and require the
+Phase 9/10 dataset + training; this synthetic proxy verifies the mechanism Phase 5 owns.
+
+### 8.3 Termination guarantee
+
+With the halting gate saturated to "never halt" (bias −50), every token is force-halted at
+exactly step 6 = K_max with remainder ≈ 1 — **PASS** (no infinite recurrence possible).
+
+### 8.4 Latency — ADAPTIVE vs FIXED COMPUTE (best of 5, CPU)
+
+| Mode | Latency / batch | Notes |
+| --- | ---: | --- |
+| ADAPTIVE (mixed halting, K_avg = 2.54, 87.9% early-halt) | ~163 ms | stragglers keep the batch alive |
+| FIXED (K = 6 for every token) | ~177 ms | ratio ≈ 1.09× |
+| ADAPTIVE (uniform halting, K_avg = 1.00) | ~29 ms | **≈6.1× faster** than fixed |
+| FIXED (K = 6) reference for uniform run | ~179 ms | |
+
+* **Honest caveat:** the batch-level early exit skips remaining cycles only once *every* token
+  in the batch has halted; halted tokens inside a live batch are frozen but their cycle is
+  still materialized. With mixed halting, wall time is roughly at parity with fixed compute at
+  this scale (~1.1×) even though per-token FLOP demand is only K_avg/K_max = 0.42. Turning the
+  per-token saving into wall-clock time requires per-token kernels (Phase 12 runtime scope).
+  The uniform-halting regime demonstrates the actual cycle-skipping gain (≈6×).
+
+### 8.5 Memory
+
+| Metric | Value |
+| --- | ---: |
+| ARRC engine parameters (KSC reasoning cell + norm + gate) | 74,561 (291.3 KiB fp32) |
+| Halting gate parameters | 129 |
+| Peak Python-alloc during ADAPTIVE pass | ~11.4 KiB |
+| Peak Python-alloc during FIXED pass | ~11.7 KiB |
+
+### 8.6 Phase 5 scope note
+
+Phase 5 delivers and verifies the trainable mechanism: per-token ACT halting with min/max step
+enforcement, exact remainder accounting (Σ weights = 1, accumulated probability capped at 1),
+differentiable ponder cost (gradient reaches the halting gate and provably increases halting
+probability under ponder-only training — unit-tested), deterministic inference, and the
+`enable_adaptive_compute=False` fixed-compute compatibility path.

@@ -1,7 +1,7 @@
 """
 Khwarizmi AI: System Architecture Core Namespace.
 
-Version: 0.4.0-phase4
+Version: 0.5.0-phase5
 Provides foundational implementations of:
     - Khwarizmi State Cell (KSC) & Residual Blocks
     - Short-Term Working State & Utility-Gated Long-Term Persistent Memory
@@ -12,7 +12,7 @@ Provides foundational implementations of:
     - Layered Agent Orchestrator & Legacy Deterministic Tool Bridge
 """
 
-__version__ = "0.4.0-phase4"
+__version__ = "0.5.0-phase5"
 
 from .config import (
     KhwarizmiConfig,
@@ -65,6 +65,7 @@ from .experts import (
 )
 from .reasoning import (
     AdaptiveComputeBlock,
+    PonderCostLoss,
     LatentReasoner,
 )
 from .tools import (
@@ -123,6 +124,7 @@ __all__ = [
     "create_standard_specialists",
     "SPECIALIZATION_NAMES",
     "AdaptiveComputeBlock",
+    "PonderCostLoss",
     "LatentReasoner",
     "ToolVerificationRequest",
     "ToolVerificationResult",
