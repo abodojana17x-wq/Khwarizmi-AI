@@ -67,6 +67,25 @@ class KhwarizmiConfig:
         load_balance_alpha: Coefficient for MoE load balancing auxiliary loss.
         ponder_cost_beta: Coefficient for Adaptive Compute ponder cost loss.
         verification_threshold: Confidence score threshold below which verification triggers.
+        enable_reasoning_core: Master switch for the Phase 6 Neural Reasoning Core
+            (Latent Synthesis & Bounded Self-Correction). When False, no reasoning
+            synthesis/correction/confidence submodules are built, the model performs
+            a single fixed pass through the ARRC output with no iterative reasoning,
+            and reasoning-specific auxiliary losses are exactly zero (pre-Phase-6 path).
+        min_reasoning_steps: Minimum number of bounded reasoning iterations K_r^min.
+            No reasoning termination may occur before this step. Must satisfy
+            1 <= min_reasoning_steps <= max_reasoning_steps.
+        max_reasoning_steps: Hard maximum number of reasoning iterations K_r^max.
+            The reasoning loop always terminates by this step (forced convergence).
+            Independent from the ARRC max_recurrent_cycles compute budget.
+        reasoning_confidence_threshold: Confidence score above which the latent
+            reasoning state is considered sufficiently refined and the loop halts.
+            Must be in [0, 1].
+        max_reasoning_corrections: Hard maximum number of self-correction refinements.
+            Each correction is a bounded latent update conditioned by the confidence
+            signal. Must satisfy 0 <= max_reasoning_corrections <= max_reasoning_steps.
+        reasoning_confidence_beta: Coefficient for the reasoning consistency loss.
+        reasoning_refinement_beta: Coefficient for the reasoning refinement loss.
         tier_name: Human-readable hardware/model tier label.
     """
     vocab_size: int = 1024
@@ -103,6 +122,13 @@ class KhwarizmiConfig:
     temperature: float = 1.0
     load_balance_alpha: float = 0.01
     ponder_cost_beta: float = 0.01
+    enable_reasoning_core: bool = True
+    min_reasoning_steps: int = 1
+    max_reasoning_steps: int = 3
+    reasoning_confidence_threshold: float = 0.85
+    max_reasoning_corrections: int = 2
+    reasoning_confidence_beta: float = 0.01
+    reasoning_refinement_beta: float = 0.01
     verification_threshold: float = 0.75
     tier_name: str = "TinyTest"
 
@@ -206,6 +232,51 @@ class KhwarizmiConfig:
             raise ValueError(f"num_pathways must be >= 1, got {self.num_pathways}")
         if not (0.0 <= self.dropout < 1.0):
             raise ValueError(f"dropout must be in [0, 1), got {self.dropout}")
+        # ---- Phase 6: Neural Reasoning Core bounds ----
+        if self.max_reasoning_steps < 1:
+            raise ValueError(
+                f"max_reasoning_steps must be >= 1, got {self.max_reasoning_steps}"
+            )
+        if self.min_reasoning_steps < 1:
+            raise ValueError(
+                f"min_reasoning_steps must be >= 1, got {self.min_reasoning_steps}"
+            )
+        if self.min_reasoning_steps > self.max_reasoning_steps:
+            raise ValueError(
+                f"min_reasoning_steps ({self.min_reasoning_steps}) must be <= "
+                f"max_reasoning_steps ({self.max_reasoning_steps})"
+            )
+        if not (0.0 <= self.reasoning_confidence_threshold <= 1.0):
+            raise ValueError(
+                f"reasoning_confidence_threshold must be in [0, 1], "
+                f"got {self.reasoning_confidence_threshold}"
+            )
+        if self.max_reasoning_corrections < 0:
+            raise ValueError(
+                f"max_reasoning_corrections must be >= 0, "
+                f"got {self.max_reasoning_corrections}"
+            )
+        if self.max_reasoning_corrections > self.max_reasoning_steps:
+            raise ValueError(
+                f"max_reasoning_corrections ({self.max_reasoning_corrections}) "
+                f"must be <= max_reasoning_steps ({self.max_reasoning_steps})"
+            )
+        if not (
+            math.isfinite(self.reasoning_confidence_beta)
+            and self.reasoning_confidence_beta >= 0.0
+        ):
+            raise ValueError(
+                f"reasoning_confidence_beta must be a finite non-negative value, "
+                f"got {self.reasoning_confidence_beta}"
+            )
+        if not (
+            math.isfinite(self.reasoning_refinement_beta)
+            and self.reasoning_refinement_beta >= 0.0
+        ):
+            raise ValueError(
+                f"reasoning_refinement_beta must be a finite non-negative value, "
+                f"got {self.reasoning_refinement_beta}"
+            )
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize configuration to dictionary."""

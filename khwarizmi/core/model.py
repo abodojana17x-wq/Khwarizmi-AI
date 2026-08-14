@@ -31,6 +31,7 @@ from ..routing.pathways import PathwayDispatcher
 from ..experts.moe_layer import SparseMoELayer
 from ..experts.specialists import create_standard_specialists
 from ..reasoning.latent_reasoner import LatentReasoner
+from ..reasoning.neural_reasoning_core import NeuralReasoningCore
 
 
 @dataclass
@@ -109,7 +110,17 @@ class KhwarizmiModel(nn.Module):
         else:
             self.reasoner = None
 
-        # 7. Output Pathway
+        # 7. Neural Reasoning Core (Phase 6): Latent Synthesis & Bounded
+        # Self-Correction. Configurable via config.enable_reasoning_core: when
+        # disabled, no synthesis/correction/confidence submodules are built,
+        # the ARRC-refined representation passes through unchanged, and the
+        # reasoning auxiliary losses are exactly zero (pre-Phase-6 path).
+        if config.enable_reasoning_core:
+            self.reasoning_core = NeuralReasoningCore(config)
+        else:
+            self.reasoning_core = None
+
+        # 8. Output Pathway
         self.output_pathway = OutputPathway(config)
 
     def init_state(
@@ -245,14 +256,35 @@ class KhwarizmiModel(nn.Module):
                 "mean_remainder": 0.0,
             }
 
-        # 7. Update Short-Term Working State
+        # 7. Neural Reasoning Core (Phase 6): bounded latent refinement &
+        # self-correction operating on the ARRC-refined representation. This is
+        # a genuine trainable latent mechanism (no textual chain-of-thought);
+        # it consumes the Phase 5 compute budget output and preserves dims.
+        if self.reasoning_core is not None:
+            reasoning_out = self.reasoning_core(reasoned_x)
+            reasoned_x = reasoning_out.refined_state
+            reasoning_loss = reasoning_out.total_reasoning_loss
+            reasoning_diag = reasoning_out.diagnostics
+        else:
+            reasoning_loss = torch.tensor(0.0, device=x.device, dtype=x.dtype)
+            reasoning_diag = {
+                "reasoning_core_enabled": False,
+                "reasoning_steps": 0,
+                "correction_count": 0,
+                "converged": False,
+                "confidence": 0.0,
+                "consistency_score": 0.0,
+                "latent_delta_norm": 0.0,
+            }
+
+        # 8. Update Short-Term Working State
         updated_short_term = self.short_term_state_handler.update(
             current_state=short_term_state,
             new_recurrent_state=final_state,
             new_token_features=reasoned_x,
         )
 
-        # 8. Selective WRITE & FORGET on Long-Term Persistent Memory
+        # 9. Selective WRITE & FORGET on Long-Term Persistent Memory
         write_mask_active = pathway_flags.use_memory_write.any().item()
         if write_mask_active:
             mean_seq_repr = torch.mean(reasoned_x, dim=1)
@@ -270,16 +302,17 @@ class KhwarizmiModel(nn.Module):
             g_forget=mem_gates["forget"],
         )
 
-        # 9. Output Pathway
+        # 10. Output Pathway
         logits, confidence, needs_verification = self.output_pathway(
             reasoned_x, pathway_id=selected_pathways
         )
 
-        # 10. Compile Regularization Losses
+        # 11. Compile Regularization Losses
         total_aux_loss = (
             routing_loss
             + total_moe_loss
             + ponder_loss
+            + reasoning_loss
             + memory_gate_loss
             + memory_proj_loss
         )
@@ -287,6 +320,7 @@ class KhwarizmiModel(nn.Module):
             "routing_loss": routing_loss,
             "moe_aux_loss": total_moe_loss,
             "ponder_loss": ponder_loss,
+            "reasoning_loss": reasoning_loss,
             "memory_gate_loss": memory_gate_loss,
             "memory_proj_loss": memory_proj_loss,
             "total_aux_loss": total_aux_loss,
@@ -300,6 +334,7 @@ class KhwarizmiModel(nn.Module):
             "mean_confidence": torch.mean(confidence).item(),
             "verification_trigger_count": int(torch.sum(needs_verification).item()),
             "reasoner_diagnostics": reasoner_diag,
+            "reasoning_core_diagnostics": reasoning_diag,
             "memory_valid_slots_count": int(
                 torch.sum(updated_long_term["valid_mask"]).item()
             ),

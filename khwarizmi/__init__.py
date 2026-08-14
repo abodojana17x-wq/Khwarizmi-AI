@@ -8,11 +8,12 @@ Provides foundational implementations of:
     - Cognitive Router & Compute Pathway Dispatcher
     - Sparse Mixture-of-Experts (MoE) Specialists
     - Adaptive Recurrent Reasoning Cycles (ARRC)
+    - Neural Reasoning Core: Latent Synthesis & Bounded Self-Correction
     - Output Pathway & Selective Verification Trigger
     - Layered Agent Orchestrator & Legacy Deterministic Tool Bridge
 """
 
-__version__ = "0.5.0-phase5"
+__version__ = "0.6.0-phase6"
 
 from .config import (
     KhwarizmiConfig,
@@ -67,6 +68,12 @@ from .reasoning import (
     AdaptiveComputeBlock,
     PonderCostLoss,
     LatentReasoner,
+    LatentSynthesisBlock,
+    ConsistencyHead,
+    SelfCorrectionBlock,
+    ReasoningLosses,
+    NeuralReasoningCore,
+    ReasoningOutput,
 )
 from .tools import (
     ToolVerificationRequest,
@@ -126,6 +133,12 @@ __all__ = [
     "AdaptiveComputeBlock",
     "PonderCostLoss",
     "LatentReasoner",
+    "LatentSynthesisBlock",
+    "ConsistencyHead",
+    "SelfCorrectionBlock",
+    "ReasoningLosses",
+    "NeuralReasoningCore",
+    "ReasoningOutput",
     "ToolVerificationRequest",
     "ToolVerificationResult",
     "PythonAnalysisTool",
