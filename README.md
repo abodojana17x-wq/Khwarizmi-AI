@@ -1,8 +1,8 @@
 # Khwarizmi AI: Highly Intelligent, Fully Offline Reasoning & Project Assistant
 **Project Name:** Khwarizmi AI (formerly RAFIQ foundation)  
-**Version:** 2.4.0 (Phase 4 Sparse Mixture-of-Experts Prototype Complete)  
+**Version:** 2.5.0 (Phase 5 Adaptive Compute & Learned Halting Complete)  
 **Date:** 2026-08-13  
-**Status:** Phase 4 Complete (Sparse Top-K Noisy-Gated MoE — implemented, verified & benchmarked)  
+**Status:** Phase 5 Complete (Adaptive Compute / ARRC per-token ACT halting — implemented, verified & benchmarked)  
 
 ---
 
@@ -108,8 +108,8 @@ Instead, Khwarizmi AI enforces a strict **Layered Separation of Concerns**:
 | **01** | **Foundational Neural Architecture Layer** | ✅ **COMPLETE** | Fully Differentiable CPU Core, KSC, Dual Memory, Router, MoE & Tools Bridge (`v0.1.0-phase1`) |
 | **02** | **Minimal KSC Prototype (50M–150M)** | ✅ **COMPLETE** | KSC residual blocks, Prototype 50M/150M configs & language-modeling prototype (`v0.2.0-phase2`) |
 | **03** | **Dual Memory Architecture Prototype** | ✅ **COMPLETE** | Short-Term Working State + Utility-Gated Persistent KV store with READ/WRITE/UPDATE/FORGET |
-| **04** | **Sparse Mixture-of-Experts (MoE) Prototype**| ⏳ Planned | Top-2/8 noisy gated experts + CPU RAM ablation gate |
-| **05** | **Adaptive Compute & Learned Halting** | ⏳ Planned | Adaptive Recurrent Reasoning Cycles (ARRC) & ponder loss training |
+| **04** | **Sparse Mixture-of-Experts (MoE) Prototype**| ✅ **COMPLETE** | Sparse Top-K Noisy-Gated MoE + load-balancing loss + CPU benchmark (`v0.4.0-phase4`) |
+| **05** | **Adaptive Compute & Learned Halting** | ✅ **COMPLETE** | Per-token ACT-style ARRC halting + ponder cost loss + adaptivity benchmark (`v0.5.0-phase5`) |
 | **06** | **Neural Reasoning Core** | ⏳ Planned | Latent state synthesis & self-checking verification |
 | **07–16** | **Unified Core to Stable Edge Release** | ⏳ Planned | Pretraining, evaluation, GGUF export, agent tools, edge release |
 
@@ -284,6 +284,24 @@ Phase 4 delivers the **Sparse Top-K Noisy-Gated Mixture-of-Experts** sublayer sp
 * **Trained-router quality gains:** the roadmap's "≥8% validation-perplexity improvement over an equal-active dense baseline" requires the Phase 9 dataset pipeline + Phase 10 training; Phase 4 ships the trainable mechanism and verifies gradient flow, sparsity, and balance-loss behavior offline.
 * **Saturated collapse is not repairable by the balance loss alone:** at f_max = 1.0 the auxiliary-loss gradient vanishes (it is a *preventive* regularizer); a fully collapsed trained router would need re-initialization or an additional entropy/z-loss, deferred to Phase 8+ training tooling.
 * **CPU dispatch overhead:** per-expert token gather/scatter and small per-expert batches make the sparse layer ~6× slower than a single equal-active dense FFN at the benchmark scale (still ~3–4× faster than evaluating all 32 experts); expert-fused kernels are a Phase 12 optimization concern.
+
+### 5.11 Phase 5: Adaptive Compute & Learned Halting (ARRC) — Implementation Summary
+
+Phase 5 delivers the **Adaptive Recurrent Reasoning Cycles (ARRC)** engine specified in `ARCHITECTURE.md` §4.5/§5.5: per-token ACT-style learned halting with exact remainder accounting and a differentiable ponder cost, integrated into the Khwarizmi neural core without rewriting Phase 1–4 systems.
+
+**Deliverables implemented:**
+* **`khwarizmi/reasoning/adaptive_compute.py`** — `AdaptiveComputeBlock` (per-token ACT halting engine: shared KSC reasoning cell applied iteratively; halting gate p_k = σ(w_h·z⁽ᵏ⁾ + b_h) accumulated per token; halt at the first cycle k ≥ K_min with Σp_j ≥ 1 − ε; forced remainder halt at K_max; ACT-weighted output z_out = Σ_{k<K} p_k z⁽ᵏ⁾ + R z⁽ᴷ⁾ with per-token weights summing to exactly 1; halted tokens frozen so different tokens receive different compute depth) and **`PonderCostLoss`** (the roadmap's ponder cost module: L_ponder = β·E[N + R], step count N detached, remainder R differentiable through the halting gate).
+* **`khwarizmi/reasoning/latent_reasoner.py`** — `LatentReasoner.reason` now passes through `min_cycles`/`max_cycles` runtime overrides while preserving the Cognitive Router FAST-pathway bypass.
+* **`khwarizmi/core/model.py`** — integration point: the reasoner is gated by `config.enable_adaptive_compute`. With `enable_adaptive_compute=False`, no halting gates or reasoning cell are built, the model performs a single fixed pass, and `losses["ponder_loss"]` is exactly 0 — preserving the pre-Phase-5 fixed-compute path.
+* **`khwarizmi/config/settings.py`** — new Phase 5 configuration (all validated): `enable_adaptive_compute`, `min_recurrent_cycles` (≥1), `halting_epsilon` (∈ (0,1)), plus `min_recurrent_cycles ≤ max_recurrent_cycles` and finite non-negative `ponder_cost_beta` validation. Defaults are backward compatible.
+* **Tests:** `tests/test_adaptive_compute_phase5.py` (57 tests) — configuration validation and boundary values, PonderCostLoss behavior (monotone in compute/remainder, β-scaled, N detached / R differentiable), min-step and max-step enforcement (including saturated-gate extremes), halting-probability validity and Σp_k ≥ 1 − ε verification, exact accumulated-probability capping, adaptive per-token step-count variation, deterministic inference, forced fixed-compute mode, state initialization/propagation/carrying, batch independence (no cross-example leakage), gradient flow (output→all parameters, output→halting gate, ponder→halting gate, ponder-only training provably increases halting probability), 2D/3D inputs, disabled-path compatibility, and full `KhwarizmiModel` integration with KSC + Dual Memory + Sparse MoE (including both switches off). The pre-existing `tests/test_adaptive_compute.py` remains intact.
+* **Benchmark:** `benchmarks/phase5_adaptive_compute.py` — halting-step distribution (min/avg/max steps, % halting per step), trained easy-vs-hard compute differentiation, termination-guarantee check, ADAPTIVE vs FIXED COMPUTE latency in mixed- and uniform-halting regimes, and parameter/allocation memory (see `BENCHMARKS.md` §8).
+
+**Adaptivity guarantee:** the benchmark and unit tests verify that tokens actually halt at different depths (e.g. untrained gate: 3.3%/41.2%/15.0%/7.8%/4.3%/28.3% across steps 1–6, K_avg ≈ 3.54 with K_max = 6; after ponder training easy inputs average 1.21 cycles vs 1.47 for hard inputs) — computation is measurably input-dependent, never a fixed-depth loop in disguise.
+
+**Known limitations (documented — future phases):**
+* **Wall-clock vs FLOP savings:** the batch-level early exit skips remaining cycles only once *every* token in the batch has halted; with mixed halting the wall time is ≈ parity with fixed compute (per-token FLOP demand K_avg/K_max ≈ 0.42), while the uniform-halting regime shows the real ≈6× cycle-skipping speedup. Per-token kernels are a Phase 12 runtime concern.
+* **Trained easy/hard gates:** the roadmap's literal K_avg ≤ 1.2 (easy) / ≥ 2.5 (hard) and ≥15% hard-task accuracy targets are defined over a trained language model and require the Phase 9 dataset + Phase 10 training; Phase 5 ships and verifies the trainable mechanism.
 
 ---
 

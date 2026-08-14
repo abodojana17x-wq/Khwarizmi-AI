@@ -99,8 +99,15 @@ class KhwarizmiModel(nn.Module):
             block = KSCResidualBlock(config, is_moe_layer=is_moe)
             self.layers.append(block)
 
-        # 6. Adaptive Recurrent Reasoning Engine
-        self.reasoner = LatentReasoner(config)
+        # 6. Adaptive Recurrent Reasoning Engine (Phase 5).
+        # Configurable via config.enable_adaptive_compute: when disabled, no
+        # halting gates or reasoning cell are built, the model performs a single
+        # fixed pass, and the ponder loss is exactly zero — preserving the
+        # fixed-compute pre-Phase-5 execution path.
+        if config.enable_adaptive_compute:
+            self.reasoner = LatentReasoner(config)
+        else:
+            self.reasoner = None
 
         # 7. Output Pathway
         self.output_pathway = OutputPathway(config)
@@ -220,12 +227,23 @@ class KhwarizmiModel(nn.Module):
                 total_moe_loss = total_moe_loss + moe_loss
 
         # 6. Adaptive Recurrent Reasoning Cycles (ARRC)
-        reasoned_x, final_state, ponder_loss, reasoner_diag = self.reasoner.reason(
-            x,
-            state=curr_state,
-            pathway_id=selected_pathways,
-            force_cycles=force_cycles,
-        )
+        if self.reasoner is not None:
+            reasoned_x, final_state, ponder_loss, reasoner_diag = self.reasoner.reason(
+                x,
+                state=curr_state,
+                pathway_id=selected_pathways,
+                force_cycles=force_cycles,
+            )
+        else:
+            # Adaptive Compute disabled: single fixed pass, zero ponder cost.
+            reasoned_x = x
+            final_state = curr_state
+            ponder_loss = torch.tensor(0.0, device=x.device, dtype=x.dtype)
+            reasoner_diag = {
+                "adaptive_compute_enabled": False,
+                "mean_cycles": 0.0,
+                "mean_remainder": 0.0,
+            }
 
         # 7. Update Short-Term Working State
         updated_short_term = self.short_term_state_handler.update(

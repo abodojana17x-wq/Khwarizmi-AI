@@ -115,6 +115,7 @@
 ---
 
 ### Phase 5: Adaptive Compute & Learned Halting
+* **Status:** Implemented — per-token ACT-style ARRC halting in `khwarizmi/reasoning/adaptive_compute.py` (`AdaptiveComputeBlock` + `PonderCostLoss`), 57 tests in `tests/test_adaptive_compute_phase5.py`, benchmark in `benchmarks/phase5_adaptive_compute.py`; see `ARCHITECTURE.md` §4.5 and `BENCHMARKS.md` §8.
 * **Objective:** Implement Adaptive Recurrent Reasoning Cycles (ARRC) allowing dynamic depth/iteration halting based on token complexity.
 * **Exact Deliverables:** `khwarizmi/reasoning/adaptive_compute.py`, ponder cost loss module.
 * **Files/Modules:** `khwarizmi/reasoning/adaptive_compute.py`, `tests/test_adaptive_compute.py`.

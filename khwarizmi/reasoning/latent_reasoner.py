@@ -32,6 +32,8 @@ class LatentReasoner(nn.Module):
         state: Optional[torch.Tensor] = None,
         pathway_id: Optional[torch.Tensor] = None,
         force_cycles: Optional[int] = None,
+        min_cycles: Optional[int] = None,
+        max_cycles: Optional[int] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, Dict[str, Any]]:
         """
         Execute latent reasoning over input representation if pathway requires adaptive compute.
@@ -41,6 +43,8 @@ class LatentReasoner(nn.Module):
             state: Optional KSC recurrent state.
             pathway_id: Optional pathway selection tensor of shape (batch_size,).
             force_cycles: Optional integer forcing exact recurrent cycles.
+            min_cycles: Optional override for the minimum adaptive cycles K_min.
+            max_cycles: Optional override for the maximum adaptive cycles K_max.
 
         Returns:
             Tuple of:
@@ -53,6 +57,8 @@ class LatentReasoner(nn.Module):
             latent_repr,
             state=state,
             force_cycles=force_cycles,
+            min_cycles=min_cycles,
+            max_cycles=max_cycles,
         )
 
         # If pathway_id is provided, sequences on non-reasoning pathways (e.g. FAST=0)
