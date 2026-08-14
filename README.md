@@ -1,8 +1,8 @@
 # Khwarizmi AI: Highly Intelligent, Fully Offline Reasoning & Project Assistant
 **Project Name:** Khwarizmi AI (formerly RAFIQ foundation)  
-**Version:** 2.3.0 (Phase 3 Dual Memory Architecture Prototype Complete)  
+**Version:** 2.4.0 (Phase 4 Sparse Mixture-of-Experts Prototype Complete)  
 **Date:** 2026-08-13  
-**Status:** Phase 3 Complete (Dual Memory — Short-Term + Utility-Gated Persistent Memory — implemented & verified)  
+**Status:** Phase 4 Complete (Sparse Top-K Noisy-Gated MoE — implemented, verified & benchmarked)  
 
 ---
 
@@ -266,6 +266,25 @@ Phase 3 delivers a **bounded, utility-gated Dual Memory system** composed (not r
 * **Learned gating policy:** the READ/WRITE/UPDATE/FORGET *gate network* ships with conservative (negatively-biased) initialization and is not yet trained; the decision *policy* is deterministic but the gate probabilities only become meaningful after Phase 8–10 training. NIAH ≥95% and selective-write precision are therefore deferred to the trained phases (see `MEMORY.md` §6).
 * **DAG project store:** the symbolic DAG integration with `rafig/reasoning` remains a Phase 13 tool concern; Phase 3 implements the associative KV tier only.
 
+### 5.10 Phase 4: Sparse Mixture-of-Experts (MoE) Prototype — Implementation Summary
+
+Phase 4 delivers the **Sparse Top-K Noisy-Gated Mixture-of-Experts** sublayer specified in `ARCHITECTURE.md` §4.4/§5.4, integrated into the Khwarizmi neural core without rewriting Phase 1–3 systems.
+
+**Deliverables implemented:**
+* **`khwarizmi/experts/moe_layer.py`** — `SparseMoELayer` (noisy Top-K router + genuinely sparse expert dispatch + load-balancing auxiliary loss), `ExpertLayer` (independently parameterized Swish FFN, configurable `expert_d_ff`), and `MoERoutingDecision` (structured routing result: logits, full-softmax probs, Top-K indices/weights, dispatch fractions f_i, mean gating probs P_i, auxiliary loss). `forward` evaluates **only the Top-K selected experts** (tokens are gathered per active expert; unselected experts are never called). Noise is applied only during training; inference routing is deterministic.
+* **`khwarizmi/experts/specialists.py`** — `create_standard_specialists`: the 8 named specialist experts from the blueprint (`Multilingual_Arabic` … `General_Fact_Recall`), with independent parameters (names are metadata; real specialization emerges through training).
+* **`khwarizmi/core/model.py`** — integration point: the shared MoE sublayer is wired into every `moe_frequency`-th KSC residual block of `KhwarizmiModel` (as before), now gated by `config.enable_moe`. With `enable_moe=False` every block carries a dense FFN and no experts/router are built — preserving the pre-Phase-4 dense behavior exactly.
+* **`khwarizmi/config/settings.py`** — new Phase 4 configuration (all validated): `enable_moe`, `moe_noise_enabled`, `expert_d_ff`, plus stricter validation for `num_experts` ≥ 1, `1 ≤ top_k_experts ≤ num_experts`, `moe_frequency ≥ 1`, `d_ff > 0`, and finite non-negative `load_balance_alpha`.
+* **Tests:** `tests/test_moe.py` (57 tests) — expert init/independence, router logits/noise/determinism/ties, Top-K validity, normalized routing weights, sparse-execution call counting, manual Top-K output equivalence, expert/router/routing-weight/noise gradient flow, analytic auxiliary-loss gradient, load-balancing closed forms and collapse behavior, batch/sequence inputs, invalid configs and shapes, `KhwarizmiModel` integration, MoE-disabled regression, and Phase 2 (KSC prototype) / Phase 3 (Dual Memory) compatibility. The pre-existing `tests/test_sparse_moe.py` remains intact.
+* **Benchmark:** `benchmarks/phase4_sparse_moe.py` — parameter efficiency, expert-execution counting (SPARSE 2.0 vs DENSE 32.0 expert evaluations/token), routing overhead (~1%), SPARSE vs DENSE vs fused-DENSE vs equal-active-FFN latency, theoretical MACs, expert utilization, and load-balancing collapse detection + prevention experiments (see `BENCHMARKS.md` §7).
+
+**Sparsity guarantee:** the sparse layer executes exactly the routed experts — verified by forward-hook call counting (unit tests) and by the benchmark, which measures 16× fewer expert evaluations than the dense reference at E=32/K=2 (93.8% expert-MAC reduction; 3.5–4.3× measured forward-latency speedup on CPU).
+
+**Known limitations (documented — future phases):**
+* **Trained-router quality gains:** the roadmap's "≥8% validation-perplexity improvement over an equal-active dense baseline" requires the Phase 9 dataset pipeline + Phase 10 training; Phase 4 ships the trainable mechanism and verifies gradient flow, sparsity, and balance-loss behavior offline.
+* **Saturated collapse is not repairable by the balance loss alone:** at f_max = 1.0 the auxiliary-loss gradient vanishes (it is a *preventive* regularizer); a fully collapsed trained router would need re-initialization or an additional entropy/z-loss, deferred to Phase 8+ training tooling.
+* **CPU dispatch overhead:** per-expert token gather/scatter and small per-expert batches make the sparse layer ~6× slower than a single equal-active dense FFN at the benchmark scale (still ~3–4× faster than evaluating all 32 experts); expert-fused kernels are a Phase 12 optimization concern.
+
 ---
 
 ## 6. Verification & Quality Gates
@@ -303,5 +322,17 @@ Every implementation phase in Khwarizmi AI must pass rigorous verification gates
 |      no unbounded Python list/dict growth (verified over 10,000-cycle benchmark)   |
 |  [x] KSC prototype integration via composition; Phase 1/2 interfaces unchanged      |
 |  [x] No Sparse MoE / Adaptive Compute / Router redesign / dataset work (Phase 4+)   |
++-----------------------------------------------------------------------------------+
+|                        PHASE 4 IMPLEMENTATION QUALITY GATE                         |
++-----------------------------------------------------------------------------------+
+|  [x] Phase 1-3 suite intact (249 tests) + 57 new Phase 4 tests (306 total passing) |
+|  [x] Noisy Top-K gating (softplus-noise, training-only) + normalized routing weights|
+|  [x] Genuinely sparse execution: only Top-K experts evaluated (hook-count verified) |
+|  [x] Load-balancing auxiliary loss differentiable, closed-form verified             |
+|  [x] Gradient flow proven: selected experts, router, routing weights, noise, loss   |
+|  [x] enable_moe=False preserves dense pre-Phase-4 behavior (regression tested)     |
+|  [x] Phase 2 KSC prototype and Phase 3 Dual Memory untouched and compatible         |
+|  [x] Benchmark: 16x fewer expert evals vs dense; 93.8% expert-MAC reduction         |
+|  [x] No Adaptive Compute / Cognitive Router redesign / dataset work (Phase 5+)      |
 +-----------------------------------------------------------------------------------+
 ```

@@ -162,3 +162,81 @@ competitive; full perplexity parity on WikiText-103 is validated in Phase 10.
 cannot be exercised offline in Phase 2. The architecture meets the *decisive* Phase 2 criterion
 (sub-quadratic inference memory) and is demonstrably trainable; the perplexity-parity gate is a
 Phase 9/10 deliverable.
+
+---
+
+## 7. Phase 4 Results — Sparse Mixture-of-Experts (MoE)
+
+Implemented in `khwarizmi/experts/moe_layer.py` and measured by `benchmarks/phase4_sparse_moe.py`
+(deterministic, CPU-only, 4 threads). Configuration: **E=32 experts, Top-K=2, d_model=256,
+expert d_ff=1024, α_moe=0.01** (16.84M total MoE parameters).
+
+**Methodology.** Two execution strategies are compared head-to-head on the *same* expert weights:
+* **SPARSE** — `SparseMoELayer.forward`: Top-2 routing; per-expert token gather; only selected experts are called.
+* **DENSE** — a reference module evaluating **all 32 experts on every token** and combining with the router's full-softmax probabilities (both a naive expert loop and a fused batched-matmul variant).
+
+Sparsity is verified by instrumenting every expert with forward-call-counting hooks — the sparse
+layer *actually executes* only the routed experts; this is not inferred from Top-K indices.
+
+### 7.1 Sparse execution (primary evidence)
+
+| Strategy | Unique experts executed | Expert evaluations per token |
+| --- | ---: | ---: |
+| **SPARSE** (Top-2/32) | ≤ 32 (only routed ones) | **2.0** |
+| **DENSE** (all experts) | 32 | 32.0 |
+
+→ The sparse layer performs **16× fewer expert-token evaluations**; experts never selected are
+never called. Theoretical expert compute: SPARSE 2.11M vs DENSE 33.57M MACs/token
+(**93.8% reduction**); the router adds only 16K MACs/token (≈0.8% of the sparse total).
+
+### 7.2 Parameter efficiency & memory
+
+| Metric | Value |
+| --- | ---: |
+| Total MoE parameters (fp32) | 16.835 M (67.3 MB) |
+| Active parameters per token (router + K experts) | 1.068 M (**6.3%**, 4.3 MB) |
+| Peak activation buffers @ 2,048 tokens | SPARSE ~3.8 MB · DENSE loop ~13.6 MB · DENSE fused ~338.7 MB |
+
+The sparse layer's activation footprint is dominated by the router tensors plus one small
+per-expert batch; the fused dense implementation must materialize an `(N, E, d_ff)` tensor.
+
+### 7.3 Forward latency (batch of 2,048 tokens, best of 3, CPU)
+
+| Variant | Latency (typical run) | Throughput |
+| --- | ---: | ---: |
+| SPARSE MoE (Top-2 executed) | ~118–129 ms | ~16–17k tok/s |
+| DENSE MoE (32 experts, loop) | ~400–415 ms | ~5k tok/s |
+| DENSE MoE (32 experts, fused matmuls) | ~480–510 ms | ~4k tok/s |
+| Dense FFN of equal *active* parameters | ~21 ms | ~94–98k tok/s |
+
+* SPARSE is **~3.1–3.5× faster** than the looped dense reference and **~3.7–4.3× faster** than
+  the fused dense reference (run-to-run CPU variance). Routing overhead is ~1–2% of the sparse
+  forward.
+* **Honest caveat:** wall-clock speedup is compressed relative to the 16× MAC reduction because
+  large dense GEMMs are far more FLOP-efficient than small per-expert batches; conversely the
+  sparse layer is ~6× slower than a single equal-active dense FFN due to per-expert
+  gather/scatter and small batched matmuls (unoptimized Python dispatch; expert-fused kernels
+  are a Phase 12 concern). The MAC/execution counts above are the architectural guarantee.
+
+### 7.4 Expert utilization & load-balancing loss
+
+| Check | Result |
+| --- | --- |
+| Dispatch fractions f_i over 4,096 tokens (balanced random router) | min 0.051 / max 0.083 (ideal K/E = 0.0625) |
+| No expert receives <5% or >40% of tokens | **PASS** |
+| Balanced-routing auxiliary loss | 0.0201 (theory α·K = 0.0200) |
+| Collapsed router (one expert dominates) | 0.3200 (**15.9× higher** — collapse detected) |
+| 150 router-training steps on a collapse-inducing task (target = expert-0 output): | without aux loss → f_max → 1.0, 18/32 experts used; **with** aux loss → f ∈ [0.039, 0.078], 32/32 experts used |
+
+The auxiliary loss detects routing collapse and, applied during training, prevents it. Once a
+router is *fully* saturated (f_max = 1.0) the balance-loss gradient vanishes — it is a
+preventive regularizer, not a repair mechanism (documented limitation; entropy/z-loss
+extensions belong to Phase 8+ training tooling).
+
+### 7.5 Phase 4 scope note
+
+The roadmap's literal Phase 4 gates — ≥8% validation-perplexity gain over an equal-active dense
+baseline and the CPU latency-overhead ablation on *trained* routers — require the Phase 9
+dataset pipeline and Phase 10 training. Phase 4 delivers and verifies the trainable mechanism:
+gradient flow (experts, router, routing weights, noise projection, auxiliary loss — unit-tested),
+true sparse execution, load-balancing behavior, and MoE-disabled backward compatibility.

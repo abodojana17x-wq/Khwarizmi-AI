@@ -9,6 +9,7 @@ rewriting core architecture logic.
 
 from dataclasses import dataclass, field, asdict
 import json
+import math
 from typing import Dict, Any, Optional
 
 
@@ -27,6 +28,12 @@ class KhwarizmiConfig:
         num_experts: Total number of experts in Sparse MoE layers (E).
         top_k_experts: Number of active experts per token in MoE layers (K).
         moe_frequency: Interval of layers between MoE blocks (e.g. 2 = every 2nd layer).
+        enable_moe: Master switch for the Phase 4 Sparse MoE sublayers. When False,
+            every residual block uses a dense FFN and no experts/router are built.
+        moe_noise_enabled: Whether the MoE router adds learnable gating noise during
+            training (noise is always disabled at inference time).
+        expert_d_ff: Intermediate dimension of each MoE expert FFN. If None, experts
+            use d_ff.
         max_seq_len: Maximum supported sequence length for windowing/embeddings.
         gamma_min: Minimum retention eigenvalue bound for KSC stability.
         gamma_max: Maximum retention eigenvalue bound for KSC stability.
@@ -59,6 +66,9 @@ class KhwarizmiConfig:
     num_experts: int = 4
     top_k_experts: int = 2
     moe_frequency: int = 2
+    enable_moe: bool = True
+    moe_noise_enabled: bool = True
+    expert_d_ff: Optional[int] = None
     max_seq_len: int = 512
     gamma_min: float = 0.85
     gamma_max: float = 0.999
@@ -114,6 +124,20 @@ class KhwarizmiConfig:
         if self.top_k_experts <= 0 or self.top_k_experts > self.num_experts:
             raise ValueError(
                 f"top_k_experts ({self.top_k_experts}) must be in range [1, num_experts ({self.num_experts})]"
+            )
+        if self.d_ff <= 0:
+            raise ValueError(f"d_ff must be positive, got {self.d_ff}")
+        if self.moe_frequency < 1:
+            raise ValueError(
+                f"moe_frequency must be >= 1, got {self.moe_frequency}"
+            )
+        if self.expert_d_ff is not None and self.expert_d_ff <= 0:
+            raise ValueError(
+                f"expert_d_ff must be positive when set, got {self.expert_d_ff}"
+            )
+        if not (math.isfinite(self.load_balance_alpha) and self.load_balance_alpha >= 0.0):
+            raise ValueError(
+                f"load_balance_alpha must be a finite non-negative value, got {self.load_balance_alpha}"
             )
         if not (0.0 < self.gamma_min < self.gamma_max < 1.0):
             raise ValueError(

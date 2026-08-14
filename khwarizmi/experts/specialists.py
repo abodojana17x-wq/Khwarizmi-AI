@@ -1,8 +1,8 @@
 """
-Khwarizmi Specialist Expert Definitions.
+Khwarizmi Specialist Expert Definitions — Phase 4.
 
-Defines standard specialized expert subnetworks for initial candidate specializations
-as specified in Section 4.4 of the Khwarizmi AI Blueprint:
+Defines standard specialized expert subnetworks for the initial candidate
+specializations specified in Section 4.4 of the Khwarizmi AI Blueprint:
     (1) Multilingual Language / Arabic
     (2) Egyptian Arabic / Dialect
     (3) Python / Coding
@@ -11,6 +11,11 @@ as specified in Section 4.4 of the Khwarizmi AI Blueprint:
     (6) Project Planning / DAGs
     (7) Tool Use / Verification
     (8) General Fact Recall
+
+Each expert is an independently parameterized :class:`ExpertLayer`; the
+specialization names are metadata only (real specialization emerges through
+training the router). When ``config.num_experts`` exceeds the number of named
+specializations, additional experts are labeled ``General_Specialist_<i>``.
 """
 
 from typing import List
@@ -38,7 +43,8 @@ def create_standard_specialists(config: KhwarizmiConfig) -> List[ExpertLayer]:
         config: KhwarizmiConfig instance.
 
     Returns:
-        List of ExpertLayer instances with assigned specialization names.
+        List of independently parameterized ExpertLayer instances with
+        assigned specialization names.
     """
     experts = []
     for i in range(config.num_experts):
