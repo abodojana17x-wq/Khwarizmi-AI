@@ -1,28 +1,18 @@
 ```
-# Python
-__pycache__/
+# Compiled Python files
 *.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
+__pycache__/
+
+# Dependencies
 .venv/
-.ENV
-.ENV.local
+venv/
 .env
 .env.local
-.env.*
+*.env.*
 
-# Testing
-.coverage
-coverage/
-htmlcov/
+# Tests
 .pytest_cache/
-.mypy_cache/
 
-# Build artifacts
-build/
-dist/
-*.egg-info/
+# Logs
+*.log
 ```
