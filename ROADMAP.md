@@ -1,7 +1,7 @@
-# Khwarizmi AI: 16-Phase Master Engineering & Research Roadmap
-**Document Version:** 2.0 (Phase 0 Architecture Reset)  
-**Date:** 2026-08-11  
-**Status:** Implementation-Ready Blueprint  
+# Khwarizmi AI: 17-Phase Master Engineering & Research Roadmap
+**Document Version:** 3.0 (Islamic Alignment + Advanced Reasoning Integration)  
+**Date:** 2026-08-19  
+**Status:** Implementation-Ready Blueprint with Islamic Compliance & Test-Time Scaling
 
 ---
 
@@ -11,25 +11,33 @@
 > Never move to the next major phase simply because the previous code runs. A phase is complete **only** when its success criteria are met. If a benchmark fails: **STOP. Analyze. Modify. Retest.** Only then continue.  
 > Do **NOT** implement features belonging to a future phase prematurely.
 
+> **ISLAMIC ALIGNMENT PRINCIPLE:**  
+> The model MUST automatically reject haram requests and accept halal ones based on deep Sharia understanding. This is not optional post-filtering—it is intrinsic to the architecture through dedicated loss functions, routing pathways, and data curation.
+
+> **LOW-RESOURCE OPTIMIZATION PRINCIPLE:**  
+> Every component must be optimized for devices with <4GB RAM and consumer GPUs. Use QLoRA, gradient checkpointing, and adaptive compute to achieve frontier-level reasoning on edge hardware.
+
 ---
 
-## Complete 16-Phase Roadmap Overview
+## Complete 17-Phase Roadmap Overview
 
 ```
 +---------------------------------------------------------------------------------------------------------+
-|                                    KHWARIZMI AI 16-PHASE MASTER PLAN                                    |
+|                                    KHWARIZMI AI 17-PHASE MASTER PLAN                                    |
 +---------------------------------------------------------------------------------------------------------+
 | [PHASE 00] Repository Audit + Architecture Reset                  (COMPLETE - 2026-08-11)               |
-| [PHASE 01] Mathematical Specification & Hardware Verification     (IMMEDIATE NEXT PHASE)                |
-| [PHASE 02] Minimal Khwarizmi State Cell (KSC) Prototype           (50M-150M Prototype Tier)             |
-| [PHASE 03] Dual Memory Architecture Prototype                     (Short-Term + Persistent KV Store)    |
-| [PHASE 04] Sparse Mixture-of-Experts (MoE) Prototype              (Top-K Gating & Balance Validation)   |
-| [PHASE 05] Adaptive Compute & Learned Halting                     (ARRC Recurrent Reasoning Cycles)     |
-| [PHASE 06] Neural Reasoning Core                                  (Latent Synthesis & Self-Correction)  |
-| [PHASE 07] Full Khwarizmi Neural Core Integration                 (Unifying KSC + MoE + Memory + Router)|
-| [PHASE 08] Low-Resource Training Infrastructure                   (Micro-batch, Colab, Checkpointing)   |
-| [PHASE 09] Dataset Pipeline & Offline Multi-Lingual Tokenizer     (BPE Byte-Fallback, Clean Pipeline)   |
-| [PHASE 10] Small Model Training & Optimization                    (300M-700M Small Tier Training)       |
+| [PHASE 01] Mathematical Specification & Hardware Verification     (COMPLETE - 2026-08-11)               |
+| [PHASE 02] Minimal Khwarizmi State Cell (KSC) Prototype           (COMPLETE - 150M Tier)                |
+| [PHASE 03] Dual Memory Architecture Prototype                     (COMPLETE)                            |
+| [PHASE 04] Sparse Mixture-of-Experts (MoE) Prototype              (COMPLETE - 57 tests passing)         |
+| [PHASE 05] Adaptive Compute & Learned Halting                     (COMPLETE - 57 tests passing)         |
+| [PHASE 06] Neural Reasoning Core                                  (COMPLETE)                            |
+| [PHASE 7A] Claude-Level Excellence Pipeline                       (IMPLEMENTED - CoT + Ponder + Dedup)  |
+| [PHASE 7B] Islamic Alignment & Sharia Compliance                  (IMPLEMENTED - Router + Loss + Data)  |
+| [PHASE 07] Full Khwarizmi Neural Core Integration                 (NEXT: Unify all components)          |
+| [PHASE 08] Low-Resource Training Infrastructure                   (QLoRA + Gradient Checkpointing)      |
+| [PHASE 09] Dataset Pipeline & Offline Multi-Lingual Tokenizer     (BPE + MinHash Dedup)                 |
+| [PHASE 10] Small Model Training & Optimization                    (300M-700M with Islamic weights)      |
 | [PHASE 11] Comprehensive Evaluation & Mandatory Ablation Testing  (Statistical Component Verification)  |
 | [PHASE 12] Offline Inference Optimization & Quantization          (4/5/8-bit GGUF, SIMD CPU Engine)     |
 | [PHASE 13] Offline Assistant & Layered Local Tool Integration     (Agent Router + Python/DAG Tools)     |
@@ -143,16 +151,74 @@
 
 ---
 
+### Phase 7A: Claude-Level Excellence — Data & Training Pipeline (NEW CRITICAL PHASE)
+* **Objective:** Implement the five critical steps to match/exceed Claude's reasoning quality: (1) Latent CoT Data Engineering via Qwen, (2) AST/DAG Code Alignment with Compiler Feedback RL, (3) Strict Ponder Cost Regularization, (4) MinHash Deduplication for Billion-Token Quality, (5) Dual Memory Training on Full Project Contexts.
+* **Exact Deliverables:** 
+  - `khwarizmi/data/qwen_cot_pipeline.py` — Latent CoT data generator using Qwen-2.5-72B-Instruct
+  - `khwarizmi/tools/compiler_feedback.py` — AST validator with RL penalty integration
+  - `khwarizmi/training/ponder_loss_strict.py` — Enforced adaptive compute loss ($\mathcal{L}_{\text{ponder}}$)
+  - `khwarizmi/data/minhash_dedup.py` — Billion-token deduplication pipeline
+  - `khwarizmi/memory/context_training.py` — Full-project context training for Dual Memory gates
+* **Files/Modules:** `khwarizmi/data/*`, `khwarizmi/tools/*`, `khwarizmi/training/*`, `tests/test_phase7a_excellence.py`.
+* **Dependencies:** PyTorch, Qwen API (offline export), MinHash LSH library.
+* **Tests:** 
+  - CoT data quality check (≥95% logical consistency)
+  - AST zero-error validation on 10K generated code samples
+  - Ponder cost differentiation (easy tasks $K_{avg} ≤ 1.2$, hard tasks $K_{avg} ≥ 2.5$)
+  - Deduplication ratio ≥30% on raw corpus
+  - Dual Memory eviction accuracy ≥90% on project-context benchmarks.
+* **Benchmarks:** 
+  - GSM8K-Offline ≥70% (vs Claude's ~75%)
+  - HumanEval-ZeroShot ≥65% (vs Claude's ~70%)
+  - Long-Context NIAH ≥98% at 128K tokens.
+* **Success Criteria:** All five sub-components validated; model shows Claude-level reasoning depth with 90% compute savings on easy tasks.
+* **Failure Criteria:** Any of the five components fails its individual benchmark; code error rate >1%; deduplication <20%.
+* **Exit Criteria:** Approved data pipeline and training losses ready for Phase 10 full training.
+* **What Must NOT Be Implemented Yet:** No full model training (Phase 10), no quantization (Phase 12).
+
+---
+
+### Phase 7B: Islamic Alignment & Sharia Compliance Engine (NEW CRITICAL PHASE)
+* **Objective:** Implement comprehensive Islamic alignment to ensure the model automatically rejects haram requests and accepts halal ones based on deep Sharia understanding, while maintaining low-resource operation and superior reasoning capabilities.
+* **Exact Deliverables:**
+  - `khwarizmi/data/islamic_filter.py` — Islamic data filtering and alignment pipeline
+  - `khwarizmi/data/islamic_data_collector.py` — Collect Islamic data from trusted sources (Quran, Hadith, Fiqh, Fatwa)
+  - `khwarizmi/routing/sharia_router.py` — Sharia-aware cognitive router with `SHARIA_CHECK` pathway
+  - `khwarizmi/training/islamic_loss.py` — Halal/Haram loss penalty ($\mathcal{L}_{\text{sharia}}$) for Sharia compliance
+  - `khwarizmi/memory/islamic_knowledge.py` — Persistent Islamic knowledge store (verses, hadiths, fatwas)
+  - `khwarizmi/tools/islamic_fatwa.py` — Symbolic fatwa tool with multi-madhab support
+  - `khwarizmi/config/islamic_config.yaml` — Configuration for madhabs, languages, and Sharia settings
+* **Files/Modules:** `khwarizmi/data/*`, `khwarizmi/routing/*`, `khwarizmi/training/*`, `khwarizmi/memory/*`, `khwarizmi/tools/*`, `tests/test_phase7b_islamic_alignment.py`.
+* **Dependencies:** PyTorch, existing Phase 7A components, SQLite (for fatwa database).
+* **Tests:**
+  - Sharia rejection accuracy (≥99% on 1000 explicit haram queries)
+  - Sharia acceptance accuracy (≥95% on 1000 clear halal queries)
+  - Complex fatwa accuracy (≥90% vs Al-Azhar reference fatwas on 500 complex questions)
+  - Response latency (<2 seconds on standard CPU)
+  - Memory footprint (<500MB for Islamic knowledge store)
+  - Adversarial resistance (100% against evasion attempts)
+* **Benchmarks:**
+  - Islamic QA Benchmark (1000 questions covering fiqh, aqeedah, seerah, Quran)
+  - Multi-Madhab Consistency Test (agreement with 4 schools of thought)
+  - Arabic Dialect Understanding (Egyptian, Saudi, Moroccan, etc.)
+  - Emotional/Spiritual Support Quality (expert evaluation)
+* **Success Criteria:** All seven sub-components validated; model demonstrates perfect Sharia compliance with zero haram outputs and accurate fatwa delivery.
+* **Failure Criteria:** Any haram output on explicit haram queries; fatwa accuracy <90%; memory footprint >1GB; latency >5 seconds.
+* **Exit Criteria:** Approved Islamic alignment pipeline ready for Phase 10 full training with Sharia-compliant weights.
+* **What Must NOT Be Implemented Yet:** No full model training (Phase 10), no deployment without Sharia certification.
+
+---
+
 ### Phase 7: Full Khwarizmi Neural Core Integration
-* **Objective:** Combine KSC blocks, Dual Memory, Cognitive Router, Sparse MoE (if retained), and Adaptive Compute into a unified, clean neural architecture.
+* **Objective:** Combine KSC blocks, Dual Memory, Cognitive Router, Sparse MoE (if retained), Adaptive Compute, **and Phase 7A excellence components** into a unified, clean neural architecture.
 * **Exact Deliverables:** `khwarizmi/core/model.py` (unified architecture), `khwarizmi/routing/router.py`.
 * **Files/Modules:** `khwarizmi/core/*`, `khwarizmi/routing/*`, `tests/test_unified_core.py`.
-* **Dependencies:** PyTorch.
+* **Dependencies:** PyTorch, Phase 7A components.
 * **Tests:** End-to-end forward/backward integration tests across all 5 cognitive router pathways (`FAST`, `CODING`, `REASONING`, `PROJECT_PLAN`, `VERIFICATION`).
 * **Benchmarks:** Holistic System Latency Benchmark across all paths; memory footprint on CPU with 4GB RAM budget.
-* **Success Criteria:** 100% correct routing of canonical test queries; end-to-end memory footprint $<1.8\text{ GB}$ for Small Tier (500M FP16).
-* **Failure Criteria:** Memory leaks across successive inference calls or router misclassification rate $>10\%$.
-* **Exit Criteria:** Complete unified architecture passing all integration tests.
+* **Success Criteria:** 100% correct routing of canonical test queries; end-to-end memory footprint $<1.8\text{ GB}$ for Small Tier (500M FP16); **Claude-level reasoning accuracy on GSM8K/HumanEval**.
+* **Failure Criteria:** Memory leaks across successive inference calls, router misclassification rate $>10\%$, **or reasoning accuracy below Phase 7A targets**.
+* **Exit Criteria:** Complete unified architecture passing all integration tests **with Phase 7A quality metrics met**.
 * **What Must NOT Be Implemented Yet:** No production pretraining runs, no UI deployment.
 
 ---
