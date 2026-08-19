@@ -76,6 +76,8 @@ class ProcessRewardModel:
     def verify_sandbox_result(result: Dict[str, Any]) -> Tuple[bool, str]:
         """Verify ExecutionSandbox output."""
         if not result.get("success"):
+            if result.get("timed_out"):
+                return False, "Execution timed out"
             return False, "Sandbox execution failed"
         if result.get("timed_out"):
             return False, "Execution timed out"
