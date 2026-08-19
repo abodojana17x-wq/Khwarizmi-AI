@@ -209,6 +209,24 @@
 
 ---
 
+### Phase 7C: Physics, Art & Creativity Domain Expansion (NEW DOMAIN PHASE)
+* **Objective:** Add safe, offline domain-specialist pathways for simulation-aware physics/science, structured art/aesthetic reasoning, and divergent creativity/innovation.
+* **Exact Deliverables:**
+  - `PHYSICS_ART_CREATIVITY_PLAN.md` — 24-month domain expansion blueprint
+  - `khwarizmi/tools/unit_consistency.py` — deterministic dimensional-analysis verifier
+  - `khwarizmi/tools/scientific_paper.py` — claim/method/limitation extraction helper
+  - `khwarizmi/routing/domain_router.py` — `SCIENCE`, `ART`, and `CREATIVITY` route labels
+  - `khwarizmi/memory/style_science_memory.py` — persistent style guides, scientific assumptions, and ideation history
+  - `khwarizmi/reasoning/creativity.py` — divergent thinking, SCAMPER, conceptual blending, and novelty scoring
+* **Files/Modules:** `khwarizmi/tools/*`, `khwarizmi/routing/*`, `khwarizmi/memory/*`, `khwarizmi/reasoning/*`, `tests/test_phase7c_domain_expansion.py`.
+* **Dependencies:** PyTorch, existing Phase 7A/7B data-quality controls, standard-library math/statistics modules; optional local-only scientific libraries after approval.
+* **Tests:** Unit consistency accuracy, safe simulation boundary checks, paper claim extraction quality, aesthetic rubric validity, divergent idea diversity, and unsafe scientific optimization refusal.
+* **Benchmarks:** Physics education suite, scientific paper extraction suite, creative divergence suite, style-consistency human preference tests.
+* **Success Criteria:** ≥80% educational physics accuracy with unit checks at 12 months, ≥70% human preference on art critique tasks, and 10 useful distinct ideas per creative brief.
+* **Failure Criteria:** Unsafe scientific optimization assistance, hallucinated units/equations above threshold, or creative outputs failing diversity/usefulness gates.
+* **Exit Criteria:** Domain pathways approved for unified integration while preserving offline-first, low-resource operation.
+* **What Must NOT Be Implemented Yet:** No hazardous real-world engineering optimization; no cloud art/science APIs as mandatory dependencies.
+
 ### Phase 7: Full Khwarizmi Neural Core Integration
 * **Objective:** Combine KSC blocks, Dual Memory, Cognitive Router, Sparse MoE (if retained), Adaptive Compute, **and Phase 7A excellence components** into a unified, clean neural architecture.
 * **Exact Deliverables:** `khwarizmi/core/model.py` (unified architecture), `khwarizmi/routing/router.py`.

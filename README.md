@@ -34,6 +34,7 @@ Following the **Phase 0 Architecture Reset** and **Phase 1 Foundational Architec
 | **[BENCHMARKS.md](./BENCHMARKS.md)** | **Evaluation Strategy & Threshold Gates:** 5-pillar evaluation suite (Intelligence, Project Intelligence, Efficiency, Memory, Adaptive Compute) across 4 model tiers. |
 | **[TRAINING.md](./TRAINING.md)** | **12-Stage Training & Dataset Strategy:** Low-resource training (QLoRA, micro-batching, Colab limits), multi-lingual dataset ingestion, MinHash deduplication, and benchmark de-contamination. |
 | **[MEMORY.md](./MEMORY.md)** | **Dual Memory Architecture:** Mathematical specification of Short-Term Working State ($S_t$) and Utility-Gated Persistent KV / Symbolic DAG Store with learned `READ`, `WRITE`, `UPDATE`, and `FORGET` gates. |
+| **[PHYSICS_ART_CREATIVITY_PLAN.md](./PHYSICS_ART_CREATIVITY_PLAN.md)** | **Physics, Art & Creativity Blueprint:** Domain expansion plan for simulation-aware science, structured aesthetic reasoning, and divergent innovation workflows. |
 | **[DEPLOYMENT.md](./DEPLOYMENT.md)** | **Offline Hardware & Edge Blueprint:** Zero-cloud guarantees, Prototype (150M), Small (700M), Edge (2B), and Advanced (7B) tiers, SIMD CPU inference, and GGUF/`llama.cpp` compatibility. |
 | **[CONTRIBUTING.md](./CONTRIBUTING.md)** | **Contributor Guidelines:** Architecture-first development rules, phase-gate enforcement, and local workflow instructions. |
 
