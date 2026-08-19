@@ -405,15 +405,15 @@ class TypeInferenceTool(BaseTool):
         }
     
     def invoke(self, **kwargs) -> ToolResult:
-        from khwarizmi.coding.type_inference import TypeInferenceEngine
+        from khwarizmi.coding.type_inference import TypeInference
         
         source_code = kwargs.get("source_code", "")
         
         try:
-            engine = TypeInferenceEngine()
-            report = engine.infer(source_code)
+            engine = TypeInference()
+            report = engine.analyze(source_code)
             return ToolResult(
-                success=report.parse_successful,
+                success=True,
                 tool_name=self.name,
                 output=report.to_dict(),
                 metadata={

@@ -57,7 +57,7 @@ class CognitiveRouter:
         - GENERAL: Everything else (conversational, lookup)
     """
     
-    # Domain keywords with weights
+    # Code keywords with weights (expanded)
     CODE_KEYWORDS = {
         "python": 0.8, "code": 0.9, "function": 0.7, "variable": 0.6,
         "loop": 0.6, "class": 0.7, "module": 0.6, "import": 0.5,
@@ -66,7 +66,8 @@ class CognitiveRouter:
         "compile": 0.7, "execute": 0.6, "run": 0.5, "test": 0.6,
         "refactor": 0.7, "optimize": 0.6, "performance": 0.5,
         "api": 0.6, "interface": 0.5, "implement": 0.7, "write": 0.4,
-        "def ": 0.7, "return": 0.5, "if ": 0.4, "for ": 0.4, "while": 0.5,
+        "def ": 0.8, "return": 0.5, "if ": 0.4, "for ": 0.5, "while": 0.5,
+        "print": 0.4, "range": 0.5, "lambda": 0.6, "self": 0.5,
     }
     
     SCIENCE_KEYWORDS = {
@@ -84,22 +85,29 @@ class CognitiveRouter:
     
     ART_KEYWORDS = {
         "art": 0.9, "aesthetic": 0.9, "composition": 0.8, "color": 0.7,
-        "design": 0.7, "visual": 0.7, "image": 0.6, "picture": 0.6,
+        "design": 0.8, "visual": 0.7, "image": 0.6, "picture": 0.6,
         "palette": 0.7, "hue": 0.6, "saturation": 0.7, "contrast": 0.7,
         "balance": 0.6, "symmetry": 0.7, "harmony": 0.7, "focal": 0.6,
         "rule of thirds": 0.8, "golden ratio": 0.8, "layout": 0.6,
         "beautiful": 0.5, "ugly": 0.5, "pretty": 0.5, "score": 0.5,
         "rate": 0.5, "evaluate": 0.5, "critique": 0.7, "feedback": 0.5,
+        "تصميم": 0.9, "ارسم": 0.9, "لون": 0.8, "الوان": 0.7, "رسم": 0.8,
+        "فن": 0.9, "جمالي": 0.9, "تركيب": 0.7, "تناغم": 0.7,
     }
     
     CREATIVITY_KEYWORDS = {
-        "creativity": 0.9, "creative": 0.9, "brainstorm": 0.8, "ideate": 0.8,
-        "scamper": 0.9, "innovate": 0.7, "invent": 0.7, "imagine": 0.7,
-        "idea": 0.7, "concept": 0.6, "notion": 0.6, "proposal": 0.6,
-        "alternative": 0.6, "option": 0.5, "possibility": 0.6, "what if": 0.7,
+        "creativity": 0.9, "creative": 0.9, "brainstorm": 0.9, "ideate": 0.8,
+        "scamper": 0.9, "innovate": 0.7, "invent": 0.8, "imagine": 0.8,
+        "idea": 0.8, "concept": 0.6, "notion": 0.6, "proposal": 0.6,
+        "alternative": 0.7, "option": 0.5, "possibility": 0.6, "what if": 0.8,
         "combine": 0.6, "modify": 0.6, "adapt": 0.6, "eliminate": 0.6,
-        "reverse": 0.6, "substitute": 0.6, "rearrange": 0.6,
+        "reverse": 0.7, "substitute": 0.6, "rearrange": 0.6,
         "novel": 0.6, "unique": 0.6, "original": 0.6, "fresh": 0.5,
+        "features": 0.5, "app": 0.4, "design": 0.5, "logo": 0.7,
+        "poem": 0.8, "melody": 0.7, "song": 0.6, "story": 0.5,
+        "ابتكر": 0.9, "فكرة": 0.8, "ابدع": 0.9, "تصميم": 0.7,
+        "ارسم": 0.8, "لون": 0.7, "قصيدة": 0.8, "افكار": 0.7,
+        "إبداع": 0.9, "خيال": 0.8, "ابتكار": 0.9,
     }
     
     # Code pattern detection
@@ -153,8 +161,8 @@ class CognitiveRouter:
         features["code_pattern_score"] = self._detect_patterns(task, self.CODE_PATTERNS)
         features["equation_pattern_score"] = self._detect_patterns(task, self.EQUATION_PATTERNS)
         
-        # Boost code score if code patterns detected
-        if features["code_pattern_score"] > 0.5:
+        # Boost code score if code patterns detected (lower threshold for stronger detection)
+        if features["code_pattern_score"] > 0.15:
             features["code_score"] = max(features["code_score"], features["code_pattern_score"])
         
         # Boost science score if equation patterns detected
@@ -175,17 +183,17 @@ class CognitiveRouter:
             "CREATIVITY": features["creativity_score"],
         }
         
-        # Check for clear winner with lower threshold
+        # Check for clear winner with lower threshold - domain rules evaluated BEFORE GENERAL fallback
         max_score = max(domain_scores.values())
         winners = [d for d, s in domain_scores.items() if s == max_score]
         
-        if max_score < 0.15:
+        if max_score < 0.12:
             # No strong signal - default to GENERAL
             domain = "GENERAL"
             confidence = max(0.3, 1.0 - sum(domain_scores.values()))
             reasoning = "No strong domain signals detected; routing to GENERAL"
         elif len(winners) > 1:
-            # Tie-breaker: prefer more specific domains
+            # Tie-breaker: prefer more specific domains via reasoning-core confidence priority
             priority = ["CODE", "SCIENCE", "ART", "CREATIVITY"]
             for p in priority:
                 if p in winners:
