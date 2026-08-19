@@ -35,8 +35,8 @@ The goal is not to make unsafe or unconstrained capabilities. The goal is to mak
 
 **Components:**
 
-* `PhysicsProblemFrame`: structured schema for quantities, units, givens, unknowns, assumptions, and requested output.
-* `UnitConsistencyVerifier`: deterministic dimensional-analysis checker.
+* [x] `PhysicsProblemFrame`: structured schema for quantities, units, givens, unknowns, assumptions, and requested output.
+* [x] `UnitConsistencyVerifier`: deterministic dimensional-analysis checker.
 * `EquationRetriever`: local symbolic/indexed lookup for mechanics, thermodynamics, electromagnetism, waves, relativity, and introductory quantum mechanics.
 * `ScientificUncertaintyHead`: estimates confidence from equation coverage, unit consistency, numerical stability, and assumption completeness.
 
@@ -184,7 +184,7 @@ The goal is not to make unsafe or unconstrained capabilities. The goal is to mak
 
 | Phase | Months | Physics & Science | Art & Aesthetics | Creativity & Innovation |
 | :--- | :---: | :--- | :--- | :--- |
-| **1. Foundation** | 1-6 | Physics frames, unit checker, constants DB, mechanics simulations | Aesthetic schema, composition rules, color module, critique rubric | Divergent engine, SCAMPER, random stimulus, novelty scoring |
+| **1. Foundation** | 1-6 | [x] Physics frames, [x] unit checker, [x] constants DB, [ ] mechanics simulations | [x] Aesthetic schema, [x] composition rules, [x] color module, [x] critique rubric | [x] Divergent engine, [x] SCAMPER, [ ] random stimulus, [x] novelty scoring |
 | **2. Integration** | 7-12 | Multi-physics toy simulations, paper parser, uncertainty head | Cross-modal synthesis, style memory, emotional resonance scoring | Lateral methods, conceptual blending, feasibility scoring |
 | **3. Advanced Capability** | 13-18 | Quantum/relativity educational modules, reproducibility checklists | Multi-sensory art direction, cultural context, iterative critique | Serendipity engine, creative evolution memory, innovation frameworks |
 | **4. Mastery & Community** | 19-24 | Safe research-assistant workflows, benchmark reporting, educational labs | Portfolio workflows, exhibition/storyboard tooling, community critique | Breakthrough ideation workflows, challenge libraries, human review loops |
@@ -220,7 +220,8 @@ The goal is not to make unsafe or unconstrained capabilities. The goal is to mak
 These capabilities should be implemented as **domain-specialist pathways**, not as monolithic changes to the neural core:
 
 * Add `SCIENCE`, `ART`, and `CREATIVITY` route labels to the cognitive router after Phase 7 integration.
-* Add deterministic tools for unit checking, simulation, paper parsing, and creative scoring.
+* [x] Add deterministic tools for unit checking and creative scoring.
+* [ ] Add deterministic tools for simulation and paper parsing.
 * Store persistent style guides, scientific assumptions, and project ideation history in Dual Memory.
 * Use Adaptive Compute only when the confidence head predicts that simulation, critique, or multi-candidate ideation is needed.
 * Preserve the existing offline-first and low-resource constraints.
