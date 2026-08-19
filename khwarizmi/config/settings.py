@@ -86,6 +86,16 @@ class KhwarizmiConfig:
             signal. Must satisfy 0 <= max_reasoning_corrections <= max_reasoning_steps.
         reasoning_confidence_beta: Coefficient for the reasoning consistency loss.
         reasoning_refinement_beta: Coefficient for the reasoning refinement loss.
+        enable_full_neural_core: Master switch for the Phase 7 Full Khwarizmi Neural
+            Core integration. This is *additive only*: the unified forward path
+            (KSC -> Sparse MoE -> Dual Memory -> ARRC -> Neural Reasoning Core ->
+            Output) is already executed by the model regardless of this flag.
+            When True (default), the structured ``full_core`` diagnostics
+            namespace is emitted on every forward pass, exposing the
+            contribution/status of each subsystem (KSC, MoE, Memory, ARRC,
+            Reasoning, Full Core) in one inspectable, numerical structure.
+            When False, the output is identical to the pre-Phase-7 contract
+            (no ``full_core`` diagnostics key), preserving backward compatibility.
         tier_name: Human-readable hardware/model tier label.
     """
     vocab_size: int = 1024
@@ -130,6 +140,7 @@ class KhwarizmiConfig:
     reasoning_confidence_beta: float = 0.01
     reasoning_refinement_beta: float = 0.01
     verification_threshold: float = 0.75
+    enable_full_neural_core: bool = True
     tier_name: str = "TinyTest"
 
     def __post_init__(self) -> None:
@@ -276,6 +287,15 @@ class KhwarizmiConfig:
             raise ValueError(
                 f"reasoning_refinement_beta must be a finite non-negative value, "
                 f"got {self.reasoning_refinement_beta}"
+            )
+        # ---- Phase 7: Full Neural Core integration flag ----
+        # Additive-only master switch for the structured full-core diagnostics
+        # namespace. No behavioral change to the forward path; validated as a
+        # strict boolean so it cannot silently take a truthy non-bool value.
+        if not isinstance(self.enable_full_neural_core, bool):
+            raise ValueError(
+                f"enable_full_neural_core must be a bool, got "
+                f"{type(self.enable_full_neural_core).__name__}"
             )
 
     def to_dict(self) -> Dict[str, Any]:
