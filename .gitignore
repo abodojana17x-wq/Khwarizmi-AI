@@ -1,7 +1,4 @@
 ```
-# Dependencies
-node_modules/
-
 # Python
 __pycache__/
 *.pyc
@@ -11,61 +8,21 @@ __pycache__/
 env/
 venv/
 .venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.DS_Store
-Thumbs.db
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Pytest
-.pytest_cache/
-
-# Mypy
-.mypy_cache/
-
-# Environment
+.ENV
+.ENV.local
 .env
 .env.local
 .env.*
 
-# Editors
-.vscode/
-.idea/
+# Testing
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
+.mypy_cache/
 
-# Logs
-*.log
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Build artifacts
+build/
+dist/
+*.egg-info/
 ```
