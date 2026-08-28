@@ -1,27 +1,24 @@
-```gitignore
+```
 # Python cache files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Python testing
-.pytest_cache/
-.coverage
-coverage/
-
-# Compiled Python
-*.so
-*.dylib
-*.dll
+# Compiled Python files in specific directories
+art/__pycache__/
+creativity/__pycache__/
+khwarizmi/__pycache__/
+rafig/__pycache__/
+science/__pycache__/
 
 # Logs
 *.log
 
-# Environment files
+# Environment variables
 .env
 .env.local
-*.env.*
+.env.*
 
 # IDE files
 .vscode/
@@ -34,8 +31,22 @@ coverage/
 .DS_Store
 Thumbs.db
 
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
 # Build artifacts
 dist/
 build/
-*.egg-info/
+target/
+
+# Virtual environments
+venv/
+.venv/
+.env/
+
+# Testing
+.pytest_cache/
+.mypy_cache/
 ```

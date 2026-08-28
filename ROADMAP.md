@@ -1,391 +1,2054 @@
-# Khwarizmi AI: 17-Phase Master Engineering & Research Roadmap
-**Document Version:** 3.0 (Islamic Alignment + Advanced Reasoning Integration)  
-**Date:** 2026-08-19  
-**Status:** Implementation-Ready Blueprint with Islamic Compliance & Test-Time Scaling
+# Khwarizmi AI — Master Roadmap v4.0
+## The Four-Version Reasoning System Architecture
+
+**Document Status:** Authoritative Master Plan  
+**Version:** 4.0 (Complete Architecture Reset for Nano/Mobile/Pro/Ultra)  
+**Date:** 2026-08-27  
+**Supersedes:** All previous roadmap versions (v1.0–v3.x)
 
 ---
 
-## Roadmap Principles & Strict Development Rule
+## Executive Summary
 
-> **CRITICAL DEVELOPMENT RULE:**  
-> Never move to the next major phase simply because the previous code runs. A phase is complete **only** when its success criteria are met. If a benchmark fails: **STOP. Analyze. Modify. Retest.** Only then continue.  
-> Do **NOT** implement features belonging to a future phase prematurely.
+Khwarizmi AI is being re-architected as a **highly efficient general-purpose reasoning system** with four distinct capability/resource profiles sharing a common core:
 
-> **ISLAMIC ALIGNMENT PRINCIPLE:**  
-> The model MUST automatically reject haram requests and accept halal ones based on deep Sharia understanding. This is not optional post-filtering—it is intrinsic to the architecture through dedicated loss functions, routing pathways, and data curation.
+| Version | Target Footprint | Primary Target |
+|---------|------------------|----------------|
+| **Nano** | ≤ 500 MB | Weakest smartphones, old devices, extreme offline constraints |
+| **Mobile** | ≤ 900 MB | Capable smartphones, weak laptops, low-resource educational/work environments |
+| **Pro** | ≤ 1.5 GB (hard target) | Frontier-level reasoning on consumer hardware |
+| **Ultra** | ≤ 2 GB | Maximum capability within accessible hardware limits |
 
-> **LOW-RESOURCE OPTIMIZATION PRINCIPLE:**  
-> Every component must be optimized for devices with <4GB RAM and consumer GPUs. Use QLoRA, gradient checkpointing, and adaptive compute to achieve frontier-level reasoning on edge hardware.
+**Core Design Philosophy:** Intelligence must not depend solely on model size. Khwarizmi achieves capability through efficient reasoning, selective computation, specialized subsystems, verification, compression, modularity, and intelligent resource allocation.
 
 ---
 
-## Complete 17-Phase Roadmap Overview
+## Part I: Repository Audit & Current State Assessment
+
+### I.1 What Currently Exists
+
+The repository has been thoroughly audited. The following components are **implemented and tested**:
+
+#### Completed Implementations (Phases 0–6 + 7A)
+
+| Component | Location | Status | Tests |
+|-----------|----------|--------|-------|
+| **Khwarizmi State Cell (KSC)** | `khwarizmi/core/ksc_cell.py`, `ksc_block.py` | ✅ Complete | `test_ksc_cell.py`, `test_ksc_block.py` |
+| **Dual Memory Architecture** | `khwarizmi/memory/dual_memory.py`, `gating.py`, `short_term.py`, `long_term.py` | ✅ Complete | `test_dual_memory.py` (57 tests) |
+| **Sparse Mixture-of-Experts** | `khwarizmi/experts/moe_layer.py`, `specialists.py` | ✅ Complete | `test_moe.py`, `test_sparse_moe.py` (57 tests) |
+| **Adaptive Compute (ARRC)** | `khwarizmi/reasoning/adaptive_compute.py` | ✅ Complete | `test_adaptive_compute_phase5.py` (57 tests) |
+| **Neural Reasoning Core** | `khwarizmi/reasoning/neural_reasoning_core.py`, `latent_reasoner.py` | ✅ Complete | `test_neural_reasoning_core_phase6.py` |
+| **Cognitive Router** | `khwarizmi/routing/router.py`, `pathways.py` | ✅ Complete | `test_router.py`, `test_cognitive_router.py` |
+| **Python Brain (AST Analyzer)** | `rafig/python_brain/` (bridged) | ✅ Complete | Multiple parser/type tests |
+| **Project Planner (DAG Engine)** | `rafig/reasoning/` (bridged) | ✅ Complete | `test_data_flow.py`, `test_cfg.py` |
+| **Agent Loop** | `khwarizmi/agent/agent_loop.py` | ✅ Complete | `test_agentic_loop.py` |
+| **Execution Sandbox** | `khwarizmi/coding/execution_sandbox.py` | ✅ Complete | `test_sandbox.py` |
+| **Data Pipeline (CoT + Dedup)** | `khwarizmi/data/qwen_cot_pipeline.py`, `minhash_dedup.py` | ✅ Complete | — |
+| **Tier Configurations** | `khwarizmi/config/tiers.py` | ✅ Complete | Prototype 50M/150M, Small, Edge |
+
+#### Partially Implemented
+
+| Component | Location | Gap |
+|-----------|----------|-----|
+| **Islamic Alignment Engine** | `khwarizmi/routing/sharia_router.py`, `training/islamic_loss.py` | Phase 7B planned but not fully integrated |
+| **Physics/Art/Creativity Domains** | `science/`, `art/` | Unit verifier exists; full domain integration pending |
+| **Multilingual Tokenizer** | — | Phase 9 not yet implemented; current tokenizer is minimal |
+| **Quantization Runtime** | — | Phase 12 not yet implemented |
+| **Full Training Infrastructure** | `khwarizmi/training/` | Basic losses exist; full QLoRA trainer pending |
+
+#### Not Yet Implemented (Future Phases)
+
+- Full model training runs (Phase 10)
+- Comprehensive evaluation suite execution (Phase 11)
+- Quantized GGUF export and CPU runtime (Phase 12)
+- Edge deployment packaging (Phase 15)
+- Adversarial self-testing framework (new requirement)
+
+### I.2 Test Evidence
+
+Current test status (as of audit):
+- **Total tests:** 604
+- **Passing:** 578 (95.7%)
+- **Failing:** 17
+- **Errors:** 9
+
+Most failures are in router confidence thresholds and edge-case sandbox tests—not fundamental architecture failures. The core components (KSC, MoE, Adaptive Compute, Dual Memory) pass their unit tests.
+
+### I.3 Obsolete Assumptions in Existing Roadmap
+
+The existing 17-phase roadmap contains several assumptions that must be revised:
+
+1. **Single-model scaling assumption:** Old roadmap assumes one model scaled from 150M → 10B+. New vision requires four distinct profiles (Nano/Mobile/Pro/Ultra) with shared core but different capacity allocations.
+
+2. **Phase ordering:** Old roadmap treats phases as strictly sequential. New architecture requires parallel development of shared core + version-specific optimizations.
+
+3. **Size targets mismatch:** Old roadmap mentions "Edge Tier (1B–3B)" and "Advanced Tier (5B–10B+)" which exceed the new Ultra hard limit of 2 GB packaged footprint.
+
+4. **Missing capabilities:** Old roadmap lacks explicit treatment of:
+   - Prompt-skill independence
+   - Cross-lingual consistency benchmarks
+   - Failure intelligence and backtracking mechanisms
+   - Contradiction detection as first-class component
+   - Knowledge-on-demand architecture
+   - Selective/heterogeneous compression framework
+
+5. **Islamic alignment positioning:** Phase 7B was added but not integrated into the four-version strategy.
+
+### I.4 What Must Be Preserved
+
+The following components are architecturally sound and must be retained:
+
+- KSC state cell (eigenvalue-bounded recurrent architecture)
+- Dual memory (short-term working + long-term persistent with utility gating)
+- Sparse MoE with load-balancing loss
+- Adaptive compute with learned halting (ARRC)
+- Cognitive router with pathway dispatch
+- Neural reasoning core (latent synthesis + consistency checking)
+- Python AST analyzer (deterministic verification tool)
+- DAG project planner (symbolic dependency reasoning)
+- Agent loop with input sanitization
+
+### I.5 What Must Be Refactored
+
+| Component | Reason | Action |
+|-----------|--------|--------|
+| `khwarizmi/config/tiers.py` | Does not include Nano/Mobile/Pro/Ultra profiles | Add four new tier configurations |
+| Router pathways | Only 5 pathways; needs meta-reasoning, contradiction, failure paths | Extend to support new reasoning primitives |
+| Memory gating | No explicit failure memory or contradiction tracking | Add failure classification and conflict detection |
+| Compression strategy | Not yet implemented | Add selective/heterogeneous compression framework |
+| Benchmark suite | Lacks prompt-independence, cross-lingual, adversarial tests | Expand benchmark matrix |
+
+### I.6 What Must Be Removed
+
+- References to "Advanced Tier (5B–10B+)" — exceeds 2 GB Ultra limit
+- Any implication that smaller versions sacrifice reasoning architecture
+- Assumptions that cloud/API fallback is acceptable for core intelligence
+- Hardcoded superiority claims without benchmark evidence
+
+---
+
+## Part II: The Khwarizmi Core Architecture
+
+### II.1 Shared Core Components
+
+All four versions (Nano, Mobile, Pro, Ultra) share the same fundamental reasoning architecture:
 
 ```
-+---------------------------------------------------------------------------------------------------------+
-|                                    KHWARIZMI AI 17-PHASE MASTER PLAN                                    |
-+---------------------------------------------------------------------------------------------------------+
-| [PHASE 00] Repository Audit + Architecture Reset                  (COMPLETE - 2026-08-11)               |
-| [PHASE 01] Mathematical Specification & Hardware Verification     (COMPLETE - 2026-08-11)               |
-| [PHASE 02] Minimal Khwarizmi State Cell (KSC) Prototype           (COMPLETE - 150M Tier)                |
-| [PHASE 03] Dual Memory Architecture Prototype                     (COMPLETE)                            |
-| [PHASE 04] Sparse Mixture-of-Experts (MoE) Prototype              (COMPLETE - 57 tests passing)         |
-| [PHASE 05] Adaptive Compute & Learned Halting                     (COMPLETE - 57 tests passing)         |
-| [PHASE 06] Neural Reasoning Core                                  (COMPLETE)                            |
-| [PHASE 7A] Claude-Level Excellence Pipeline                       (IMPLEMENTED - CoT + Ponder + Dedup)  |
-| [PHASE 7B] Islamic Alignment & Sharia Compliance                  (IMPLEMENTED - Router + Loss + Data)  |
-| [PHASE 07] Full Khwarizmi Neural Core Integration                 (NEXT: Unify all components)          |
-| [PHASE 08] Low-Resource Training Infrastructure                   (QLoRA + Gradient Checkpointing)      |
-| [PHASE 09] Dataset Pipeline & Offline Multi-Lingual Tokenizer     (BPE + MinHash Dedup)                 |
-| [PHASE 10] Small Model Training & Optimization                    (300M-700M with Islamic weights)      |
-| [PHASE 11] Comprehensive Evaluation & Mandatory Ablation Testing  (Statistical Component Verification)  |
-| [PHASE 12] Offline Inference Optimization & Quantization          (4/5/8-bit GGUF, SIMD CPU Engine)     |
-| [PHASE 13] Offline Assistant & Layered Local Tool Integration     (Agent Router + Python/DAG Tools)     |
-| [PHASE 14] Project Intelligence Specialization                    (Long-Horizon Planning & Verification)|
-| [PHASE 15] Edge Deployment & Hardware Verification                (1B-3B Edge Tier, Android/Low-RAM)    |
-| [PHASE 16] Scaling Analysis & Stable Release                      (Production Certification)            |
-+---------------------------------------------------------------------------------------------------------+
+                    ┌─────────────────────┐
+                    │   KHARIZMI CORE     │
+                    │  (Shared by All)    │
+                    └──────────┬──────────┘
+                               │
+        ┌──────────────┬───────┴───────┬──────────────┐
+        │              │               │              │
+   ┌────▼────┐   ┌─────▼─────┐   ┌────▼────┐   ┌─────▼────┐
+   │  NANO   │   │  MOBILE   │   │   PRO   │   │   ULTRA  │
+   │ ≤500 MB │   │ ≤900 MB   │   │≤1.5 GB  │   │  ≤2 GB   │
+   └─────────┘   └───────────┘   └─────────┘   └──────────┘
+```
+
+#### Core Capabilities (All Versions)
+
+1. **Problem Understanding**
+   - Semantic representation extraction
+   - Intent recovery from imperfect prompts
+   - Constraint and context identification
+
+2. **Reasoning Orchestration**
+   - Pathway selection via cognitive router
+   - Adaptive compute allocation
+   - Multi-path exploration (when needed)
+
+3. **Verification**
+   - Consistency checking
+   - Contradiction detection
+   - Computational verification (math/code)
+
+4. **Memory Systems**
+   - Short-term working state
+   - Long-term persistent memory with utility gating
+   - Failure memory (new)
+
+5. **Meta-Reasoning**
+   - Strategy selection
+   - Difficulty estimation
+   - Compute budget allocation
+   - Stopping criteria
+
+6. **Multilingual Semantics**
+   - Language-independent semantic representation
+   - Broad global language support
+
+7. **Multimodal Interfaces**
+   - Image understanding
+   - Audio analysis
+   - Document processing
+
+8. **Tool Orchestration**
+   - Selective activation of deterministic tools
+   - Python AST verification
+   - DAG planning engine
+
+### II.2 Version-Specific Scaling Parameters
+
+Differences between versions come from capacity allocations, not reasoning philosophy:
+
+| Parameter | Nano | Mobile | Pro | Ultra |
+|-----------|------|--------|-----|-------|
+| **Model Capacity** | Minimal | Moderate | Large | Maximum |
+| **Memory Slots** | 128 | 256 | 512 | 1024+ |
+| **Active Experts** | 2 of 4 | 2 of 6 | 2 of 8 | 3 of 8 |
+| **Search Breadth** | 1 path | 1–2 paths | 2–3 paths | 3–5 paths |
+| **Search Depth** | Shallow | Medium | Deep | Very Deep |
+| **Reasoning Budget** | Low | Medium | High | Maximum |
+| **Working Memory** | 64 KB | 128 KB | 256 KB | 512 KB+ |
+| **Context Capacity** | 8K | 16K | 32K | 64K+ |
+| **Verification Budget** | Minimal | Moderate | Substantial | Extensive |
+| **Precision Allocation** | INT4/INT5 | INT5/INT8 | FP16/INT8 | FP16 |
+| **Modality Capacity** | Basic | Good | Strong | State-of-the-art |
+
+---
+
+## Part III: Core Reasoning Philosophy
+
+### III.1 Islamic/Medieval Scientific Reasoning Traditions
+
+Khwarizmi draws formalizable reasoning principles from classical Islamic scholarship:
+
+| Principle | Computational Mechanism |
+|-----------|------------------------|
+| Precise problem formulation | Semantic representation extraction |
+| Decomposition | Task breakdown via router pathways |
+| Observation | Multimodal input processing |
+| Hypothesis formation | Multi-path reasoning generation |
+| Deduction | Symbolic verification and constraint propagation |
+| Induction | Pattern recognition in neural core |
+| Analogy | Cross-domain transfer via shared representations |
+| Proof | Computational verification (math/code) |
+| Verification | Consistency heads and self-correction blocks |
+| Measurement | Quantitative benchmarking |
+| Consistency checking | Contradiction detection module |
+| Correction after failure | Failure intelligence and backtracking |
+| Systematic investigation | Structured search and planning |
+| Simple to complex | Adaptive compute allocation |
+| Reject unsupported conclusions | Uncertainty calibration and abstention |
+
+These are **computational mechanisms**, not slogans. Each principle maps to specific architectural components.
+
+### III.2 Modern Reasoning Methods Integration
+
+Khwarizmi integrates state-of-the-art reasoning approaches:
+
+| Method | Implementation |
+|--------|----------------|
+| Inference-time compute | Adaptive Recurrent Reasoning Cycles (ARRC) |
+| Search | Multi-path exploration with pruning |
+| Tree reasoning | DAG-based project planning |
+| Planning | Symbolic dependency graphs |
+| Self-correction | Latent consistency heads |
+| Backtracking | Failure-aware state restoration |
+| Tool augmentation | Python AST + DAG planners |
+| Symbolic reasoning | Deterministic verification tools |
+| Neural reasoning | KSC + MoE + latent reasoner |
+| Memory systems | Dual architecture with utility gating |
+| Mixture-of-experts | Sparse routing with load balancing |
+| Selective activation | Cognitive router pathways |
+| Structured representations | Semantic frames + DAGs |
+| Multimodal reasoning | Unified embedding space |
+| Programmatic verification | Execution sandbox + AST checks |
+| Efficient inference | Quantization + selective activation |
+
+---
+
+## Part IV: Adaptive Reasoning Architecture
+
+### IV.1 Adaptive Compute Flow
+
+```
+Input
+  ↓
+Problem Understanding (Semantic Extraction)
+  ↓
+Difficulty Estimation (Meta-Reasoning)
+  ↓
+Strategy Selection (Router Pathway)
+  ↓
+Adaptive Compute Allocation (Budget Assignment)
+  ↓
+Reasoning Execution (KSC + MoE + Memory)
+  ↓
+Verification (Consistency + Contradiction Check)
+  ↓
+If Verification Fails:
+  ├→ Search Alternative Paths
+  ├→ Replan Strategy
+  ├→ Backtrack to Decision Point
+  └→ Increase Compute Budget
+  ↓
+Final Result (with Confidence Score)
+```
+
+### IV.2 Explicit Stages
+
+| Stage | Component | Function |
+|-------|-----------|----------|
+| **Difficulty Estimation** | Meta-Reasoning Head | Predicts problem complexity class (Easy/Medium/Hard) |
+| **Budget Allocation** | Adaptive Compute Block | Assigns recurrent cycles K ∈ [1, K_max] |
+| **Stopping Criteria** | Halting Gate | σ(w_h^T z^(k) + b_h) ≥ 1 - ε |
+| **Dynamic Expansion** | Ponder Cost Loss | Allows budget increase if confidence low |
+| **Compute-Aware Routing** | Cognitive Router | Routes to appropriate pathway (FAST/CODING/REASONING/etc.) |
+| **Confidence Signals** | Consistency Head | Outputs uncertainty estimate |
+| **Cost-Aware Reasoning** | Load-Balancing Loss | Prevents expert collapse, ensures efficiency |
+
+---
+
+## Part V: Meta-Reasoning Layer
+
+### V.1 Meta-Reasoning Decisions
+
+The meta-reasoning layer decides **how to solve** the problem, not just the solution:
+
+| Decision Type | Options | Trigger Conditions |
+|---------------|---------|-------------------|
+| **Answer Directly** | Single-pass FAST pathway | Easy queries, high confidence |
+| **Decompose** | PROJECT_PLAN pathway | Multi-step tasks, dependencies detected |
+| **Search** | Multi-path activation | Hard problems, low initial confidence |
+| **Generate Hypotheses** | REASONING pathway with K ≥ 2 | Ambiguous inputs, multiple interpretations |
+| **Use Symbolic Methods** | Tool invocation (Python/DAG) | Code generation, mathematical verification |
+| **Invoke Tools** | CODING/VERIFICATION pathways | Code tasks, consistency checks required |
+| **Verify** | Consistency head activation | All non-trivial outputs |
+| **Critique** | Self-correction block | Low confidence, high-stakes domains |
+| **Backtrack** | State restoration | Contradiction detected, verification failed |
+| **Replan** | DAG revision | Task failure, constraint change |
+| **Allocate More Compute** | Increase K | Hard difficulty, low halting probability |
+| **Stop** | Halting gate saturation | Confidence threshold met or budget exhausted |
+
+### V.2 Implementation
+
+Meta-reasoning is implemented via:
+- Extended cognitive router with additional pathways
+- Difficulty estimation head on top of KSC state
+- Halting gate with learnable threshold
+- Confidence calibration layer
+
+---
+
+## Part VI: Failure Intelligence
+
+### VI.1 Failure Analysis Pipeline
+
+```
+Attempt
+  ↓
+Failure Detection (Verification Failed / Contradiction / Timeout)
+  ↓
+Failure Classification
+  ├→ Logical Error
+  ├→ Factual Hallucination
+  ├→ Computational Mistake
+  ├→ Tool Misuse
+  ├→ Memory Retrieval Failure
+  ├→ Contradiction with Prior Knowledge
+  └→ Resource Exhaustion
+  ↓
+Failure Memory Storage (with metadata)
+  ↓
+Strategy Update (avoid similar path)
+  ↓
+New Attempt (modified approach)
+  ↓
+Verification
+```
+
+### VI.2 Failure Classification Schema
+
+| Category | Signature | Response |
+|----------|-----------|----------|
+| **Logical Error** | Inconsistent deductions | Backtrack + replan reasoning chain |
+| **Factual Hallucination** | Contradicts verified knowledge | Query long-term memory + verify |
+| **Computational Mistake** | Arithmetic/symbolic error | Invoke computational tool |
+| **Tool Misuse** | Incorrect API/tool call | Review tool schema + retry |
+| **Memory Failure** | Cannot retrieve relevant fact | Expand memory search + update utility |
+| **Contradiction** | Conflicts with prior statement | Detect + backtrack + resolve |
+| **Resource Exhaustion** | Exceeded compute budget | Simplify strategy or abort gracefully |
+
+### VI.3 Implementation Requirements
+
+- **Failure Memory:** Dedicated storage in long-term memory with high utility score
+- **Error Attribution:** Identify which component caused failure (router, KSC, MoE, tool, memory)
+- **Strategy Adaptation:** Update router weights to avoid failed pathways for similar inputs
+- **Repeated-Error Avoidance:** Flag recurring failures and force alternative strategies
+
+---
+
+## Part VII: Contradiction Detection and Backtracking
+
+### VII.1 Contradiction Types
+
+| Type | Detection Method |
+|------|------------------|
+| **Internal Contradiction** | Consistency head compares statements within same response |
+| **External Contradiction** | Output contradicts verified knowledge in long-term memory |
+| **Temporal Contradiction** | Current statement conflicts with earlier turn in conversation |
+| **Cross-Modal Contradiction** | Text output contradicts image/audio analysis |
+| **Logical Contradiction** | A ∧ ¬A detected in reasoning chain |
+
+### VII.2 Backtracking Mechanism
+
+```
+Detect Contradiction
+  ↓
+Identify Affected Branch (which reasoning path?)
+  ↓
+Locate Decision Point (where did divergence occur?)
+  ↓
+Restore State (rollback to pre-contradiction state)
+  ↓
+Change Assumption/Strategy (modify pathway or parameters)
+  ↓
+Recompute (alternative path)
+  ↓
+Verify (ensure no new contradictions)
+```
+
+### VII.3 Implementation
+
+- **Contradiction Head:** Neural layer trained to detect conflicting statements
+- **State Checkpointing:** Save intermediate states at decision points
+- **Dependency Tracking:** Maintain graph of which conclusions depend on which assumptions
+- **Resolution Strategies:** Predefined responses for each contradiction type
+
+---
+
+## Part VIII: Multi-Path Reasoning
+
+### VIII.1 Adaptive Multi-Path Exploration
+
+```
+                 Problem
+              /     |     \
+           Path A  Path B  Path C
+             |       |       |
+           Verify  Verify   Verify
+              \       |       /
+                 Compare
+                    ↓
+                Best Path (or merge if complementary)
+```
+
+### VIII.2 When to Use Multi-Path
+
+| Problem Difficulty | Paths Explored | Rationale |
+|--------------------|----------------|-----------|
+| **Easy** | 1 (single pass) | No benefit from exploration; waste of compute |
+| **Medium** | 1–2 | Optional second path if confidence low |
+| **Hard** | 2–3 | Standard multi-path exploration |
+| **Very Hard** | 3–5+ | Extensive exploration with pruning |
+
+### VIII.3 Path Diversity Strategies
+
+- **Different Initial Assumptions:** Vary starting premises
+- **Different Reasoning Orders:** Change decomposition sequence
+- **Different Tool Usage:** Some paths use tools, others don't
+- **Different Abstraction Levels:** Concrete vs. abstract reasoning
+
+---
+
+## Part IX: Mathematical Reasoning Architecture
+
+### IX.1 Hybrid Math Processing
+
+**Principle:** Do NOT rely on language prediction alone for mathematics.
+
+```
+Mathematical Problem (Natural Language)
+  ↓
+Understanding (Neural Core extracts equation/constraints)
+  ↓
+Formulation (Convert to symbolic representation)
+  ↓
+Computation/Verification (Symbolic/Numerical Engine)
+  ↓
+Result Validation (Check against constraints)
+  ↓
+Natural Language Explanation (if requested)
+```
+
+### IX.2 Mathematical Components
+
+| Component | Function | Implementation |
+|-----------|----------|----------------|
+| **Problem Understanding** | Extract mathematical intent | Neural core with math-specialized experts |
+| **Symbolic Representation** | Convert to formal notation | Symbolic parser module |
+| **Equation Solving** | Algebraic manipulation | SymPy-like symbolic engine (offline) |
+| **Numerical Computation** | Arithmetic, calculus | NumPy-compatible numerical backend |
+| **Proof Verification** | Check logical validity | Formal proof checker (limited scope) |
+| **Exact Arithmetic** | Avoid floating-point errors | Rational number representation |
+| **Computational Tools** | Heavy computation | Sandboxed Python execution |
+
+### IX.3 Mathematical Benchmark Ladder
+
+| Level | Target Capability | Benchmark |
+|-------|------------------|-----------|
+| **Level 1** | Arithmetic, basic algebra | GSM8K ≥ 55% (Nano) |
+| **Level 2** | Intermediate algebra, geometry | GSM8K ≥ 75% (Mobile) |
+| **Level 3** | Advanced algebra, calculus basics | GSM8K ≥ 85% (Pro) |
+| **Level 4** | Competition mathematics | AIME qualification (Ultra) |
+| **Level 5** | Research-level proofs | Formal verification assistance (future) |
+
+---
+
+## Part X: Multimodal Intelligence
+
+### X.1 Supported Modalities
+
+| Modality | Nano | Mobile | Pro | Ultra |
+|----------|------|--------|-----|-------|
+| **Text** | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
+| **Images** | ✅ Basic | ✅ Good | ✅ Strong | ✅ Advanced |
+| **Audio** | ✅ Basic | ✅ Good | ✅ Strong | ✅ Advanced |
+| **Documents** | ✅ PDF/text | ✅ +OCR | ✅ +Diagrams | ✅ +Complex layouts |
+| **Structured Files** | ✅ JSON/CSV | ✅ +XML/YAML | ✅ +Binary formats | ✅ All common formats |
+
+### X.2 Multimodal Architecture
+
+- **Unified Embedding Space:** All modalities projected to shared semantic representation
+- **Modality-Specific Encoders:** Lightweight encoders for each modality
+- **Cross-Modal Attention:** Enable reasoning across modalities
+- **Selective Activation:** Only activate relevant encoders per task
+
+### X.3 Nano Optimization
+
+Nano must excel at:
+- Reading images (OCR, object detection, scene understanding)
+- Understanding audio (speech-to-text, speaker intent, emotion)
+- Document processing (extract key information, summarize)
+- File transformation (convert formats, reorganize content)
+
+---
+
+## Part XI: Global Multilingual Intelligence
+
+### XI.1 Target Languages
+
+Khwarizmi supports **global multilingual capability**, not limited to specific languages:
+
+**Priority Languages:**
+1. Arabic (Modern Standard + Dialects)
+2. English
+3. Chinese (Simplified + Traditional)
+4. Spanish
+5. French
+6. German
+7. Russian
+8. Japanese
+9. Korean
+10. Portuguese
+11. Hindi/Urdu
+12. Turkish
+13. Indonesian/Malay
+14. Vietnamese
+15. Thai
+
+**Additional:** Support for 100+ languages via language-independent semantic reasoning.
+
+### XI.2 Language-Independent Architecture
+
+```
+Any Human Language (input)
+  ↓
+Language Detection + Normalization
+  ↓
+Semantic Representation (language-neutral)
+  ↓
+Reasoning (operates on semantics, not surface form)
+  ↓
+Verification (language-independent checks)
+  ↓
+Target Language (output, matching user's language)
+```
+
+### XI.3 Prompt-Skill Independence
+
+**Goal:** Users should NOT need to learn prompt engineering.
+
+| Input Type | System Response Quality |
+|------------|------------------------|
+| Expert wording | Optimal |
+| Beginner wording | Optimal |
+| Slang/colloquial | Optimal |
+| Imperfect grammar | Optimal |
+| Short/minimal | Optimal |
+| Long/verbose | Optimal |
+| Mixed languages | Optimal |
+| Translated text | Optimal |
+
+**Implementation:**
+- Robust semantic extraction from noisy inputs
+- Intent recovery even from poorly formulated requests
+- Implicit constraint inference
+- Context-aware disambiguation
+
+---
+
+## Part XII: Cross-Lingual Consistency
+
+### XII.1 Benchmark Category
+
+Same task expressed in multiple languages and writing qualities:
+
+| Dimension | Measurement |
+|-----------|-------------|
+| **Task Understanding** | Accuracy across languages |
+| **Correctness** | Factual consistency |
+| **Reasoning Depth** | Comparable chain length/quality |
+| **Mathematical Result** | Identical answers |
+| **Code Correctness** | Same functionality |
+| **Document Analysis** | Equivalent insights |
+| **Instruction Following** | Compliance rate |
+| **Factuality** | Hallucination rate |
+| **Output Quality** | Human preference scores |
+
+### XII.2 Target
+
+**Semantic and capability equivalence** across languages, not necessarily identical token outputs.
+
+---
+
+## Part XIII: Knowledge Architecture
+
+### XIII.1 Hybrid Knowledge Storage
+
+A 500 MB Nano cannot memorize the world's knowledge as dense weights.
+
+**Solution:** Hybrid architecture combining:
+
+| Knowledge Type | Storage Method | Activation |
+|----------------|----------------|------------|
+| **Core Reasoning** | Model weights | Always active |
+| **Procedural Knowledge** | Model weights + tools | On-demand |
+| **Factual Knowledge** | Compressed indexes | Relevance-gated |
+| **Semantic Concepts** | Shared multilingual embeddings | Always available |
+| **Domain Specialization** | Modular experts | Selective activation |
+| **Historical Details** | Long-term memory | Utility-gated retrieval |
+| **Rare Knowledge** | External compressed index | On-request loading |
+
+### XIII.2 Knowledge-on-Demand
+
+```
+Compressed Knowledge Store
+  ↓
+Request Arrives
+  ↓
+Relevance Detection (semantic match)
+  ↓
+Activate Relevant Knowledge (decompress/load)
+  ↓
+Use in Reasoning
+  ↓
+Release/Compress (free memory)
+```
+
+**Benefits:**
+- Higher information density
+- Lower active memory footprint
+- Compatible with constrained devices
+
+### XIII.3 Separation of Concerns
+
+| Layer | Function |
+|-------|----------|
+| **Knowledge Representation** | Language-neutral semantic structures |
+| **Language Realization** | Surface form generation in target language |
+
+This avoids redundant storage of same knowledge for each language.
+
+---
+
+## Part XIV: Selective and Heterogeneous Compression
+
+### XIV.1 Capability-Aware Compression
+
+Do NOT compress all components equally.
+
+| Component | Compression Tolerance | Rationale |
+|-----------|----------------------|-----------|
+| **Reasoning Core (KSC)** | Low (INT8 minimum) | Highly sensitive to quantization |
+| **Verification Modules** | None (FP16 required) | Must preserve exact computation |
+| **General Language** | Moderate (INT5–INT8) | Tolerates some precision loss |
+| **Low-Frequency Knowledge** | High (INT4) | Rarely accessed, can reload |
+| **Unused Experts** | N/A (inactive) | Remain compressed until activated |
+| **Memory Embeddings** | Moderate (INT6–INT8) | Some degradation acceptable |
+| **Router/Gating** | Low (INT8 minimum) | Critical for correct routing |
+
+### XIV.2 Empirical Validation Framework
+
+Measure impact of each compression level:
+
+| Metric | Measurement Method |
+|--------|-------------------|
+| **Memory Saved** | Compare FP16 vs quantized size |
+| **Speed Gained** | Tokens/sec improvement |
+| **Accuracy Lost** | Benchmark degradation % |
+| **Reasoning Degradation** | Logic/math accuracy drop |
+| **Modality Degradation** | Image/audio understanding drop |
+| **Language Degradation** | Per-language performance drop |
+| **Coding Degradation** | HumanEval pass@1 drop |
+
+**Decision Rule:** If accuracy loss > 2% for >5% speed gain, reconsider compression level.
+
+---
+
+## Part XV: Capability-Aware Memory Allocation
+
+### XV.1 Task-Driven Resource Priority
+
+| Task Type | Prioritized Resources |
+|-----------|----------------------|
+| **Mathematical** | Math experts, symbolic tools, verification modules |
+| **Image-Heavy** | Vision encoder, cross-modal attention |
+| **Audio** | Audio encoder, speech processing |
+| **Historical Factual** | Long-term memory, knowledge indexes |
+| **Coding** | Code experts, Python AST tool, sandbox |
+| **Planning** | DAG engine, working memory expansion |
+| **Creative** | Divergent thinking modules, aesthetic scorer |
+
+### XV.2 Static vs. Dynamic Allocation
+
+| Approach | Advantages | Disadvantages |
+|----------|------------|---------------|
+| **Static** | Predictable, simple | Inflexible, may waste resources |
+| **Dynamic** | Adapts to task | Requires runtime overhead |
+
+**Recommended:** Hybrid approach—static base allocation + dynamic adjustment based on router pathway.
+
+---
+
+## Part XVI: Efficiency Metrics
+
+### XVI.1 Reasoning > Parameters
+
+Create efficiency metrics:
+
+```
+Capability Score / MB        = Intelligence density
+Capability Score / RAM       = Runtime efficiency
+Capability Score / FLOP      = Compute efficiency
+Capability Score / Latency   = Speed-efficiency tradeoff
+Capability Score / Energy    = Power efficiency
+```
+
+### XVI.2 Speed as First-Class Requirement
+
+Optimize:
+
+| Aspect | Target |
+|--------|--------|
+| **Startup Time** | < 2 seconds (Nano), < 5 seconds (Ultra) |
+| **Inference Latency** | < 50ms per token (Nano), < 100ms (Ultra) |
+| **Memory Bandwidth** | Minimize via selective activation |
+| **Active Parameters** | Top-K experts only |
+| **Routing Efficiency** | < 1ms router overhead |
+| **Cache Behavior** | Optimize for CPU cache lines |
+| **Model Loading** | Incremental/on-demand loading |
+| **Module Activation** | Lazy loading of specialists |
+| **Verification Cost** | Proportional to task criticality |
+| **Search Cost** | Adaptive depth based on difficulty |
+
+---
+
+## Part XVII: Offline-First and Accessibility
+
+### XVII.1 Design Priorities
+
+| Priority | Implementation |
+|----------|----------------|
+| **Offline Operation** | No cloud dependencies for core intelligence |
+| **Low-Resource Hardware** | Targets devices with <4GB RAM |
+| **Privacy** | All processing local; no data exfiltration |
+| **Low Energy Use** | Efficient inference, sleep modes |
+| **Small Downloads** | ≤500 MB (Nano), ≤2 GB (Ultra) |
+| **Fast Startup** | Optimized loading sequences |
+| **Broad Language Support** | 100+ languages |
+| **Everyday Usefulness** | Practical tasks prioritized |
+
+### XVII.2 Optional Online Mechanisms
+
+Cloud features (if any) must be:
+- **Optional**, not required
+- **Enhancements**, not core dependencies
+- **Privacy-preserving**, with local fallback
+
+---
+
+## Part XVIII: Benchmark Philosophy
+
+### XVIII.1 Avoid Comparative Claims
+
+Do NOT define success as "Better than Model X."
+
+Instead, use **absolute capability thresholds**.
+
+### XVIII.2 Benchmark Matrix
+
+| Category | Subcategories |
+|----------|---------------|
+| **Reasoning** | Logic, deduction, induction, analogy, planning, decomposition, multi-step |
+| **Mathematics** | Arithmetic, algebra, geometry, symbolic, numerical, proof-oriented, difficult |
+| **Coding** | Generation, debugging, repository understanding, testing, repair, tool use |
+| **Language** | Multilingual understanding, translation, instruction following, low-resource, informal, mixed |
+| **Multimodal** | Image understanding, OCR, diagrams, charts, audio, documents |
+| **Reliability** | Hallucination, contradiction, uncertainty, calibration, verification success |
+| **Prompt Independence** | Expert, weak, sloppy, colloquial, minimal, multilingual prompts |
+| **Efficiency** | Size, RAM, latency, energy, active compute |
+
+---
+
+## Part XIX: Adversarial Self-Testing
+
+### XIX.1 Systematic Weakness Identification
+
+Actively test against attempts to break the system:
+
+| Attack Type | Examples |
+|-------------|----------|
+| **Adversarial Prompts** | Jailbreak attempts, role-play bypasses |
+| **Multilingual Adversarial** | Attacks in low-resource languages |
+| **Mathematical Traps** | Problems designed to trigger common errors |
+| **Logical Contradictions** | Self-contradictory premises |
+| **Misleading Documents** | Fake citations, incorrect data |
+| **Ambiguous Questions** | Multiple valid interpretations |
+| **Coding Edge Cases** | Unusual syntax, recursion limits |
+| **Modality Corruption** | Noisy images, distorted audio |
+| **Resource Starvation** | Extremely long contexts, memory pressure |
+| **Long-Horizon Tasks** | 100+ step projects with changing constraints |
+| **Distribution Shifts** | Out-of-domain queries |
+
+### XIX.2 Goal
+
+**No known systematic weakness should remain untested.**
+
+Not perfection, but comprehensive testing coverage.
+
+---
+
+## Part XX: Four-Version Engineering Strategy
+
+### XX.1 Component Sharing
+
+| Component | Nano | Mobile | Pro | Ultra |
+|-----------|------|--------|-----|-------|
+| **KSC Architecture** | ✅ Shared | ✅ Shared | ✅ Shared | ✅ Shared |
+| **Dual Memory** | ✅ (128 slots) | ✅ (256 slots) | ✅ (512 slots) | ✅ (1024 slots) |
+| **MoE Experts** | 4 total, 2 active | 6 total, 2 active | 8 total, 2 active | 8 total, 3 active |
+| **Router Pathways** | 5 basic | 6 + meta | 7 + meta + failure | All pathways |
+| **Compression** | Aggressive (INT4–INT6) | Moderate (INT5–INT8) | Light (INT8–FP16) | Minimal (FP16) |
+| **Tools** | Python AST only | + DAG planner | + All tools | + Advanced tools |
+| **Context** | 8K | 16K | 32K | 64K+ |
+| **Multimodal** | Basic encoders | Standard encoders | Strong encoders | State-of-art encoders |
+
+### XX.2 Build Strategy
+
+```
+Shared Core Development
+         ↓
+    Nano Profile (most constrained)
+         ↓
+    Mobile Profile (extend capacity)
+         ↓
+    Pro Profile (add advanced features)
+         ↓
+    Ultra Profile (maximum capability)
+```
+
+**Rationale:** Building for most constrained first ensures efficiency carries through all versions.
+
+### XX.3 Never-Removed Capabilities
+
+The following must exist in ALL versions:
+
+1. Adaptive compute (even if K_max differs)
+2. Verification (even if simplified)
+3. Contradiction detection
+4. Multilingual support
+5. Basic multimodal understanding
+6. Tool orchestration (at least Python AST)
+7. Memory systems (scaled appropriately)
+
+### XX.4 Compression-Tolerant Components
+
+| Component | Can Tolerate Aggressive Compression |
+|-----------|-------------------------------------|
+| Low-frequency factual knowledge | ✅ Yes |
+| Rarely-used expert pathways | ✅ Yes |
+| Historical memory entries | ✅ Yes |
+| Auxiliary language models | ✅ Yes |
+| Core reasoning weights | ❌ No (preserve precision) |
+| Verification modules | ❌ No (exact computation required) |
+| Router/gating networks | ❌ No (critical for correctness) |
+
+---
+
+## Part XXI: Roadmap Phases (Restructured)
+
+### Phase Structure
+
+Each phase now includes:
+- Objective
+- Problem Statement
+- Architecture Changes
+- Algorithms
+- Interfaces
+- Tests
+- Benchmarks
+- Acceptance Criteria
+- Risks
+- Dependencies
+- Resource Impact
+- Version Impact
+
+---
+
+## Phase 1 — Khwarizmi Core Foundation
+
+### Objective
+Establish the shared reasoning core used by all four versions.
+
+### Problem
+Previous roadmap treated versions as separate scaling targets. Need unified core architecture.
+
+### Architecture
+- KSC state cell (eigenvalue-bounded recurrence)
+- Dual memory (short-term + long-term with utility gating)
+- Cognitive router with extended pathways
+- Sparse MoE with load balancing
+- Adaptive compute with learned halting
+- Neural reasoning core (latent synthesis + consistency)
+
+### Algorithms
+- Selective state update with stability bounds
+- Utility-gated memory operations (READ/WRITE/UPDATE/FORGET)
+- Top-K noisy gating for MoE
+- ACT-style halting with ponder cost
+- Latent consistency checking
+
+### Interfaces
+- `KhwarizmiConfig` with Nano/Mobile/Pro/Ultra presets
+- `CognitiveRouter` with pathway flags
+- `DualMemory` with operation interface
+- `AdaptiveComputeBlock` with halting control
+
+### Tests
+- Core forward/backward pass tests
+- Memory operation tests
+- Router pathway tests
+- MoE load balancing tests
+- Halting termination tests
+
+### Benchmarks
+- Associative recall (synthetic)
+- Sequence modeling (WikiText proxy)
+- Compute differentiation (easy vs. hard tasks)
+
+### Acceptance Criteria
+- All core tests passing
+- No numerical instability over 100K steps
+- Compute differentiation: K_avg ≤ 1.2 (easy), ≥ 2.5 (hard)
+
+### Risks
+- Numerical instability in recurrent state
+- Expert collapse in MoE
+- Non-terminating adaptive loops
+
+### Dependencies
+- None (foundational)
+
+### Resource Impact
+- Base architecture for all versions
+- Nano: ~300M params (compressed to ≤500 MB)
+- Mobile: ~500M params (compressed to ≤900 MB)
+- Pro: ~800M params (compressed to ≤1.5 GB)
+- Ultra: ~1.2B params (compressed to ≤2 GB)
+
+### Version Impact
+- **All four versions**
+
+---
+
+## Phase 2 — Meta-Reasoning and Difficulty Estimation
+
+### Objective
+Add meta-reasoning layer for strategy selection and compute allocation.
+
+### Problem
+Current router selects pathways but doesn't estimate difficulty or allocate budgets dynamically.
+
+### Architecture
+- Difficulty estimation head on KSC state
+- Strategy selector module
+- Compute budget allocator
+- Stopping criteria manager
+
+### Algorithms
+- Supervised difficulty classification (Easy/Medium/Hard)
+- Reinforcement learning for strategy selection
+- Dynamic budget adjustment based on confidence
+
+### Interfaces
+- `MetaReasoningOutput` with difficulty, strategy, budget
+- `DifficultyEstimator` class
+- `StrategySelector` with decision logging
+
+### Tests
+- Difficulty prediction accuracy tests
+- Strategy appropriateness tests
+- Budget allocation efficiency tests
+
+### Benchmarks
+- Difficulty prediction vs. actual solve time correlation
+- Strategy success rate by problem type
+- Compute efficiency (accuracy per FLOP)
+
+### Acceptance Criteria
+- Difficulty prediction accuracy ≥ 80%
+- Meta-reasoning adds < 5ms overhead
+- Improved accuracy on hard problems with increased budget
+
+### Risks
+- Meta-reasoning itself becomes computationally expensive
+- Difficulty estimation inaccurate without training data
+
+### Dependencies
+- Phase 1 (Core Foundation)
+
+### Resource Impact
+- +5M parameters (negligible)
+- +2–5ms latency per query
+
+### Version Impact
+- **All four versions** (with different budget ranges)
+
+---
+
+## Phase 3 — Failure Intelligence and Backtracking
+
+### Objective
+Implement failure detection, classification, memory, and strategy adaptation.
+
+### Problem
+Failed attempts currently disappear without learning. Need systematic failure analysis.
+
+### Architecture
+- Failure detector module
+- Failure classifier (7 categories)
+- Failure memory store
+- Strategy updater
+
+### Algorithms
+- Pattern matching for failure signatures
+- Clustering for failure classification
+- Reinforcement learning for strategy updates
+
+### Interfaces
+- `FailureReport` with category, attribution, severity
+- `FailureMemory` with retrieval API
+- `StrategyUpdater` with modification hooks
+
+### Tests
+- Failure detection sensitivity tests
+- Classification accuracy tests
+- Strategy adaptation effectiveness tests
+
+### Benchmarks
+- Repeated error reduction rate
+- Recovery success rate after failure
+- Time-to-recovery metric
+
+### Acceptance Criteria
+- Detect ≥ 90% of failures
+- Classify correctly ≥ 80% of detected failures
+- Reduce repeated errors by ≥ 50%
+
+### Risks
+- False positive failure detection
+- Overfitting to specific failure patterns
+
+### Dependencies
+- Phase 1 (Core), Phase 2 (Meta-Reasoning)
+
+### Resource Impact
+- +10M parameters
+- +10–20ms for failure analysis when triggered
+
+### Version Impact
+- **All four versions** (Nano has simpler classifier)
+
+---
+
+## Phase 4 — Contradiction Detection Module
+
+### Objective
+Add first-class contradiction detection and resolution.
+
+### Problem
+System can generate contradictory statements without awareness.
+
+### Architecture
+- Contradiction detection head
+- Dependency graph tracker
+- State checkpointing system
+- Resolution strategy selector
+
+### Algorithms
+- Neural contradiction detection (trained on conflicting pairs)
+- Graph-based dependency tracking
+- State rollback and recomputation
+
+### Interfaces
+- `ContradictionDetector` with confidence scoring
+- `DependencyGraph` with add/query/remove
+- `StateCheckpoint` with save/restore
+
+### Tests
+- Contradiction detection precision/recall
+- Dependency tracking accuracy
+- Successful resolution rate
+
+### Benchmarks
+- Contradiction rate in generated text
+- Resolution success rate
+- User-reported inconsistency rate
+
+### Acceptance Criteria
+- Detect ≥ 85% of contradictions
+- Resolve ≥ 70% of detected contradictions
+- Reduce user-reported inconsistencies by ≥ 60%
+
+### Risks
+- Over-detection (flagging non-contradictions)
+- Resolution creates new contradictions
+
+### Dependencies
+- Phase 1 (Core), Phase 3 (Failure Intelligence)
+
+### Resource Impact
+- +8M parameters
+- +5–10ms for contradiction checking
+
+### Version Impact
+- **All four versions**
+
+---
+
+## Phase 5 — Multi-Path Reasoning Engine
+
+### Objective
+Enable adaptive exploration of multiple reasoning paths.
+
+### Problem
+Single-path reasoning fails on complex problems requiring exploration.
+
+### Architecture
+- Path generator module
+- Path executor (parallel or sequential)
+- Path comparator and merger
+- Adaptive path counter (based on difficulty)
+
+### Algorithms
+- Diverse path generation (different assumptions/orders)
+- Beam-search style pruning
+- Weighted voting or merging
+
+### Interfaces
+- `MultiPathConfig` with max_paths, diversity_params
+- `PathResult` with solution, confidence, compute_cost
+- `PathMerger` with combination strategies
+
+### Tests
+- Path diversity measurement
+- Comparison accuracy tests
+- Adaptive count appropriateness
+
+### Benchmarks
+- Multi-path vs. single-path accuracy on hard problems
+- Compute efficiency (accuracy gain per additional path)
+- Optimal path count by difficulty
+
+### Acceptance Criteria
+- Multi-path improves hard problem accuracy by ≥ 15%
+- Easy problems use single path ≥ 90% of time
+- Compute overhead proportional to difficulty
+
+### Risks
+- Exploding compute on trivial problems
+- Paths not sufficiently diverse
+
+### Dependencies
+- Phase 2 (Meta-Reasoning), Phase 4 (Contradiction)
+
+### Resource Impact
+- Variable compute (1× to 5× base)
+- +15M parameters for path management
+
+### Version Impact
+- **All four versions** (different max_paths: Nano=2, Mobile=3, Pro=4, Ultra=5+)
+
+---
+
+## Phase 6 — Mathematical Reasoning Hybrid Architecture
+
+### Objective
+Implement hybrid neural + symbolic mathematical reasoning.
+
+### Problem
+Pure language prediction fails on precise mathematical computation.
+
+### Architecture
+- Math problem understanding module
+- Symbolic representation converter
+- Computational backend (SymPy-like + NumPy-like)
+- Verification layer
+
+### Algorithms
+- Natural language to symbolic parsing
+- Equation solving algorithms
+- Numerical computation with exact arithmetic
+- Proof checking (limited scope)
+
+### Interfaces
+- `MathProblemFrame` with parsed components
+- `SymbolicEngine` with solve/verify/simplify
+- `NumericalEngine` with compute/check_precision
+
+### Tests
+- Parsing accuracy on word problems
+- Solver correctness on benchmark suites
+- Verification reliability tests
+
+### Benchmarks
+- GSM8K accuracy
+- MATH dataset performance
+- Computational error rate
+
+### Acceptance Criteria
+- GSM8K ≥ 55% (Nano), ≥ 75% (Mobile), ≥ 85% (Pro), ≥ 90% (Ultra)
+- Zero computational errors on verified results
+- Clear separation: understanding (neural) vs. computing (symbolic)
+
+### Risks
+- Parser fails on ambiguous formulations
+- Symbolic engine too slow for interactive use
+
+### Dependencies
+- Phase 1 (Core), Phase 4 (Verification)
+
+### Resource Impact
+- +20M parameters
+- +50–200ms for symbolic computation (task-dependent)
+
+### Version Impact
+- **All four versions** (Nano has limited symbolic engine)
+
+---
+
+## Phase 7 — Multimodal Intelligence Integration
+
+### Objective
+Add comprehensive multimodal understanding (image, audio, documents).
+
+### Problem
+Current architecture is text-centric; multimodality treated as add-on.
+
+### Architecture
+- Unified multimodal embedding space
+- Modality-specific encoders (vision, audio, document)
+- Cross-modal attention mechanism
+- Modality router (selective activation)
+
+### Algorithms
+- Contrastive learning for alignment
+- Modality fusion strategies
+- Selective encoder activation
+
+### Interfaces
+- `MultimodalInput` with type detection
+- `ModalityEncoder` registry
+- `CrossModalAttention` module
+
+### Tests
+- Modality detection accuracy
+- Cross-modal retrieval tests
+- Selective activation efficiency
+
+### Benchmarks
+- Image understanding (VQA-style)
+- Audio transcription accuracy
+- Document extraction quality
+- OCR accuracy
+
+### Acceptance Criteria
+- Image QA accuracy ≥ 70% (Nano), ≥ 85% (Ultra)
+- Audio transcription WER ≤ 15% (clean), ≤ 30% (noisy)
+- Document extraction F1 ≥ 0.8
+
+### Risks
+- Encoders too large for Nano
+- Cross-modal attention computationally expensive
+
+### Dependencies
+- Phase 1 (Core)
+
+### Resource Impact
+- Nano: +50M (basic encoders)
+- Mobile: +100M (standard encoders)
+- Pro: +200M (strong encoders)
+- Ultra: +400M (advanced encoders)
+
+### Version Impact
+- **All four versions** (different encoder capacities)
+
+---
+
+## Phase 8 — Global Multilingual Tokenizer and Semantics
+
+### Objective
+Build tokenizer and semantic layer supporting 100+ languages.
+
+### Problem
+Current tokenizer minimal; lacks broad multilingual optimization.
+
+### Architecture
+- Byte-fallback BPE/Unigram tokenizer
+- Language-independent semantic representation
+- Cross-lingual transfer mechanisms
+- Prompt-skill independence layer
+
+### Algorithms
+- Subword tokenization with byte fallback
+- Semantic parsing to language-neutral forms
+- Intent recovery from noisy inputs
+
+### Interfaces
+- `MultilingualTokenizer` with 100+ language support
+- `SemanticParser` with language-agnostic output
+- `IntentRecovery` module
+
+### Tests
+- Roundtrip encoding/decoding per language
+- Token fertility comparison (vs. GPT-4/Llama-3)
+- Intent recovery from degraded inputs
+
+### Benchmarks
+- Token fertility: Arabic < 1.4 tokens/word
+- Cross-lingual task consistency
+- Prompt-skill independence scores
+
+### Acceptance Criteria
+- Support 100+ languages
+- Arabic token fertility ≤ 1.4
+- Comparable capability across languages (within 5%)
+- Prompt-skill independence: expert ≈ beginner ≈ sloppy prompts
+
+### Risks
+- Tokenizer too large for Nano
+- Low-resource languages underperform
+
+### Dependencies
+- Phase 1 (Core)
+
+### Resource Impact
+- +10M parameters (tokenizer vocabulary)
+- Negligible latency impact
+
+### Version Impact
+- **All four versions** (shared tokenizer)
+
+---
+
+## Phase 9 — Knowledge-on-Demand Architecture
+
+### Objective
+Implement compressed knowledge with relevance-gated activation.
+
+### Problem
+Cannot store all knowledge in active memory; need selective loading.
+
+### Architecture
+- Compressed knowledge index
+- Relevance detector
+- On-demand loader
+- Release/compress mechanism
+
+### Algorithms
+- Semantic similarity for relevance
+- Incremental decompression
+- LRU-style caching for loaded knowledge
+
+### Interfaces
+- `CompressedKnowledgeStore` with load/unload
+- `RelevanceDetector` with threshold tuning
+- `KnowledgeCache` with eviction policy
+
+### Tests
+- Relevance detection accuracy
+- Load/unload latency
+- Cache hit rate
+
+### Benchmarks
+- Information density (facts per MB)
+- Knowledge retrieval latency
+- Active memory reduction
+
+### Acceptance Criteria
+- 3× information density vs. naive storage
+- Knowledge load latency < 50ms
+- Active memory reduced by ≥ 40%
+
+### Risks
+- Relevance detection misses critical knowledge
+- Loading latency impacts responsiveness
+
+### Dependencies
+- Phase 1 (Core), Phase 8 (Multilingual Semantics)
+
+### Resource Impact
+- Reduces active memory footprint by 40–60%
+- +5M parameters for relevance detection
+
+### Version Impact
+- **All four versions** (critical for Nano)
+
+---
+
+## Phase 10 — Selective and Heterogeneous Compression
+
+### Objective
+Implement capability-aware compression framework.
+
+### Problem
+Uniform compression degrades critical components unnecessarily.
+
+### Architecture
+- Component-wise compression selector
+- Mixed-precision inference engine
+- Compression impact profiler
+
+### Algorithms
+- Sensitivity analysis per component
+- Progressive quantization with validation
+- Heterogeneous precision assignment
+
+### Interfaces
+- `CompressionProfile` per component
+- `MixedPrecisionEngine` with type casting
+- `CompressionProfiler` with metrics
+
+### Tests
+- Per-component accuracy retention
+- Mixed-precision correctness
+- Profiler accuracy
+
+### Benchmarks
+- Memory saved per compression level
+- Speed gained vs. accuracy lost
+- Pareto frontier of compression choices
+
+### Acceptance Criteria
+- Nano: ≤ 500 MB with < 3% accuracy loss
+- Mobile: ≤ 900 MB with < 2% accuracy loss
+- Pro: ≤ 1.5 GB with < 1% accuracy loss
+- Ultra: ≤ 2 GB with < 0.5% accuracy loss
+
+### Risks
+- Over-compression of sensitive components
+- Mixed-precision bugs
+
+### Dependencies
+- Phase 1 (Core), Phase 6 (Math), Phase 7 (Multimodal)
+
+### Resource Impact
+- Major reduction in storage and RAM
+- Minor latency for type conversion
+
+### Version Impact
+- **All four versions**
+
+---
+
+## Phase 11 — Training Infrastructure and Data Pipeline
+
+### Objective
+Build low-resource training infrastructure with Islamic alignment.
+
+### Problem
+Need to train all four versions efficiently with quality data.
+
+### Architecture
+- QLoRA-based trainer
+- Micro-batching with gradient checkpointing
+- Islamic data filtering pipeline
+- CoT data generation (via Qwen distillation)
+- MinHash deduplication
+
+### Algorithms
+- QLoRA parameter-efficient fine-tuning
+- Gradient accumulation for small batches
+- Islamic content filtering (halal/haram classification)
+- MinHash LSH for deduplication
+
+### Interfaces
+- `LowResourceTrainer` with memory optimization
+- `IslamicFilter` with sharia compliance checks
+- `CoTGenerator` for reasoning data
+- `DeduplicationPipeline`
+
+### Tests
+- Training stability tests
+- Islamic filter accuracy
+- Deduplication ratio measurement
+
+### Benchmarks
+- Training throughput (tokens/sec/GPU)
+- Islamic compliance (≥ 99% on haram queries)
+- Deduplication ratio (≥ 30%)
+
+### Acceptance Criteria
+- Train 700M model on single 15GB GPU
+- Islamic filter: 0% haram outputs on test set
+- Training data deduplicated by ≥ 30%
+
+### Risks
+- Training instability with QLoRA
+- Islamic filter false positives/negatives
+
+### Dependencies
+- Phase 1 (Core), Phase 8 (Multilingual)
+
+### Resource Impact
+- Enables efficient training of all versions
+
+### Version Impact
+- **All four versions**
+
+---
+
+## Phase 12 — Comprehensive Evaluation Suite
+
+### Objective
+Execute full benchmark matrix across all dimensions.
+
+### Problem
+Need empirical evidence of capability across all areas.
+
+### Architecture
+- Automated benchmark runner
+- Statistical significance testing
+- Ablation study framework
+- Adversarial testing suite
+
+### Algorithms
+- Bootstrap resampling for confidence intervals
+- Paired t-tests for ablation comparisons
+- Adversarial example generation
+
+### Interfaces
+- `BenchmarkSuite` with standardized runners
+- `AblationStudy` with component toggles
+- `AdversarialTester` with attack generators
+
+### Tests
+- All benchmark categories from Part XVIII
+- Cross-lingual consistency tests
+- Prompt-skill independence tests
+- Adversarial robustness tests
+
+### Benchmarks
+- Full matrix: reasoning, math, coding, language, multimodal, reliability, efficiency
+
+### Acceptance Criteria
+- All benchmarks executed for all four versions
+- Statistical significance reported (p < 0.01)
+- No systematic weaknesses untested
+
+### Risks
+- Benchmarks not representative of real use
+- Adversarial tests miss novel attack vectors
+
+### Dependencies
+- Phases 1–11 (all implementations)
+
+### Resource Impact
+- Compute-intensive but one-time per version
+
+### Version Impact
+- **All four versions** evaluated
+
+---
+
+## Phase 13 — Quantization and Offline Runtime
+
+### Objective
+Implement production quantization and CPU-optimized runtime.
+
+### Problem
+Need fast, offline inference on low-resource devices.
+
+### Architecture
+- INT4/INT5/INT8 quantization pipeline
+- GGUF export compatibility
+- SIMD-optimized CPU inference engine
+- Incremental model loading
+
+### Algorithms
+- Quantization-aware training (optional)
+- Post-training quantization with calibration
+- SIMD vectorization for matrix ops
+
+### Interfaces
+- `QuantizationPipeline` with format selection
+- `GGUFExporter` for compatibility
+- `CPUInferenceEngine` with SIMD optimizations
+
+### Tests
+- Quantization error bounds
+- Perplexity degradation (< 2% at INT4)
+- Generation speed on CPU
+
+### Benchmarks
+- Tokens/sec on consumer CPU (AVX2/NEON)
+- Peak RAM during inference
+- First-token latency
+
+### Acceptance Criteria
+- Nano: ≥ 45 tok/s (CPU), < 400 MB RAM
+- Mobile: ≥ 30 tok/s (CPU), < 900 MB RAM
+- Pro: ≥ 18 tok/s (CPU), < 1.5 GB RAM
+- Ultra: ≥ 10 tok/s (CPU), < 2 GB RAM
+
+### Risks
+- Quantization degrades reasoning quality
+- CPU engine slower than expected
+
+### Dependencies
+- Phase 10 (Compression), Phase 11 (Training)
+
+### Resource Impact
+- Major speed and memory improvements
+
+### Version Impact
+- **All four versions**
+
+---
+
+## Phase 14 — Edge Deployment and Packaging
+
+### Objective
+Package all four versions for target devices.
+
+### Problem
+Need distributable packages optimized for each tier.
+
+### Architecture
+- Nano: Android APK + lightweight runtime
+- Mobile: Cross-platform mobile package
+- Pro: Desktop application (Windows/Mac/Linux)
+- Ultra: High-end desktop/server package
+
+### Algorithms
+- Platform-specific optimizations
+- Model bundling and compression
+- Update mechanism (offline-compatible)
+
+### Interfaces
+- Platform SDKs (Android, iOS, Windows, Mac, Linux)
+- Update manager
+- Configuration UI
+
+### Tests
+- Installation on target devices
+- Performance benchmarks per platform
+- Battery/thermal stress tests
+
+### Benchmarks
+- Startup time per platform
+- Battery drain per 1000 tokens
+- Thermal throttling behavior
+
+### Acceptance Criteria
+- Nano: Works on 5-year-old Android with 2GB RAM
+- Mobile: Works on mid-range smartphone
+- Pro: Works on consumer laptop
+- Ultra: Works on high-end workstation
+
+### Risks
+- Platform-specific bugs
+- Distribution size exceeds targets
+
+### Dependencies
+- Phase 13 (Runtime)
+
+### Resource Impact
+- Packaging overhead minimal
+
+### Version Impact
+- **All four versions** (different platforms)
+
+---
+
+## Phase 15 — Adversarial Self-Testing and Hardening
+
+### Objective
+Systematically identify and fix weaknesses.
+
+### Problem
+Need proactive weakness discovery before users find them.
+
+### Architecture
+- Adversarial prompt generator
+- Multilingual attack suite
+- Edge case explorer
+- Weakness tracker and fix verifier
+
+### Algorithms
+- Genetic algorithm for prompt evolution
+- Fuzzing for edge cases
+- Regression testing for fixes
+
+### Interfaces
+- `AdversarialGenerator` with strategy selection
+- `WeaknessTracker` with severity scoring
+- `FixVerifier` with regression prevention
+
+### Tests
+- All attack types from Part XIX
+- Fix effectiveness verification
+- Regression prevention
+
+### Benchmarks
+- Attack success rate (should decrease over time)
+- Time-to-fix for discovered weaknesses
+- Residual weakness count
+
+### Acceptance Criteria
+- ≥ 10,000 adversarial tests executed
+- Attack success rate < 5%
+- All critical weaknesses addressed
+
+### Risks
+- Adversarial generation misses novel attacks
+- Fixes introduce new bugs
+
+### Dependencies
+- Phase 12 (Evaluation)
+
+### Resource Impact
+- Ongoing compute for testing
+
+### Version Impact
+- **All four versions**
+
+---
+
+## Phase 16 — Stable Release and Documentation
+
+### Objective
+Finalize stable release with comprehensive documentation.
+
+### Problem
+Need production-ready packages with clear usage guidance.
+
+### Architecture
+- Versioned releases (v1.0.0)
+- User documentation (all languages)
+- Developer API documentation
+- Benchmark reports
+
+### Algorithms
+- Documentation generation
+- Release automation
+- Continuous integration
+
+### Interfaces
+- Public APIs (stable)
+- CLI tools
+- GUI applications
+
+### Tests
+- Full regression suite
+- Documentation accuracy checks
+- User acceptance testing
+
+### Benchmarks
+- Final benchmark scorecard for all versions
+- User satisfaction surveys
+- Real-world performance metrics
+
+### Acceptance Criteria
+- All four versions released and documented
+- Benchmarks publicly reported
+- User feedback incorporated
+
+### Risks
+- Last-minute bugs
+- Documentation incomplete
+
+### Dependencies
+- Phases 1–15 (all complete)
+
+### Resource Impact
+- Final packaging and publishing
+
+### Version Impact
+- **All four versions**
+
+---
+
+## Part XXII: Migration from Old Roadmap
+
+### Retained Phases (with modifications)
+
+| Old Phase | New Status | Changes |
+|-----------|------------|---------|
+| Phase 0 (Audit) | ✅ Complete | Superseded by this document |
+| Phase 1 (Math Spec) | ✅ Complete | Integrated into Phase 1 |
+| Phase 2 (KSC Prototype) | ✅ Complete | Validated, retained |
+| Phase 3 (Dual Memory) | ✅ Complete | Validated, retained |
+| Phase 4 (MoE) | ✅ Complete | Validated, retained |
+| Phase 5 (Adaptive Compute) | ✅ Complete | Validated, retained |
+| Phase 6 (Neural Reasoning) | ✅ Complete | Validated, retained |
+| Phase 7A (Excellence Pipeline) | ✅ Partial | Integrated into Phase 11 |
+| Phase 7B (Islamic Alignment) | ⚠️ Pending | Integrated into Phase 11 |
+| Phase 7C (Domains) | ⚠️ Partial | Integrated into Phases 6–7 |
+
+### Modified Phases
+
+| Old Phase | New Phase | Modification |
+|-----------|-----------|--------------|
+| Phase 7 (Integration) | Phase 1 | Expanded to include meta-reasoning, failure intelligence |
+| Phase 8 (Training Infra) | Phase 11 | Added Islamic alignment, multilingual support |
+| Phase 9 (Tokenizer) | Phase 8 | Expanded to 100+ languages, semantic layer |
+| Phase 10 (Small Training) | Phase 11 | Now covers all four versions |
+| Phase 11 (Evaluation) | Phase 12 | Expanded benchmark matrix |
+| Phase 12 (Quantization) | Phase 13 | Added heterogeneous compression |
+| Phase 13 (Tools) | Phase 6 | Integrated into math reasoning |
+| Phase 14 (Project Intelligence) | Phase 5 | Integrated into multi-path reasoning |
+| Phase 15 (Edge Deployment) | Phase 14 | Aligned with four versions |
+| Phase 16 (Stable Release) | Phase 16 | Updated for four-version release |
+
+### Removed Phases
+
+| Old Phase | Reason for Removal |
+|-----------|-------------------|
+| References to 5B–10B+ models | Exceeds 2 GB Ultra limit |
+| Cloud-dependent features | Violates offline-first principle |
+| Separate "Advanced Tier" | Replaced by Ultra profile |
+
+### New Phases
+
+| New Phase | Purpose |
+|-----------|---------|
+| Phase 2 (Meta-Reasoning) | Strategy selection, difficulty estimation |
+| Phase 3 (Failure Intelligence) | Failure analysis, classification, adaptation |
+| Phase 4 (Contradiction Detection) | Conflict detection and resolution |
+| Phase 5 (Multi-Path Reasoning) | Adaptive exploration |
+| Phase 9 (Knowledge-on-Demand) | Compressed knowledge with selective activation |
+| Phase 10 (Heterogeneous Compression) | Capability-aware quantization |
+| Phase 15 (Adversarial Testing) | Systematic weakness identification |
+
+---
+
+## Part XXIII: Next Steps
+
+### Immediate Priorities
+
+1. **Update Configuration Files**
+   - Add Nano/Mobile/Pro/Ultra presets to `khwarizmi/config/tiers.py`
+   - Define compression profiles per version
+
+2. **Extend Cognitive Router**
+   - Add meta-reasoning pathway
+   - Add failure handling pathway
+   - Add contradiction detection pathway
+
+3. **Implement Failure Intelligence**
+   - Create failure detector module
+   - Build failure memory store
+   - Implement strategy updater
+
+4. **Develop Contradiction Detection**
+   - Train contradiction detection head
+   - Implement dependency graph
+   - Add state checkpointing
+
+5. **Expand Benchmark Suite**
+   - Add cross-lingual consistency tests
+   - Add prompt-skill independence tests
+   - Add adversarial robustness tests
+
+### Recommended Implementation Order
+
+```
+Phase 1 (already largely complete)
+    ↓
+Phase 2 (Meta-Reasoning)
+    ↓
+Phase 3 (Failure Intelligence)
+    ↓
+Phase 4 (Contradiction Detection)
+    ↓
+Phase 5 (Multi-Path Reasoning)
+    ↓
+Phase 6 (Math Hybrid) ← Parallel with Phase 7
+Phase 7 (Multimodal)   ←
+    ↓
+Phase 8 (Multilingual Tokenizer)
+    ↓
+Phase 9 (Knowledge-on-Demand)
+    ↓
+Phase 10 (Heterogeneous Compression)
+    ↓
+Phase 11 (Training Infrastructure)
+    ↓
+Phase 12 (Comprehensive Evaluation)
+    ↓
+Phase 13 (Quantization Runtime)
+    ↓
+Phase 14 (Edge Deployment)
+    ↓
+Phase 15 (Adversarial Hardening)
+    ↓
+Phase 16 (Stable Release)
 ```
 
 ---
 
-## Detailed Phase Specifications
+## Appendix A: Glossary
 
-### Phase 0: Repository Audit + Architecture Reset
-* **Objective:** Audit the existing codebase, isolate legacy symbolic components into an optional external tool layer, establish the formal architecture blueprint, and create implementation-ready documentation.
-* **Exact Deliverables:** `ARCHITECTURE.md`, `ROADMAP.md`, `RESEARCH.md`, `EXPERIMENTS.md`, `BENCHMARKS.md`, `TRAINING.md`, `MEMORY.md`, `DEPLOYMENT.md`, `CONTRIBUTING.md`, updated `README.md`.
-* **Files/Modules:** Top-level `.md` files; preservation of existing `rafig/` Python files without breaking tests.
-* **Dependencies:** Python standard library (`unittest`).
-* **Tests:** `python -m unittest discover -v` (141 existing tests passing).
-* **Benchmarks:** Zero-regression check on existing unit tests.
-* **Success Criteria:** 100% of documentation files written, mathematically justified, and verified; 0 broken existing tests.
-* **Failure Criteria:** Any missing required section from Phase 0 deliverables; test regression.
-* **Exit Criteria:** Approved architecture specification by engineering team.
-* **What Must NOT Be Implemented Yet:** No neural network training, no new PyTorch models, no deletion of legacy python files.
-
----
-
-### Phase 1: Mathematical Specification & Hardware Verification
-* **Objective:** Formally specify and mathematically prove stability bounds, eigenvalue constraints, and algorithmic complexity for the Khwarizmi State Cell (KSC), Dual Memory gating, and Cognitive Router.
-* **Exact Deliverables:** Mathematical verification scripts simulating state eigenvalues over 100,000 steps; reference NumPy/CPU implementations of KSC recurrence.
-* **Files/Modules:** `khwarizmi/core/ksc_cell.py`, `tests/test_ksc_cell.py`.
-* **Dependencies:** NumPy, SciPy (for numerical verification in testing only).
-* **Tests:** Numerical stability tests ensuring no NaN/Inf over $10^5$ sequence iterations; gradient flow check.
-* **Benchmarks:** Synthetic associative recall memory benchmark (copying and needle retrieval on toy sequences).
-* **Success Criteria:** 0% NaN/overflows across $10^5$ random FP32/FP16 sequence steps; associative recall $>98\%$ on 4096-token synthetic sequences.
-* **Failure Criteria:** Numerical divergence or exploding gradients in KSC recurrence.
-* **Exit Criteria:** Verified NumPy/PyTorch reference operators passing all stability tests.
-* **What Must NOT Be Implemented Yet:** No MoE layers, no Multi-Head Attention, no Large Language Model training.
+| Term | Definition |
+|------|------------|
+| **ARRC** | Adaptive Recurrent Reasoning Cycles |
+| **ACT** | Adaptive Computation Time |
+| **KSC** | Khwarizmi State Cell |
+| **MoE** | Mixture of Experts |
+| **NIAH** | Needle-In-A-Haystack (long-context retrieval test) |
+| **QLoRA** | Quantized Low-Rank Adaptation |
+| **GGUF** | GPT-Generated Unified Format (quantized model format) |
+| **SIMD** | Single Instruction Multiple Data (CPU vectorization) |
 
 ---
 
-### Phase 2: Minimal Khwarizmi State Cell (KSC) Prototype (50M–150M)
-* **Objective:** Implement a clean, modular KSC residual block and train a small 50M–150M parameter prototype model on language modeling and sequence tasks.
-* **Exact Deliverables:** `khwarizmi/core/ksc_block.py`, `khwarizmi/core/embeddings.py`, Prototype Tier config (`50M`, `150M`).
-* **Files/Modules:** `khwarizmi/core/*`, `tests/test_ksc_block.py`.
-* **Dependencies:** PyTorch (CPU & GPU).
-* **Tests:** Forward/backward pass shape and gradient tests; sequence invariance tests.
-* **Benchmarks:** WikiText-103 perplexity comparison against equal-sized Transformer baseline; First-token latency and memory footprint at 4K and 16K token context.
-* **Success Criteria:** KSC matches or outperforms baseline Transformer perplexity on WikiText-103 while using $\le 50\%$ RAM at 16K context length.
-* **Failure Criteria:** Worse perplexity ($>5\%$ higher) than standard GRU/Transformer baseline or memory growth linear in sequence length during inference.
-* **Exit Criteria:** Completed ablation report proving sub-quadratic memory and competitive language modeling capability.
-* **What Must NOT Be Implemented Yet:** No sparse experts, no external memory databases, no symbolic tools.
+## Appendix B: Configuration Examples
+
+### Nano Configuration (Example)
+
+```python
+def get_nano_config() -> KhwarizmiConfig:
+    return KhwarizmiConfig(
+        # Model capacity
+        vocab_size=32768,
+        d_model=384,
+        n_layers=12,
+        n_heads=6,
+        
+        # MoE (4 experts, 2 active)
+        num_experts=4,
+        top_k_experts=2,
+        moe_frequency=3,
+        
+        # Memory (minimal)
+        memory_dim=384,
+        memory_slots=128,
+        short_term_capacity=64,
+        
+        # Adaptive compute (limited depth)
+        max_recurrent_cycles=3,
+        
+        # Context (constrained)
+        max_seq_len=8192,
+        
+        # Stability
+        gamma_min=0.85,
+        gamma_max=0.995,
+        
+        # Compression (aggressive)
+        default_compression="int5",
+        
+        # Pathways (basic set)
+        num_pathways=5,
+        
+        tier_name="Nano",
+        target_footprint_mb=500,
+    )
+```
+
+### Ultra Configuration (Example)
+
+```python
+def get_ultra_config() -> KhwarizmiConfig:
+    return KhwarizmiConfig(
+        # Model capacity (maximum)
+        vocab_size=65536,
+        d_model=2048,
+        n_layers=48,
+        n_heads=32,
+        
+        # MoE (8 experts, 3 active)
+        num_experts=8,
+        top_k_experts=3,
+        moe_frequency=2,
+        
+        # Memory (extensive)
+        memory_dim=2048,
+        memory_slots=1024,
+        short_term_capacity=512,
+        
+        # Adaptive compute (deep reasoning)
+        max_recurrent_cycles=8,
+        
+        # Context (very long)
+        max_seq_len=65536,
+        
+        # Stability (tight bounds)
+        gamma_min=0.90,
+        gamma_max=0.999,
+        
+        # Compression (minimal)
+        default_compression="fp16",
+        
+        # Pathways (full set)
+        num_pathways=10,
+        
+        tier_name="Ultra",
+        target_footprint_mb=2000,
+    )
+```
 
 ---
 
-### Phase 3: Dual Memory Architecture Prototype
-* **Objective:** Build and test the Short-Term Working State buffer and Utility-Gated Long-Term Persistent Memory store with learned `READ`, `WRITE`, `UPDATE`, and `FORGET` operations.
-* **Exact Deliverables:** `khwarizmi/memory/short_term.py`, `khwarizmi/memory/long_term.py`, `khwarizmi/memory/gating.py`.
-* **Files/Modules:** `khwarizmi/memory/*`, `tests/test_dual_memory.py`.
-* **Dependencies:** PyTorch, standard library serialization.
-* **Tests:** Memory write/eviction unit tests; utility score decay tests; key-value associative recall tests.
-* **Benchmarks:** Long-Context Needle-In-A-Haystack (NIAH) up to 32,000 tokens; Dynamic Knowledge Update Benchmark.
-* **Success Criteria:** NIAH retrieval accuracy $\ge 95\%$ across 32K context; successful eviction of bottom-10% lowest utility items without losing high-utility facts.
-* **Failure Criteria:** Memory table saturation leading to retrieval degradation ($<70\%$ accuracy) or catastrophic forgetting of high-utility keys.
-* **Exit Criteria:** Experimental validation report confirming Dual Memory improves long-horizon recall without increasing KSC state size.
-* **What Must NOT Be Implemented Yet:** No MoE routing, no project planner tool integration.
+## Appendix C: Decision Log
+
+| Decision | Date | Rationale |
+|----------|------|-----------|
+| Four-version strategy | 2026-08-27 | Balance accessibility with capability |
+| 2 GB Ultra hard limit | 2026-08-27 | Maintain consumer hardware accessibility |
+| Shared core architecture | 2026-08-27 | Ensure consistent reasoning philosophy |
+| Prompt-skill independence | 2026-08-27 | Remove barrier to entry for non-expert users |
+| Cross-lingual consistency | 2026-08-27 | True multilingual intelligence, not translation |
+| Heterogeneous compression | 2026-08-27 | Preserve critical component precision |
+| Knowledge-on-demand | 2026-08-27 | Enable high information density in small footprint |
+| Adversarial self-testing | 2026-08-27 | Proactive weakness identification |
 
 ---
 
-### Phase 4: Sparse Mixture-of-Experts (MoE) Prototype
-* **Status:** Implemented — `khwarizmi/experts/moe_layer.py` + `khwarizmi/experts/specialists.py`, 57 tests in `tests/test_moe.py`, benchmark in `benchmarks/phase4_sparse_moe.py`; see `ARCHITECTURE.md` §4.4 and `BENCHMARKS.md` §7.
-* **Objective:** Implement Sparse Top-$K$ Noisy Gated MoE layers with auxiliary load-balancing loss and measure parameter efficiency and latency.
-* **Exact Deliverables:** `khwarizmi/experts/moe_layer.py`, `khwarizmi/experts/specialists.py`.
-* **Files/Modules:** `khwarizmi/experts/*`, `tests/test_moe.py`.
-* **Dependencies:** PyTorch.
-* **Tests:** Router load balancing tests (ensuring no expert receives $<5\%$ or $>40\%$ of tokens); gradient flow through Top-$K$ gating.
-* **Benchmarks:** Per-token inference latency (CPU and GPU); active parameter vs quality trade-off curve on multi-domain test set.
-* **Success Criteria:** MoE achieves $\ge 8\%$ validation perplexity improvement over dense baseline of equal *active* parameters, with auxiliary balance loss $\le 0.05$.
-* **Failure Criteria:** Expert collapse (1-2 experts dominating $>60\%$ of tokens) or CPU inference latency overhead exceeding 20%.
-* **Exit Criteria:** Mandatory Ablation Decision: If MoE fails latency/quality thresholds on CPU, it is removed; otherwise, approved for Small Tier integration.
-* **What Must NOT Be Implemented Yet:** No adaptive halting, no full agent CLI.
+## Document History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | 2026-08-11 | Initial 17-phase roadmap |
+| 2.0 | 2026-08-11 | Architecture reset with Islamic alignment |
+| 3.0 | 2026-08-19 | Added Physics/Art/Creativity domains |
+| 4.0 | 2026-08-27 | Complete restructuring for Nano/Mobile/Pro/Ultra |
 
 ---
 
-### Phase 5: Adaptive Compute & Learned Halting
-* **Status:** Implemented — per-token ACT-style ARRC halting in `khwarizmi/reasoning/adaptive_compute.py` (`AdaptiveComputeBlock` + `PonderCostLoss`), 57 tests in `tests/test_adaptive_compute_phase5.py`, benchmark in `benchmarks/phase5_adaptive_compute.py`; see `ARCHITECTURE.md` §4.5 and `BENCHMARKS.md` §8.
-* **Objective:** Implement Adaptive Recurrent Reasoning Cycles (ARRC) allowing dynamic depth/iteration halting based on token complexity.
-* **Exact Deliverables:** `khwarizmi/reasoning/adaptive_compute.py`, ponder cost loss module.
-* **Files/Modules:** `khwarizmi/reasoning/adaptive_compute.py`, `tests/test_adaptive_compute.py`.
-* **Dependencies:** PyTorch.
-* **Tests:** Halting condition verification ($\sum p_k \ge 1 - \epsilon$); ponder loss penalty gradient check.
-* **Benchmarks:** Easy vs Hard Task Compute Comparison Benchmark (measuring average cycles $K_{\text{avg}}$ on arithmetic vs basic factual recall).
-* **Success Criteria:** $K_{\text{avg}} \le 1.2$ on easy tasks and $K_{\text{avg}} \ge 2.5$ on hard tasks, achieving $\ge 15\%$ accuracy improvement on hard math/logic problems over fixed single-pass compute.
-* **Failure Criteria:** Infinite loops ($K = K_{\max}$ on $>20\%$ of samples) or zero compute differentiation between easy and hard queries.
-* **Exit Criteria:** Verified adaptive compute efficiency without regression on fast-path queries.
-* **What Must NOT Be Implemented Yet:** No Python AST repair tool integration.
-
----
-
-### Phase 6: Neural Reasoning Core
-* **Objective:** Implement latent space reasoning refinement, self-checking, and error detection without exposing raw verbose ASCII chain-of-thought.
-* **Exact Deliverables:** `khwarizmi/reasoning/latent_reasoner.py`, structured reasoning synthesis head.
-* **Files/Modules:** `khwarizmi/reasoning/*`, `tests/test_reasoning_core.py`.
-* **Dependencies:** PyTorch.
-* **Tests:** Step-wise state consistency tests; self-checking error detection accuracy tests.
-* **Benchmarks:** GSM8K-Offline and Symbolic Logic Reasoning Suite.
-* **Success Criteria:** GSM8K-Offline exact match $\ge 65\%$ on Small Tier (300M-700M) without emitting external scratchpad tokens.
-* **Failure Criteria:** Reasoning accuracy below standard chain-of-thought baseline or state divergence during latent iterations.
-* **Exit Criteria:** Benchmarked superiority of latent reasoning over unverified CoT.
-* **What Must NOT Be Implemented Yet:** No end-user chat UI, no external agent loops.
-
----
-
-### Phase 7A: Claude-Level Excellence — Data & Training Pipeline (NEW CRITICAL PHASE)
-* **Objective:** Implement the five critical steps to match/exceed Claude's reasoning quality: (1) Latent CoT Data Engineering via Qwen, (2) AST/DAG Code Alignment with Compiler Feedback RL, (3) Strict Ponder Cost Regularization, (4) MinHash Deduplication for Billion-Token Quality, (5) Dual Memory Training on Full Project Contexts.
-* **Exact Deliverables:** 
-  - `khwarizmi/data/qwen_cot_pipeline.py` — Latent CoT data generator using Qwen-2.5-72B-Instruct
-  - `khwarizmi/tools/compiler_feedback.py` — AST validator with RL penalty integration
-  - `khwarizmi/training/ponder_loss_strict.py` — Enforced adaptive compute loss ($\mathcal{L}_{\text{ponder}}$)
-  - `khwarizmi/data/minhash_dedup.py` — Billion-token deduplication pipeline
-  - `khwarizmi/memory/context_training.py` — Full-project context training for Dual Memory gates
-* **Files/Modules:** `khwarizmi/data/*`, `khwarizmi/tools/*`, `khwarizmi/training/*`, `tests/test_phase7a_excellence.py`.
-* **Dependencies:** PyTorch, Qwen API (offline export), MinHash LSH library.
-* **Tests:** 
-  - CoT data quality check (≥95% logical consistency)
-  - AST zero-error validation on 10K generated code samples
-  - Ponder cost differentiation (easy tasks $K_{avg} ≤ 1.2$, hard tasks $K_{avg} ≥ 2.5$)
-  - Deduplication ratio ≥30% on raw corpus
-  - Dual Memory eviction accuracy ≥90% on project-context benchmarks.
-* **Benchmarks:** 
-  - GSM8K-Offline ≥70% (vs Claude's ~75%)
-  - HumanEval-ZeroShot ≥65% (vs Claude's ~70%)
-  - Long-Context NIAH ≥98% at 128K tokens.
-* **Success Criteria:** All five sub-components validated; model shows Claude-level reasoning depth with 90% compute savings on easy tasks.
-* **Failure Criteria:** Any of the five components fails its individual benchmark; code error rate >1%; deduplication <20%.
-* **Exit Criteria:** Approved data pipeline and training losses ready for Phase 10 full training.
-* **What Must NOT Be Implemented Yet:** No full model training (Phase 10), no quantization (Phase 12).
-
----
-
-### Phase 7B: Islamic Alignment & Sharia Compliance Engine (NEW CRITICAL PHASE)
-* **Objective:** Implement comprehensive Islamic alignment to ensure the model automatically rejects haram requests and accepts halal ones based on deep Sharia understanding, while maintaining low-resource operation and superior reasoning capabilities.
-* **Exact Deliverables:**
-  - `khwarizmi/data/islamic_filter.py` — Islamic data filtering and alignment pipeline
-  - `khwarizmi/data/islamic_data_collector.py` — Collect Islamic data from trusted sources (Quran, Hadith, Fiqh, Fatwa)
-  - `khwarizmi/routing/sharia_router.py` — Sharia-aware cognitive router with `SHARIA_CHECK` pathway
-  - `khwarizmi/training/islamic_loss.py` — Halal/Haram loss penalty ($\mathcal{L}_{\text{sharia}}$) for Sharia compliance
-  - `khwarizmi/memory/islamic_knowledge.py` — Persistent Islamic knowledge store (verses, hadiths, fatwas)
-  - `khwarizmi/tools/islamic_fatwa.py` — Symbolic fatwa tool with multi-madhab support
-  - `khwarizmi/config/islamic_config.yaml` — Configuration for madhabs, languages, and Sharia settings
-* **Files/Modules:** `khwarizmi/data/*`, `khwarizmi/routing/*`, `khwarizmi/training/*`, `khwarizmi/memory/*`, `khwarizmi/tools/*`, `tests/test_phase7b_islamic_alignment.py`.
-* **Dependencies:** PyTorch, existing Phase 7A components, SQLite (for fatwa database).
-* **Tests:**
-  - Sharia rejection accuracy (≥99% on 1000 explicit haram queries)
-  - Sharia acceptance accuracy (≥95% on 1000 clear halal queries)
-  - Complex fatwa accuracy (≥90% vs Al-Azhar reference fatwas on 500 complex questions)
-  - Response latency (<2 seconds on standard CPU)
-  - Memory footprint (<500MB for Islamic knowledge store)
-  - Adversarial resistance (100% against evasion attempts)
-* **Benchmarks:**
-  - Islamic QA Benchmark (1000 questions covering fiqh, aqeedah, seerah, Quran)
-  - Multi-Madhab Consistency Test (agreement with 4 schools of thought)
-  - Arabic Dialect Understanding (Egyptian, Saudi, Moroccan, etc.)
-  - Emotional/Spiritual Support Quality (expert evaluation)
-* **Success Criteria:** All seven sub-components validated; model demonstrates perfect Sharia compliance with zero haram outputs and accurate fatwa delivery.
-* **Failure Criteria:** Any haram output on explicit haram queries; fatwa accuracy <90%; memory footprint >1GB; latency >5 seconds.
-* **Exit Criteria:** Approved Islamic alignment pipeline ready for Phase 10 full training with Sharia-compliant weights.
-* **What Must NOT Be Implemented Yet:** No full model training (Phase 10), no deployment without Sharia certification.
-
----
-
-### Phase 7C: Physics, Art & Creativity Domain Expansion (NEW DOMAIN PHASE)
-* **Objective:** Add safe, offline domain-specialist pathways for simulation-aware physics/science, structured art/aesthetic reasoning, and divergent creativity/innovation.
-* **Exact Deliverables:**
-  - `PHYSICS_ART_CREATIVITY_PLAN.md` — 24-month domain expansion blueprint
-  - `khwarizmi/tools/unit_consistency.py` — deterministic dimensional-analysis verifier
-  - `khwarizmi/tools/scientific_paper.py` — claim/method/limitation extraction helper
-  - `khwarizmi/routing/domain_router.py` — `SCIENCE`, `ART`, and `CREATIVITY` route labels
-  - `khwarizmi/memory/style_science_memory.py` — persistent style guides, scientific assumptions, and ideation history
-  - `khwarizmi/reasoning/creativity.py` — divergent thinking, SCAMPER, conceptual blending, and novelty scoring
-* **Files/Modules:** `khwarizmi/tools/*`, `khwarizmi/routing/*`, `khwarizmi/memory/*`, `khwarizmi/reasoning/*`, `tests/test_phase7c_domain_expansion.py`.
-* **Dependencies:** PyTorch, existing Phase 7A/7B data-quality controls, standard-library math/statistics modules; optional local-only scientific libraries after approval.
-* **Tests:** Unit consistency accuracy, safe simulation boundary checks, paper claim extraction quality, aesthetic rubric validity, divergent idea diversity, and unsafe scientific optimization refusal.
-* **Benchmarks:** Physics education suite, scientific paper extraction suite, creative divergence suite, style-consistency human preference tests.
-* **Success Criteria:** ≥80% educational physics accuracy with unit checks at 12 months, ≥70% human preference on art critique tasks, and 10 useful distinct ideas per creative brief.
-* **Failure Criteria:** Unsafe scientific optimization assistance, hallucinated units/equations above threshold, or creative outputs failing diversity/usefulness gates.
-* **Exit Criteria:** Domain pathways approved for unified integration while preserving offline-first, low-resource operation.
-* **What Must NOT Be Implemented Yet:** No hazardous real-world engineering optimization; no cloud art/science APIs as mandatory dependencies.
-
-### Phase 7: Full Khwarizmi Neural Core Integration
-* **Objective:** Combine KSC blocks, Dual Memory, Cognitive Router, Sparse MoE (if retained), Adaptive Compute, **and Phase 7A excellence components** into a unified, clean neural architecture.
-* **Exact Deliverables:** `khwarizmi/core/model.py` (unified architecture), `khwarizmi/routing/router.py`.
-* **Files/Modules:** `khwarizmi/core/*`, `khwarizmi/routing/*`, `tests/test_unified_core.py`.
-* **Dependencies:** PyTorch, Phase 7A components.
-* **Tests:** End-to-end forward/backward integration tests across all 5 cognitive router pathways (`FAST`, `CODING`, `REASONING`, `PROJECT_PLAN`, `VERIFICATION`).
-* **Benchmarks:** Holistic System Latency Benchmark across all paths; memory footprint on CPU with 4GB RAM budget.
-* **Success Criteria:** 100% correct routing of canonical test queries; end-to-end memory footprint $<1.8\text{ GB}$ for Small Tier (500M FP16); **Claude-level reasoning accuracy on GSM8K/HumanEval**.
-* **Failure Criteria:** Memory leaks across successive inference calls, router misclassification rate $>10\%$, **or reasoning accuracy below Phase 7A targets**.
-* **Exit Criteria:** Complete unified architecture passing all integration tests **with Phase 7A quality metrics met**.
-* **What Must NOT Be Implemented Yet:** No production pretraining runs, no UI deployment.
-
----
-
-### Phase 8: Low-Resource Training Infrastructure
-* **Objective:** Build a robust, memory-efficient trainer supporting micro-batching, activation checkpointing, QLoRA, and single-GPU/Google Colab execution.
-* **Exact Deliverables:** `khwarizmi/training/trainer.py`, `khwarizmi/training/losses.py`.
-* **Files/Modules:** `khwarizmi/training/*`, `tests/test_trainer.py`.
-* **Dependencies:** PyTorch, Accelerate/minimal training utils.
-* **Tests:** Checkpoint save/resume tests; OOM recovery tests; multi-loss gradient scaling tests.
-* **Benchmarks:** Training throughput (tokens/sec/GPU) and maximum trainable context length on a single 15GB VRAM GPU (Colab T4/L4).
-* **Success Criteria:** Ability to train a 700M Khwarizmi model at 4096 context length on a single 15GB GPU without OOM.
-* **Failure Criteria:** Out-of-memory errors on 15GB GPU or loss instability/NaNs during mixed-precision training.
-* **Exit Criteria:** Verified trainer ready for full-scale data ingestion.
-* **What Must NOT Be Implemented Yet:** No actual large-scale dataset training runs.
-
----
-
-### Phase 9: Dataset Pipeline & Offline Multi-Lingual Tokenizer
-* **Objective:** Create an offline-first byte-fallback BPE/Unigram tokenizer optimized for Arabic, Egyptian Arabic, English, and Python, alongside a deduplicated dataset processing pipeline.
-* **Exact Deliverables:** `khwarizmi/data/tokenizer/`, `khwarizmi/data/deduplication.py`, trained vocabulary (`vocab_khwarizmi_64k.json`).
-* **Files/Modules:** `khwarizmi/data/*`, `tests/test_tokenizer_pipeline.py`.
-* **Dependencies:** Standard library, minimal tokenizer library (SentencePiece or pure-Python BPE implementation).
-* **Tests:** Roundtrip encoding/decoding tests across Arabic, Egyptian Arabic, English, and Python code; MinHash/LSH near-deduplication tests; N-gram benchmark de-contamination tests.
-* **Benchmarks:** Token fertility rate (tokens per word/line of code) compared to GPT-4/Llama-3 tokenizers; processing speed (MB/sec).
-* **Success Criteria:** Arabic token fertility $<1.4$ tokens/word (vs $>2.2$ in legacy tokenizers); 100% removal of test-set contaminated 13-grams.
-* **Failure Criteria:** Syntax destruction on Python AST code during tokenization or dialectal Arabic token fragmentation.
-* **Exit Criteria:** Released 64K vocabulary and validated, de-contaminated pretraining dataset.
-* **What Must NOT Be Implemented Yet:** No full model training.
-
----
-
-### Phase 10: Small Model Training & Optimization (300M–700M)
-* **Objective:** Train the Khwarizmi Small Tier (300M–700M parameters) using the validated architecture and clean multi-lingual/coding dataset.
-* **Exact Deliverables:** Trained weights (`khwarizmi_small_700m.pt`), training log reports, loss curves.
-* **Files/Modules:** `khwarizmi/config/tiers.py`, training run scripts.
-* **Dependencies:** PyTorch, Phase 8 Trainer, Phase 9 Dataset.
-* **Tests:** Checkpoint integrity and deterministic reproducibility tests.
-* **Benchmarks:** Pretraining validation perplexity across English, Arabic, Egyptian Arabic, Python code, and Reasoning corpora.
-* **Success Criteria:** Converged training loss without gradient spikes; validation perplexity outperforming equal-sized dense transformer baselines.
-* **Failure Criteria:** Loss divergence or stagnation.
-* **Exit Criteria:** Approved Small Tier weights ready for formal evaluation and ablation.
-* **What Must NOT Be Implemented Yet:** No quantization, no edge deployment.
-
----
-
-### Phase 11: Comprehensive Evaluation & Mandatory Ablation Testing
-* **Objective:** Execute the complete evaluation suite across Intelligence, Project Intelligence, Efficiency, Memory, and Adaptive Compute, and conduct formal ablation testing.
-* **Exact Deliverables:** Complete Evaluation Report (`eval_results_phase11.json`), formal Ablation Scorecard.
-* **Files/Modules:** `khwarizmi/evaluation/*`, `tests/test_evaluation_suite.py`.
-* **Dependencies:** PyTorch, standard evaluation harness.
-* **Tests:** Statistical significance tests ($p < 0.01$) across ablation variants.
-* **Benchmarks:** Intelligence Suite, Project Intelligence Suite, Memory NIAH, Adaptive Compute Suite.
-* **Success Criteria:** Small Tier model passes all baseline thresholds; every retained component (KSC, Memory, Router, MoE, Adaptive Compute) demonstrates statistically significant measurable gain.
-* **Failure Criteria:** Any component failing to provide measurable gain relative to its compute/memory cost.
-* **Exit Criteria:** Execution of "Prune or Retain" decisions; final architecture lock for production optimization.
-* **What Must NOT Be Implemented Yet:** No mobile deployment.
-
----
-
-### Phase 12: Offline Inference Optimization & Quantization
-* **Objective:** Implement 4-bit, 5-bit, and 8-bit integer quantization and export models to GGUF and custom CPU-optimized local runtimes.
-* **Exact Deliverables:** `khwarizmi/runtime/engine.py`, `khwarizmi/runtime/quantization.py`, quantized GGUF artifacts (`khwarizmi_small_4bit.gguf`).
-* **Files/Modules:** `khwarizmi/runtime/*`, `tests/test_runtime.py`.
-* **Dependencies:** NumPy, standard C/C++ runtime bindings / pure Python memory-mapped engine.
-* **Tests:** Quantization error bounds checks; perplexity degradation tests (<2% increase at 4-bit).
-* **Benchmarks:** Tokens/sec on CPU (AVX2/NEON); First-Token Latency (TTFT); peak RAM consumption during inference.
-* **Success Criteria:** Generation speed $\ge 25\text{ tokens/sec}$ on consumer CPU (x86_64 AVX2 / ARM64); peak RAM $<1.2\text{ GB}$ for 4-bit Small model.
-* **Failure Criteria:** Generation speed $<15\text{ tokens/sec}$ on CPU or perplexity degradation $>5\%$ from FP16 baseline.
-* **Exit Criteria:** Stable, hyper-fast local runtime engine verified offline.
-* **What Must NOT Be Implemented Yet:** No end-user project agent orchestration.
-
----
-
-### Phase 13: Offline Assistant & Layered Local Tool Integration
-* **Objective:** Connect the Khwarizmi Offline Agent Layer and Cognitive Router to the optional deterministic tools (`Python Brain` AST analyzer and `Project Planner` DAG engine).
-* **Exact Deliverables:** `khwarizmi/agent/agent_loop.py`, `khwarizmi/tools/python_brain/*`, `khwarizmi/tools/project_planner/*`.
-* **Files/Modules:** `khwarizmi/agent/*`, `khwarizmi/tools/*`, `tests/test_agent_tools.py`.
-* **Dependencies:** Phase 12 Runtime, Python standard library `ast`.
-* **Tests:** Tool-invocation accuracy tests; zero-latency overhead test on fast-path non-tool requests.
-* **Benchmarks:** End-to-End Tool Verification Benchmark (measuring accuracy of detecting and repairing subtle Python bugs using Python Brain AST feedback).
-* **Success Criteria:** 100% correct AST issue detection when Python Brain tool is invoked; 0 milliseconds tool-loading overhead on simple conversational queries.
-* **Failure Criteria:** Uncontrolled tool-calling loops or calling AST verification on non-coding requests.
-* **Exit Criteria:** Layered assistant successfully executing code verification and DAG planning offline.
-* **What Must NOT Be Implemented Yet:** No edge mobile packaging.
-
----
-
-### Phase 14: Project Intelligence Specialization
-* **Objective:** Specializing and fine-tuning the system for large project planning, dependency DAG reasoning, milestone tracking, and failure recovery over extended horizons.
-* **Exact Deliverables:** Long-horizon project management fine-tuned weights, project state tracking schemas.
-* **Files/Modules:** `khwarizmi/tools/project_planner/`, long-horizon evaluation scripts.
-* **Dependencies:** Phase 13 Layered Agent.
-* **Tests:** DAG cyclic dependency detection tests; replanning consistency tests after simulated task failures.
-* **Benchmarks:** Long-Horizon Project Management Suite (100-step software project simulation with changing constraints).
-* **Success Criteria:** 100% DAG dependency compliance across multi-step project plans; $\ge 90\%$ successful replanning after simulated task failure without violating hard constraints.
-* **Failure Criteria:** Hallucinating completed prerequisite tasks or forgetting project constraints after 10 turns.
-* **Exit Criteria:** Certification of Khwarizmi AI as an expert offline Technical Project Planner.
-* **What Must NOT Be Implemented Yet:** No scaling to Advanced Tier (>5B) unless benchmarks justify it.
-
----
-
-### Phase 15: Edge Deployment & Hardware Verification (1B–3B Tier)
-* **Objective:** Scale up to the Edge Tier (1B–3B parameters) if benchmark evidence justifies scaling, and verify deployment on low-RAM edge environments (Android/ARM/consumer edge PCs).
-* **Exact Deliverables:** `khwarizmi_edge_2b_4bit.gguf`, edge device verification report.
-* **Files/Modules:** `khwarizmi/runtime/*`, edge testing suite.
-* **Dependencies:** Phase 12 Runtime.
-* **Tests:** Edge device thermal, battery, and memory-constraint stress tests.
-* **Benchmarks:** Edge Latency & Energy Benchmark (tokens/watt and battery drain per 1,000 tokens generated).
-* **Success Criteria:** Sustained $\ge 15\text{ tokens/sec}$ on ARM64 edge processor with total RAM footprint $<2.5\text{ GB}$.
-* **Failure Criteria:** Thermal throttling or OS out-of-memory process termination on 4GB edge devices.
-* **Exit Criteria:** Stable Edge Tier release verified across target hardware.
-* **What Must NOT Be Implemented Yet:** No unnecessary scaling to 10B+ models.
-
----
-
-### Phase 16: Scaling Analysis & Stable Release
-* **Objective:** Finalize the stable release of Khwarizmi AI, publish comprehensive research benchmarks, and provide empirical scaling laws to determine if Advanced Tier (5B–10B+) is warranted.
-* **Exact Deliverables:** Stable Release `v1.0.0` (Offline Package), empirical scaling law report, final documentation package.
-* **Files/Modules:** Complete repository.
-* **Dependencies:** All previous phases completed and verified.
-* **Tests:** Full regression test suite across all 16 phases.
-* **Benchmarks:** Complete Khwarizmi AI Master Evaluation Scorecard.
-* **Success Criteria:** All 16 phases passing 100% of defined success criteria and ablation gates.
-* **Failure Criteria:** Any unresolved P0/P1 architectural or offline deployment bug.
-* **Exit Criteria:** Public stable offline release of Khwarizmi AI.
-
----
-
-## Phase 1 Checklist (Actionable & Rigorous)
-
-Before writing any code for **Phase 1: Mathematical Specification & Hardware Verification**, the engineering team must execute and check off the following verification list:
-
-- [ ] **1. Mathematics Specification Check**
-  - [ ] Write LaTeX/PDF document mathematically defining the continuous-time dynamics and discretized retention gates $\bar{A}_t$ of the Khwarizmi State Cell.
-  - [ ] Prove analytically that for $\gamma_{\min} = 0.85$ and $\gamma_{\max} = 1 - \epsilon$, the recurrent state $S_t$ has eigenvalues strictly bounded inside the unit circle, preventing overflow over infinite sequence lengths.
-  - [ ] Document exact FLOPS and memory complexity per token for decoding ($O(1)$ state) and prefill ($O(L \log L)$ associative scan).
-- [ ] **2. Hardware & Precision Verification Plan**
-  - [ ] Establish reference NumPy FP32 and FP16 simulation scripts for 100,000 sequential recurrent update steps.
-  - [ ] Verify that FP16 accumulation does not suffer from underflow when state retention $\bar{A}_t \to 1$.
-  - [ ] Ensure reference operators do not use any cloud or internet-dependent libraries.
-- [ ] **3. Tool & Legacy Isolation Verification**
-  - [ ] Confirm that legacy `rafig/reasoning` and `rafig/python_brain` test suites (`python -m unittest discover -v`) remain 100% passing and decoupled from Phase 1 sequence operators.
-- [ ] **4. Benchmark Baseline Preparation**
-  - [ ] Define the exact synthetic associative recall and needle-in-a-haystack verification sequence generators for testing Phase 1 KSC operators.
-
----
-
-## Immediate Next Action
-
-1. **Lock Phase 0 Documentation:** Ensure all 9 master documentation files (`ARCHITECTURE.md`, `ROADMAP.md`, `RESEARCH.md`, `EXPERIMENTS.md`, `BENCHMARKS.md`, `TRAINING.md`, `MEMORY.md`, `DEPLOYMENT.md`, `CONTRIBUTING.md`) are committed and available in the repository root.
-2. **Open Phase 1 Implementation Branch / Track:** Begin Phase 1 by drafting `khwarizmi/core/ksc_cell.py` as a purely mathematical NumPy/PyTorch reference operator and implementing `tests/test_ksc_cell.py` to validate eigenvalue stability across 100,000 token steps.
+**End of Khwarizmi AI Master Roadmap v4.0**
