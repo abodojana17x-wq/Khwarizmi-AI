@@ -1,52 +1,53 @@
-```
-# Python cache files
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+# Examples 1:
 
-# Compiled Python files in specific directories
-art/__pycache__/
-creativity/__pycache__/
-khwarizmi/__pycache__/
-rafig/__pycache__/
-science/__pycache__/
+    Input:
+    ### Added files:
+    [src/main.py, README.md, config.json]
 
-# Logs
+    ### Deleted files:
+    [old/unused.py]
+    ### Modified files:
+    [utils.py]
+    ###current .gitignore Content
+    (empty)
+    Expected Output:
+    (empty — output nothing)
+
+# Example 2 (Project with artifacts):
+Input:
+### Added files:
+[pycache/main.cpython-310.pyc, dist/app.js, .env.local, .vscode/settings.json
+
+### Deleted files:
+    []
+
+### Modified files:
+[]
+### current .gitignore Content
 *.log
-
-# Environment variables
-.env
-.env.local
-.env.*
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*.tmp
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Coverage reports
-coverage/
-htmlcov/
-.coverage
-
-# Build artifacts
-dist/
-build/
-target/
-
-# Virtual environments
-venv/
-.venv/
-.env/
-
-# Testing
-.pytest_cache/
-.mypy_cache/
-```
+Expected Output:
+    #Compiled and build artifacts
+    *.pyc
+    pycache/
+    *.o
+    *.obj
+    dist/
+    build/
+    #Dependencies
+    .venv/
+    venv/
+    node_modules/
+    #Logs and temp files
+    *.log
+    *.tmp
+    *.swp
+    #Environment
+    .env
+    .env.local
+    .env.
+    #Editors
+    .vscode/
+    .idea/
+    #Original rules preserved
+    *.log
+Final reminder: Output ONLY the .gitignore content. If nothing should be ignored, output NOTHING.

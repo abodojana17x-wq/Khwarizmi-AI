@@ -1,16 +1,41 @@
-# Khwarizmi AI — Master Roadmap v4.0
-## The Four-Version Reasoning System Architecture
+# KHwarizmi Master Roadmap — Architecture Research & General Intelligence Strategy
 
 **Document Status:** Authoritative Master Plan  
-**Version:** 4.0 (Complete Architecture Reset for Nano/Mobile/Pro/Ultra)  
-**Date:** 2026-08-27  
-**Supersedes:** All previous roadmap versions (v1.0–v3.x)
+**Version:** 5.0 (Architecture Research & General Intelligence Upgrade)  
+**Date:** 2026-08-28  
+**Supersedes:** ROADMAP.md v4.0
 
 ---
 
 ## Executive Summary
 
-Khwarizmi AI is being re-architected as a **highly efficient general-purpose reasoning system** with four distinct capability/resource profiles sharing a common core:
+KHwarizmi AI is being developed as a **general-purpose cognitive architecture** capable of achieving extremely high reasoning, planning, coding, mathematical, linguistic, scientific, and multimodal capabilities while operating with dramatically lower resource requirements than conventional frontier systems.
+
+The ultimate objective is NOT merely:
+* An Arabic assistant
+* An offline chatbot
+* A coding assistant
+* A small LLM
+* A Transformer replacement
+
+Those may be applications or capabilities, but they are NOT the ultimate research objective.
+
+The goal is to discover whether a fundamentally more efficient cognitive architecture can outperform much larger systems in meaningful capability domains through:
+* General intelligence capability
+* Reasoning quality
+* Reliability
+* Learning efficiency
+* Inference efficiency
+* Memory efficiency
+* Adaptive computation
+* Planning
+* Verification
+* Continual improvement
+* Scalability across Nano/Mobile/Pro/Ultra tiers
+
+**This outcome is NOT guaranteed.** The roadmap is designed to **maximize the probability of discovering such an architecture through rigorous experimentation**.
+
+### Four-Tier Resource Strategy
 
 | Version | Target Footprint | Primary Target |
 |---------|------------------|----------------|
@@ -19,7 +44,44 @@ Khwarizmi AI is being re-architected as a **highly efficient general-purpose rea
 | **Pro** | ≤ 1.5 GB (hard target) | Frontier-level reasoning on consumer hardware |
 | **Ultra** | ≤ 2 GB | Maximum capability within accessible hardware limits |
 
-**Core Design Philosophy:** Intelligence must not depend solely on model size. Khwarizmi achieves capability through efficient reasoning, selective computation, specialized subsystems, verification, compression, modularity, and intelligent resource allocation.
+**Core Design Philosophy:** Intelligence must not depend solely on model size. KHwarizmi achieves capability through efficient reasoning, selective computation, specialized subsystems, verification, compression, modularity, and intelligent resource allocation.
+
+---
+
+## Guiding Research Principle
+
+> **External research produces hypotheses, not architectural decisions.**
+
+No external architecture gets promoted into the production architecture without experimental evidence.
+
+**Evaluation Process:**
+1. Research → Hypothesis
+2. Minimal experiment
+3. Ablation study
+4. Benchmark comparison
+5. Compare with KHwarizmi baseline
+6. Decision: KEEP / MODIFY / REPLACE / COMBINE / INVENT SOMETHING NEW
+
+> **Do not copy the frontier. Discover a better computational path to intelligence.**
+
+And if existing research does not provide that path:
+
+> **KHwarizmi becomes the research program that attempts to invent it.**
+
+---
+
+## Critical Rule: No Premature Rebuild
+
+> **Never replace a working KHwarizmi component solely because a newer paper proposes an alternative.**
+
+A component can only be replaced when:
+1. A measurable weakness is identified
+2. A candidate alternative is implemented in isolation
+3. The candidate is benchmarked
+4. Ablation demonstrates meaningful improvement
+5. Resource cost is evaluated
+6. Regression tests pass
+7. Integration is justified
 
 ---
 
@@ -74,9 +136,51 @@ Current test status (as of audit):
 
 Most failures are in router confidence thresholds and edge-case sandbox tests—not fundamental architecture failures. The core components (KSC, MoE, Adaptive Compute, Dual Memory) pass their unit tests.
 
-### I.3 Obsolete Assumptions in Existing Roadmap
+### I.3 Protected Baseline
 
-The existing 17-phase roadmap contains several assumptions that must be revised:
+The following components form the **protected baseline** — they are working, tested, and must NOT be replaced without experimental justification:
+
+| Component | Status | Evidence |
+|-----------|--------|----------|
+| **KSC State Cell** | ✅ Complete | `test_ksc_cell.py`, `test_ksc_block.py` pass; eigenvalue-bounded recurrence implemented |
+| **Dual Memory** | ✅ Complete | `test_dual_memory.py` (57 tests); READ/WRITE/UPDATE/FORGET with utility gating |
+| **Sparse MoE** | ✅ Complete | `test_moe.py`, `test_sparse_moe.py` (57 tests); Top-2/8 routing with load balancing |
+| **Adaptive Compute (ARRC)** | ✅ Complete | `test_adaptive_compute_phase5.py` (57 tests); ACT-style halting with ponder cost |
+| **Neural Reasoning Core** | ✅ Complete | `test_neural_reasoning_core_phase6.py`; latent synthesis + consistency checking |
+| **Cognitive Router** | ✅ Complete | `test_router.py`, `test_cognitive_router.py`; 5 pathways (FAST/CODING/REASONING/PROJECT_PLAN/VERIFICATION) |
+| **Python Brain (AST)** | ✅ Complete | Multiple parser/type/inference tests; deterministic code verification |
+| **Project Planner (DAG)** | ✅ Complete | `test_data_flow.py`, `test_cfg.py`; symbolic dependency reasoning |
+| **Agent Loop** | ✅ Complete | `test_agentic_loop.py`; input sanitization + tool orchestration |
+| **Execution Sandbox** | ✅ Complete | `test_sandbox.py`; safe code execution |
+
+**Critical Principle:** These components are NOT to be replaced simply because external research proposes alternatives. They form the experimental baseline against which all new architectures must be compared.
+
+### I.4 Current Test Evidence
+
+Current test status (as of audit):
+- **Total tests:** 604
+- **Passing:** 578 (95.7%)
+- **Failing:** 17
+- **Errors:** 9
+
+Most failures are in router confidence thresholds and edge-case sandbox tests—not fundamental architecture failures. The core components (KSC, MoE, Adaptive Compute, Dual Memory) pass their unit tests.
+
+### I.5 Capability Gaps Identified
+
+The following capabilities require further development or experimental validation:
+
+| Gap Category | Current State | Required Investigation |
+|--------------|---------------|----------------------|
+| **Multi-strategy reasoning** | Single-path ARRC | Branching, candidate generation, reconciliation |
+| **Failure-driven learning** | Basic failure detection | Failure classification, signature storage, strategy modification |
+| **Contradiction detection** | Consistency heads only | Explicit conflict detection, backtracking mechanisms |
+| **Skill graph** | Not implemented | Structured capability taxonomy with benchmarks |
+| **World/causal representation** | Implicit in language | Structured entity/relation/state representations |
+| **Memory hierarchy** | Dual (short/long-term) | Episodic, semantic, skill, strategy, failure memory levels |
+| **Architecture search** | Human-designed | Automated component search (staged approach) |
+| **Novel architecture discovery** | KSC-only variants | New computational mechanisms if gaps persist |
+
+### I.6 Obsolete Assumptions Requiring Revision
 
 1. **Single-model scaling assumption:** Old roadmap assumes one model scaled from 150M → 10B+. New vision requires four distinct profiles (Nano/Mobile/Pro/Ultra) with shared core but different capacity allocations.
 
@@ -84,31 +188,9 @@ The existing 17-phase roadmap contains several assumptions that must be revised:
 
 3. **Size targets mismatch:** Old roadmap mentions "Edge Tier (1B–3B)" and "Advanced Tier (5B–10B+)" which exceed the new Ultra hard limit of 2 GB packaged footprint.
 
-4. **Missing capabilities:** Old roadmap lacks explicit treatment of:
-   - Prompt-skill independence
-   - Cross-lingual consistency benchmarks
-   - Failure intelligence and backtracking mechanisms
-   - Contradiction detection as first-class component
-   - Knowledge-on-demand architecture
-   - Selective/heterogeneous compression framework
+4. **Islamic alignment positioning:** Phase 7B was added but not integrated into the four-version strategy.
 
-5. **Islamic alignment positioning:** Phase 7B was added but not integrated into the four-version strategy.
-
-### I.4 What Must Be Preserved
-
-The following components are architecturally sound and must be retained:
-
-- KSC state cell (eigenvalue-bounded recurrent architecture)
-- Dual memory (short-term working + long-term persistent with utility gating)
-- Sparse MoE with load-balancing loss
-- Adaptive compute with learned halting (ARRC)
-- Cognitive router with pathway dispatch
-- Neural reasoning core (latent synthesis + consistency checking)
-- Python AST analyzer (deterministic verification tool)
-- DAG project planner (symbolic dependency reasoning)
-- Agent loop with input sanitization
-
-### I.5 What Must Be Refactored
+### I.7 What Must Be Refactored
 
 | Component | Reason | Action |
 |-----------|--------|--------|
@@ -118,7 +200,7 @@ The following components are architecturally sound and must be retained:
 | Compression strategy | Not yet implemented | Add selective/heterogeneous compression framework |
 | Benchmark suite | Lacks prompt-independence, cross-lingual, adversarial tests | Expand benchmark matrix |
 
-### I.6 What Must Be Removed
+### I.8 What Must Be Removed
 
 - References to "Advanced Tier (5B–10B+)" — exceeds 2 GB Ultra limit
 - Any implication that smaller versions sacrifice reasoning architecture
@@ -206,6 +288,139 @@ Differences between versions come from capacity allocations, not reasoning philo
 | **Verification Budget** | Minimal | Moderate | Substantial | Extensive |
 | **Precision Allocation** | INT4/INT5 | INT5/INT8 | FP16/INT8 | FP16 |
 | **Modality Capacity** | Basic | Good | Strong | State-of-the-art |
+
+---
+
+## Part IIA: Architecture Research Track
+
+### IIA.1 Purpose and Scope
+
+This research track runs **in parallel** with the protected baseline development. It is NOT a replacement for working components but an exploration space for discovering more efficient computational mechanisms.
+
+**Critical Distinction:**
+- **Production Baseline:** Working, tested components (KSC, Dual Memory, MoE, ARRC, etc.)
+- **Research Lab:** Experimental variants and novel architectures under evaluation
+
+### IIA.2 Research Areas
+
+#### Neural Architecture Exploration
+
+| Area | Research Questions | Evaluation Criteria |
+|------|-------------------|---------------------|
+| **Recurrent alternatives** | Can xLSTM-style matrix memory improve over KSC? | Associative recall, sequence modeling, stability |
+| **State Space Models** | Do Mamba-3 selective scans offer advantages? | Long-context retention, compute efficiency |
+| **Gated DeltaNet** | Is delta-rule learning beneficial? | Fast associative binding, in-context learning |
+| **Looped computation** | Does weight-tied depth expansion help? | Parameter efficiency, reasoning quality |
+| **Hierarchical reasoning** | Can HRM-style latent hierarchies improve planning? | Multi-step task success, abstraction quality |
+| **Latent reasoning** | Is implicit reasoning superior to explicit CoT? | Accuracy, token efficiency, verification |
+
+#### Memory Architecture Investigation
+
+Research whether memory should be organized as:
+
+1. **Neural/State Memory** — Recurrent hidden state (currently KSC state matrix)
+2. **Working Memory** — Short-term bounded buffer (currently short-term module)
+3. **Episodic Memory** — Time-stamped experience storage
+4. **Semantic Memory** — Fact/concept knowledge base
+5. **Skill Memory** — Learned procedure representations
+6. **Strategy Memory** — Successful reasoning patterns
+7. **Failure Memory** — Error signatures and corrections
+
+**Open Question:** Should these be separate modules, unified representations, or hierarchical structures?
+
+**Decision Method:** Ablation experiments comparing:
+- Single unified memory vs. separated functional memories
+- Neural-only vs. symbolic-augmented vs. hybrid representations
+- Fixed capacity vs. dynamic allocation
+
+#### Reasoning Strategy Research
+
+Investigate multi-strategy reasoning beyond single-path ARRC:
+
+| Strategy | Description | When to Use |
+|----------|-------------|-------------|
+| **Single-path depth** | Current ARRC approach | Easy-medium tasks, high confidence |
+| **Branching exploration** | Generate multiple candidate paths | Ambiguous inputs, low confidence |
+| **Candidate comparison** | Evaluate competing hypotheses | Conflicting evidence, multiple interpretations |
+| **Disagreement detection** | Identify contradictions between paths | Verification failures |
+| **Reconciliation** | Merge compatible partial solutions | Complementary reasoning chains |
+| **Bounded search** | Explore tree within budget | Hard problems requiring systematic search |
+| **Strategy switching** | Change approach mid-reasoning | Stalled progress, detected dead ends |
+
+**Research Question:** Is intelligently allocating reasoning across multiple candidate paths more effective than simply increasing depth on one path?
+
+#### Hybrid Systems Investigation
+
+Explore neuro-symbolic combinations:
+
+- Neural generation + symbolic verification (current Python Brain model)
+- Neural pattern recognition + graph-based causal reasoning
+- Neural embedding + formal logic constraints
+- Neural intuition + algorithmic execution
+
+**Key Principle:** Symbolic tools are invoked selectively via cognitive router, not on every token.
+
+#### Training Strategy Research
+
+Investigate modern training approaches:
+
+| Approach | Purpose | Status |
+|----------|---------|--------|
+| **Knowledge distillation** | Transfer from strong teachers | Planned Phase 11 |
+| **Reasoning distillation** | Extract latent reasoning traces | Research needed |
+| **Synthetic curriculum** | Generate targeted training problems | Partially implemented (CoT pipeline) |
+| **Verifier-guided training** | Use verification signals as rewards | Research needed |
+| **Self-play** | Model generates and solves its own problems | Research needed |
+| **Failure-driven training** | Target weak capabilities identified by benchmarks | Research needed |
+| **Skill-specific training** | Train specialized capability modules | Research needed |
+
+**Critical Rule:** Teacher outputs are NOT ground truth. They are candidate knowledge that must be independently verified where possible.
+
+### IIA.3 Novel Architecture Track
+
+This track is activated when experiments demonstrate that existing architectures cannot adequately close an identified capability gap.
+
+**Process:**
+1. Observed limitation → Document specific failure mode
+2. Formulate hypothesis → Mathematical/computational specification
+3. Minimal prototype → Isolated implementation
+4. Controlled experiment → Compare against baseline
+5. Ablation study → Identify active components
+6. Benchmark → Measure on relevant tasks
+7. Comparison → Quantify improvement over baseline
+8. Iteration → Refine or discard
+
+**If existing architectures are insufficient:** Design a genuinely new computational mechanism with coherent principles, not a "Frankenstein architecture" combining unrelated components.
+
+### IIA.4 Architecture Search Strategy
+
+Automated architecture search will be pursued in stages:
+
+| Stage | Approach | Prerequisites |
+|-------|----------|---------------|
+| **Stage 1** | Human-designed candidate architectures | Baseline stable, benchmark suite complete |
+| **Stage 2** | Automated hyperparameter/component search | Stage 1 complete, search infrastructure ready |
+| **Stage 3** | Learned strategy selection | Stage 2 complete, sufficient training data |
+| **Stage 4** | Architecture-level optimization | Stage 3 complete, clear optimization objectives |
+| **Stage 5** | Controlled self-modification (only if justified) | All prior stages complete, safety guarantees established |
+
+**Critical Constraint:** Every stage requires evidence before advancing. No automatic progression.
+
+### IIA.5 Epistemological Classification
+
+All claims in this roadmap are tagged with epistemological status:
+
+| Label | Meaning | Example |
+|-------|---------|---------|
+| **[FACT]** | Proven mathematical reality or established empirical consensus | "KSC has O(1) decoding memory" |
+| **[RESEARCH FINDING]** | Empirical result under specific published conditions | "Mamba-3 achieves X on Y benchmark" |
+| **[HYPOTHESIS]** | Plausible but unproven for KHwarizmi | "Hierarchical reasoning may improve planning" |
+| **[DESIGN DECISION]** | Architectural choice based on trade-off analysis | "Use Top-2/8 MoE with ablation gate" |
+| **[OPEN RESEARCH]** | No satisfactory solution currently exists | "Optimal memory hierarchy structure" |
+
+**Avoid Unsupported Claims:**
+- ❌ "HRM proves small models can beat frontier AI"
+- ✅ "HRM provides evidence that recurrent hierarchical computation can produce strong results on specific reasoning tasks under small parameter budgets [RESEARCH FINDING]"
 
 ---
 
@@ -2025,18 +2240,129 @@ def get_ultra_config() -> KhwarizmiConfig:
 
 ---
 
-## Appendix C: Decision Log
+## Appendix C: Architecture Decision Log
 
-| Decision | Date | Rationale |
-|----------|------|-----------|
-| Four-version strategy | 2026-08-27 | Balance accessibility with capability |
-| 2 GB Ultra hard limit | 2026-08-27 | Maintain consumer hardware accessibility |
-| Shared core architecture | 2026-08-27 | Ensure consistent reasoning philosophy |
-| Prompt-skill independence | 2026-08-27 | Remove barrier to entry for non-expert users |
-| Cross-lingual consistency | 2026-08-27 | True multilingual intelligence, not translation |
-| Heterogeneous compression | 2026-08-27 | Preserve critical component precision |
-| Knowledge-on-demand | 2026-08-27 | Enable high information density in small footprint |
-| Adversarial self-testing | 2026-08-27 | Proactive weakness identification |
+| Decision | Date | Evidence | Confidence | Benchmark | Alternatives Considered | Reason for Choosing | Conditions for Reconsideration |
+|----------|------|----------|------------|-----------|------------------------|---------------------|-------------------------------|
+| Four-version strategy (Nano/Mobile/Pro/Ultra) | 2026-08-27 | Resource constraints analysis | High | Footprint targets | Single scalable model | Accessibility across device classes | If unified scaling proves more efficient |
+| 2 GB Ultra hard limit | 2026-08-27 | Consumer hardware survey | High | RAM availability | No upper limit | Maintain offline accessibility | If edge hardware capabilities increase significantly |
+| Shared core architecture | 2026-08-27 | Design principle | High | Consistency tests | Version-specific cores | Ensure consistent reasoning philosophy | If tier-specific optimizations require divergence |
+| KSC as primary sequence model | 2026-08-11 | O(1) memory proof, stability bounds | Medium-High | Associative recall benchmarks | Mamba, xLSTM, RWKV, Transformer | Sub-quadratic memory, eigenvalue stability | If SSMs or recurrent alternatives show >20% improvement on reasoning tasks |
+| Dual Memory (short/long-term) | 2026-08-11 | Cognitive science analogy, utility gating tests | Medium | Memory operation tests | Single memory, hierarchical memory | Clear separation of concerns, bounded growth | If unified memory shows better efficiency |
+| Top-2/8 Sparse MoE | 2026-08-11 | Load balancing loss implementation | Medium | Expert utilization metrics | Dense layers, Top-1/4, no MoE | Parameter efficiency with domain specialization | If MoE overhead exceeds benefit on edge devices |
+| ARRC adaptive compute | 2026-08-11 | ACT-style halting with ponder cost | Medium | Compute differentiation benchmarks | Fixed depth, always-maximum compute | Dynamic allocation based on task difficulty | If alternative adaptive methods show better efficiency |
+| 5 cognitive pathways | 2026-08-11 | Router implementation | Medium | Pathway selection accuracy | More/fewer pathways, no router | Covers major task categories | If new pathway types emerge from failure analysis |
+| Python Brain as external tool | 2026-08-11 | Layered architecture decision | High | Latency measurements | Integrated verification, no tools | Selective activation reduces average latency | If integrated verification proves faster |
+| DAG Project Planner as tool | 2026-08-11 | Symbolic/neural separation | High | Planning benchmarks | Neural-only planning | Deterministic dependency reasoning | If neural planning matches symbolic reliability |
+| Prompt-skill independence | 2026-08-27 | Usability principle | High | User testing | Skill-requiring prompts | Remove barrier to entry | If skill indicators improve routing |
+| Cross-lingual consistency | 2026-08-27 | Multilingual design goal | Medium | Cross-lingual benchmarks | Translation-based approach | True multilingual intelligence | If translation proves sufficient |
+| Heterogeneous compression | 2026-08-27 | Precision sensitivity analysis | Medium | Quantization ablation | Uniform quantization | Preserve critical component precision | If uniform quantization achieves same quality |
+| Knowledge-on-demand | 2026-08-27 | Information density requirement | Medium | Knowledge retrieval tests | Always-active knowledge | Reduce active parameters | If always-active proves more efficient |
+| Adversarial self-testing | 2026-08-27 | Robustness requirement | High | Attack success rate | No adversarial testing | Proactive weakness identification | — |
+| No cloud/API fallback | 2026-08-11 | Offline-first tenet | High | Connectivity tests | Hybrid online/offline | Privacy, accessibility, reliability | If offline requirements relax |
+| Experimental evaluation required | 2026-08-28 | Research principle | High | Ablation protocol | Paper-based decisions | Evidence-driven architecture | — |
+
+---
+
+## Appendix D: Research Hypothesis Registry
+
+### H1: Recurrent architectures can match or exceed Transformer reasoning quality at lower resource cost
+
+| Field | Value |
+|-------|-------|
+| **Hypothesis** | KSC-style recurrent architectures with selective state updates can achieve comparable or superior reasoning quality to Transformers while using O(1) decoding memory |
+| **Supporting Evidence** | KSC prototype tests pass; O(1) memory is mathematically proven; Mamba/xLSTM research shows competitive results |
+| **Counter-Evidence** | Some benchmarks favor attention for associative recall; recurrent models historically harder to train |
+| **Experiment** | Compare KSC vs. Transformer vs. Mamba on identical reasoning benchmarks with matched parameter counts |
+| **Metric** | Accuracy per MB, accuracy per FLOP, training convergence time |
+| **Status** | Under investigation |
+
+### H2: Adaptive compute improves efficiency without sacrificing capability
+
+| Field | Value |
+|-------|-------|
+| **Hypothesis** | ARRC-style adaptive computation allocates resources efficiently, using less compute on easy tasks and more on hard tasks, improving overall efficiency |
+| **Supporting Evidence** | ACT research (Graves 2016); Phase 5 tests show compute differentiation |
+| **Counter-Evidence** | Halting stability can be challenging; may add training complexity |
+| **Experiment** | Compare fixed-depth vs. ARRC on mixed-difficulty benchmark suite |
+| **Metric** | Average compute per token, accuracy on easy/hard subsets, training stability |
+| **Status** | Partially validated (tests pass); needs full benchmark evaluation |
+
+### H3: Multi-strategy reasoning outperforms single-path depth scaling
+
+| Field | Value |
+|-------|-------|
+| **Hypothesis** | Intelligently allocating reasoning across multiple candidate paths is more effective than simply increasing depth on one path |
+| **Supporting Evidence** | Tree-of-thought research; branching search in classical AI |
+| **Counter-Evidence** | May increase compute unpredictably; requires sophisticated meta-reasoning |
+| **Experiment** | Compare single-path ARRC vs. branching multi-candidate system on hard reasoning tasks |
+| **Metric** | Success rate, compute efficiency, calibration quality |
+| **Status** | Open research (not yet implemented) |
+
+### H4: Failure-driven learning accelerates capability acquisition
+
+| Field | Value |
+|-------|-------|
+| **Hypothesis** | Systematically analyzing failures, storing failure signatures, and modifying strategies based on failure types accelerates learning compared to uniform training |
+| **Supporting Evidence** | Curriculum learning research; error-driven learning theory |
+| **Counter-Evidence** | Requires robust failure classification; may overfit to known failure modes |
+| **Experiment** | Compare uniform training vs. failure-targeted retraining on specific capability gaps |
+| **Metric** | Learning rate, final accuracy, sample efficiency |
+| **Status** | Open research (not yet implemented) |
+
+### H5: Hierarchical memory organization improves long-horizon reasoning
+
+| Field | Value |
+|-------|-------|
+| **Hypothesis** | Organizing memory into functional levels (episodic, semantic, skill, strategy, failure) improves long-horizon task performance compared to flat dual memory |
+| **Supporting Evidence** | Cognitive science memory models; Titans research |
+| **Counter-Evidence** | Adds architectural complexity; may require more training data |
+| **Experiment** | Compare dual memory vs. hierarchical memory on multi-week project tasks |
+| **Metric** | Long-context retrieval accuracy, task completion rate, memory efficiency |
+| **Status** | Open research (not yet implemented) |
+
+### H6: Neuro-symbolic hybrids outperform pure neural or pure symbolic approaches
+
+| Field | Value |
+|-------|-------|
+| **Hypothesis** | Combining neural pattern recognition with symbolic verification and planning produces more reliable reasoning than either approach alone |
+| **Supporting Evidence** | Python Brain + neural core integration; DAG planner success |
+| **Counter-Evidence** | Integration complexity; potential latency from tool calls |
+| **Experiment** | Compare neural-only, symbolic-only, and hybrid on code/math/planning tasks |
+| **Metric** | Accuracy, verification success rate, latency |
+| **Status** | Partially validated (tools work); needs systematic comparison |
+
+### H7: Small models with efficient architecture can match larger models on specific capability domains
+
+| Field | Value |
+|-------|-------|
+| **Hypothesis** | A well-designed ≤2GB model can match or exceed 10B+ parameter models on specific reasoning, coding, and planning tasks through architectural efficiency |
+| **Supporting Evidence** | HRM research; efficient architecture papers; KHwarizmi design principles |
+| **Counter-Evidence** | Scaling laws suggest advantages for larger models; limited empirical evidence yet |
+| **Experiment** | Benchmark KHwarizmi Ultra against frontier models on targeted capability tests |
+| **Metric** | Capability/resource ratios, domain-specific accuracy |
+| **Status** | Ultimate research objective (not yet testable until training complete) |
+
+---
+
+## Appendix E: Architecture Kill List
+
+The following approaches are explicitly **excluded** from consideration unless new evidence changes the decision:
+
+| Approach | Reason for Exclusion | Conditions for Reconsideration |
+|----------|---------------------|-------------------------------|
+| **Replacing KSC merely because Transformer alternatives are popular** | Popularity ≠ suitability; KSC has proven O(1) memory advantage | If KSC consistently fails benchmarks where alternatives succeed by >30% |
+| **Blindly copying Mamba/HRM/Titans/Hope architectures** | External research = hypothesis, not decision; must validate for KHwarizmi use case | If ablation studies show clear advantage on KHwarizmi-specific benchmarks |
+| **Adding components without ablation evidence** | Violates evidence-driven design principle | Only if component is provably necessary for safety or correctness |
+| **Rebuilding entire system before identifying measurable limitation** | Wastes working baseline; violates "no premature rebuild" rule | Only if fundamental flaw discovered that cannot be fixed incrementally |
+| **Optimizing benchmark scores while destroying resource efficiency** | Violates core efficiency mission | Never acceptable for production tiers |
+| **Cloud/API dependency for core intelligence** | Violates offline-first tenet | Only if offline requirements formally relaxed by project stakeholders |
+| **Dense Transformer as primary sequence model** | O(L²) memory violates edge deployment requirements | Only if sub-quadratic alternatives prove fundamentally inadequate |
+| **Always-maximum compute for all tokens** | Violates adaptive compute efficiency principle | Only if adaptive mechanisms prove unreliable |
+| **Monolithic memory without utility gating** | Violates bounded memory design; risks unbounded growth | Only if gated memory proves too complex to train |
+| **Skill-requiring prompts** | Violates prompt-skill independence goal | Only if skill indicators demonstrably improve routing without user burden |
+| **Uniform quantization across all components** | Ignores differential precision sensitivity | Only if heterogeneous compression shows no advantage |
+| **Architecture decisions based solely on paper claims** | Violates experimental evaluation requirement | Never acceptable; all claims must be empirically validated |
 
 ---
 
@@ -2048,7 +2374,8 @@ def get_ultra_config() -> KhwarizmiConfig:
 | 2.0 | 2026-08-11 | Architecture reset with Islamic alignment |
 | 3.0 | 2026-08-19 | Added Physics/Art/Creativity domains |
 | 4.0 | 2026-08-27 | Complete restructuring for Nano/Mobile/Pro/Ultra |
+| 5.0 | 2026-08-28 | Architecture Research & General Intelligence Strategy upgrade |
 
 ---
 
-**End of Khwarizmi AI Master Roadmap v4.0**
+**End of KHwarizmi Master Roadmap v5.0**
