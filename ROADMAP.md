@@ -2072,68 +2072,662 @@ Need production-ready packages with clear usage guidance.
 
 ---
 
-## Part XXIII: Next Steps
+## Part XXIII: Research Decision Matrix
 
-### Immediate Priorities
+This matrix evaluates every major research direction against Khwarizmi's objectives. Each hypothesis receives an explicit decision based on evidence, feasibility, and strategic alignment.
 
-1. **Update Configuration Files**
-   - Add Nano/Mobile/Pro/Ultra presets to `khwarizmi/config/tiers.py`
-   - Define compression profiles per version
+| Hypothesis | Problem Solved | Evidence | Expected Impact | Compute Cost | Memory Cost | Feasibility | Novelty | Risk | Priority | Decision |
+|------------|----------------|----------|-----------------|--------------|-------------|-------------|---------|------|----------|----------|
+| **H1: KSC recurrent architecture matches Transformer reasoning at lower resource cost** | O(L²) attention memory prevents edge deployment | KSC prototype passes stability tests; O(1) memory mathematically proven; Mamba/xLSTM show competitive results | High - enables 100K+ context on <2GB RAM | Medium - requires custom kernels for speed | Low - constant state memory | High - already implemented | Medium - must prove perplexity parity | Medium - training stability concerns | **HIGH** | **KEEP & VALIDATE** - Core architecture; proceed to full benchmark comparison |
+| **H2: Adaptive compute (ARRC) improves efficiency without sacrificing capability** | Fixed compute wastes resources on easy tasks | ACT research (Graves 2016); Phase 5 tests show compute differentiation | High - 40-60% compute savings on easy tasks | Low - adds halting gate | Low - minimal state overhead | High - already implemented | Medium - halting stability | Low | **HIGH** | **KEEP & EXTEND** - Proven mechanism; extend to multi-path branching |
+| **H3: Multi-strategy branching outperforms single-path depth scaling** | Single-path ARRC may miss better reasoning strategies | Tree-of-thought research; classical AI search theory | Medium-High - improved hard task success | High - multiple parallel paths | Medium - checkpoint storage | Medium - requires meta-reasoning | High - untested | Medium - compute unpredictability | **MEDIUM** | **EXPERIMENT** - Implement as Experiment 001 |
+| **H4: Failure-driven learning accelerates capability acquisition** | Uniform training doesn't target weaknesses | Error-driven learning theory; curriculum learning research | High - faster convergence on weak capabilities | Medium - failure classification | Medium - failure memory store | Medium - requires robust failure detector | High - novel approach | Medium - overfitting risk | **HIGH** | **EXPERIMENT** - Implement failure intelligence module |
+| **H5: Hierarchical memory improves long-horizon reasoning** | Dual memory may be insufficient for multi-week projects | Cognitive science models; Titans research | Medium - better long-context retention | Medium - additional memory levels | High - hierarchical structure | Medium - design complexity | High - unproven | Medium - added complexity | **DEFER** - Wait for dual memory limitation evidence |
+| **H6: Neuro-symbolic hybrids outperform pure approaches** | Neural alone unreliable for math/code; symbolic alone inflexible | Python Brain + neural core integration works; DAG planner success | High - reliable verification without latency penalty | Low - selective tool activation | Low - external tools | High - tools already work | Medium - integration novelty | Low | **HIGH** | **KEEP & EXPAND** - Add more deterministic tools |
+| **H7: Small models with efficient architecture match larger models on specific domains** | Scaling laws suggest bigger always better | HRM research; efficient architecture papers | Very High - validates entire project mission | High - requires training runs | Medium - careful resource allocation | Medium - depends on training infrastructure | Very High - if true, paradigm-shifting | High - may fail | **HIGH** | **ULTIMATE OBJECTIVE** - Test after Ultra tier trained |
+| **H8: xLSTM-style matrix memory improves over KSC** | KSC scalar state may limit associative recall | xLSTM paper shows mLSTM advantages | Medium - better sequence modeling | Medium - matrix state operations | High - O(d²) state | Medium - would require KSC redesign | Low - copies existing work | High - destabilizes baseline | **LOW** | **REJECT** - KSC already has matrix state; no clear advantage |
+| **H9: Gated DeltaNet offers faster associative binding** | KSC update rule may be suboptimal | DeltaNet paper shows fast in-context learning | Medium - improved few-shot learning | Low - similar to KSC | Low - constant state | Medium - implementation effort | Low - incremental variation | Low | **DEFER** - No evidence KSC is inadequate |
+| **H10: Titans-style learned neural memory improves ultra-long context** | Dual memory may lose information over 100K+ tokens | Titans paper shows 1M+ context retention | Medium - better very-long-context tasks | High - dual-loop training | Medium - additional memory module | Low - complex integration | Medium - combines attention + memory | High - training instability | **DEFER** - Wait for dual memory limitation evidence |
+| **H11: Skill-based MoE experts outperform domain-based** | Current MoE experts may not capture reusable skills | Skill learning research; modular AI theory | Medium - better transfer learning | Low - same MoE infrastructure | Low - same parameter count | Medium - requires skill taxonomy | High - novel approach | Medium - expert collapse risk | **MEDIUM** | **EXPERIMENT** - Test after baseline MoE validated |
+| **H12: Priming techniques improve small model reasoning** | Small models may need inference-time guidance | Priming research shows prompt-based improvements | Low-Medium - marginal gains | Low - prompt engineering | Low - no architectural change | High - can test immediately | Low - well-documented | Low | **LOW PRIORITY** - Test as part of benchmark protocol |
+| **H13: SSM/Transformer hybrid outperforms pure KSC** | Pure recurrent may lack global attention benefits | Mamba-3 hybrid shows strong results | Medium - best of both worlds | High - dual architecture | High - both state types | Low - major redesign | Low - copies existing work | High - complexity | **REJECT** - Violates sub-quadratic memory principle |
+| **H14: Automated architecture search discovers better components** | Human-designed may miss optimal structures | NAS research shows automated discovery possible | Very High - could find novel mechanisms | Very High - requires search infrastructure | High - many candidates | Low - not ready | Very High - black-box risk | Very High - premature | **DEFER** - Stage 1 first (human-designed candidates) |
+| **H15: Heterogeneous compression preserves critical precision** | Uniform quantization degrades sensitive components | Precision sensitivity analysis in literature | Medium - better quality at same footprint | Low - post-training | Low - mixed precision storage | High - can implement in Phase 10 | Medium - novel approach | Low | **HIGH** | **KEEP** - Add to Phase 10 quantization plan |
 
-2. **Extend Cognitive Router**
-   - Add meta-reasoning pathway
-   - Add failure handling pathway
-   - Add contradiction detection pathway
+### Decision Summary
 
-3. **Implement Failure Intelligence**
-   - Create failure detector module
-   - Build failure memory store
-   - Implement strategy updater
+| Decision Category | Count | Hypotheses |
+|-------------------|-------|------------|
+| **KEEP & VALIDATE** | 3 | H1 (KSC), H2 (ARRC), H6 (Neuro-symbolic) |
+| **KEEP & EXTEND** | 1 | H2 (Adaptive Compute → Multi-path) |
+| **EXPERIMENT** | 3 | H3 (Multi-strategy), H4 (Failure learning), H11 (Skill MoE) |
+| **DEFER** | 4 | H5 (Hierarchical memory), H9 (DeltaNet), H10 (Titans), H14 (Auto search) |
+| **REJECT** | 2 | H8 (xLSTM replacement), H13 (SSM/Transformer hybrid) |
+| **LOW PRIORITY** | 1 | H12 (Priming) |
+| **ULTIMATE OBJECTIVE** | 1 | H7 (Small model superiority) |
 
-4. **Develop Contradiction Detection**
-   - Train contradiction detection head
-   - Implement dependency graph
-   - Add state checkpointing
+---
 
-5. **Expand Benchmark Suite**
-   - Add cross-lingual consistency tests
-   - Add prompt-skill independence tests
-   - Add adversarial robustness tests
+## Part XXIV: Benchmark Strategy
 
-### Recommended Implementation Order
+### Benchmark Philosophy
 
+Khwarizmi does not rely on a single benchmark. Evaluation must be multi-dimensional, measuring:
+
+1. **Capability** - Can it solve the task?
+2. **Efficiency** - At what resource cost?
+3. **Reliability** - How consistent is it?
+4. **Calibration** - Does it know when it's uncertain?
+
+### Benchmark Matrix
+
+| Category | Benchmark | Metric | Target (Ultra) | Local Reproducible Variant |
+|----------|-----------|--------|----------------|---------------------------|
+| **Reasoning** | ARC-Challenge | Accuracy | ≥75% | ARC-Easy subset (local) |
+| **Reasoning** | Big-Bench Hard | Subset accuracy | ≥60% | Selected reasoning tasks (local) |
+| **Mathematics** | GSM8K | Exact match | ≥75% | GSM8K-100 (local curated) |
+| **Mathematics** | Symbolic arithmetic | Accuracy | ≥95% | Generated arithmetic (local) |
+| **Coding** | HumanEval | pass@1 | ≥64% | HumanEval-Offline (existing) |
+| **Coding** | MBPP | pass@1 | ≥70% | MBPP-curated (local) |
+| **Planning** | DAG-Synth-1000 | Cycle-free plans | ≥96% | DAG-100 (local) |
+| **Planning** | Long-horizon projects | Consistency | ≥90% | LH-Project-20 (local) |
+| **Memory** | NIAH-32K | Retrieval accuracy | ≥98% | NIAH-8K (local) |
+| **Memory** | Utility eviction | Precision | ≥94% | Synthetic update test (local) |
+| **Language (EN)** | BoolQ | Accuracy | ≥82% | BoolQ-subset (local) |
+| **Language (AR)** | ALu-Offline | Accuracy | ≥78% | Existing dataset |
+| **Language (EGY)** | Franco-Arabic intent | Accuracy | ≥85% | Curated dialogue set (local) |
+| **Reliability** | Contradiction rate | Conflicts per 1000 tokens | ≤5 | Self-consistency check (local) |
+| **Reliability** | Verification success | Verified / total | ≥90% | Tool-based verification (local) |
+| **Efficiency** | Tokens/sec (CPU) | Generation speed | ≥10 tok/s | Built-in profiler |
+| **Efficiency** | RAM footprint | Peak memory | ≤2 GB | Built-in profiler |
+| **Efficiency** | FLOPs/token | Compute efficiency | Track only | Estimated via layer calls |
+
+### Local Reproducible Benchmarks
+
+All benchmarks must have a "local" variant that:
+- Requires ≤4 GB RAM
+- Runs in ≤30 minutes on consumer CPU
+- Uses ≤10K test samples
+- Is deterministic (fixed seed)
+- Requires no internet access
+
+These enable rapid iteration during development without cloud dependencies.
+
+---
+
+## Part XXV: Experiment 001 — Multi-Path Branching Reasoning
+
+### Motivation
+
+Current ARRC implementation uses **single-path depth scaling**: it applies recurrent cycles K ∈ [1, K_max] to one reasoning trajectory. However, some problems require exploring **multiple candidate strategies** rather than simply going deeper on one path.
+
+**Research Question:** Is intelligently allocating reasoning across multiple candidate paths more effective than simply increasing depth on one path?
+
+### Hypothesis
+
+**H3:** For ambiguous inputs, low-confidence initial states, or problems with multiple valid approaches, generating and comparing 2-3 candidate reasoning paths will achieve higher success rates than single-path ARRC with equivalent compute budget.
+
+### Experimental Design
+
+#### Baseline (A): Single-Path ARRC
+- Standard ARRC with adaptive K ∈ [1, 4]
+- One reasoning trajectory per problem
+- Halting based on cumulative confidence
+
+#### Candidate (B): Multi-Path Branching
+- Generate 3 candidate initial strategies via router
+- Execute each with K ∈ [1, 2] cycles (shallow depth)
+- Compare candidate outputs via consistency head
+- Select highest-confidence candidate OR reconcile if compatible
+
+#### Control (C): Fixed-Depth Single-Path
+- Fixed K = 3 cycles (matches average compute of B)
+- One reasoning trajectory
+- No branching
+
+### Dataset
+
+**Multi-Strategy Reasoning Benchmark (MSR-100):**
+- 100 problems requiring strategy selection
+- Categories:
+  - Ambiguous natural language (20)
+  - Multiple valid solution approaches (30)
+  - Problems where first guess often wrong (30)
+  - Tasks benefiting from comparison (20)
+
+Curated locally, no internet required.
+
+### Metrics
+
+| Metric | Measurement | Success Threshold |
+|--------|-------------|-------------------|
+| **Accuracy** | % correct solutions | B > A by ≥8%, B > C by ≥5% |
+| **Compute Efficiency** | FLOPs per correct answer | B ≤ C (no worse efficiency) |
+| **Calibration** | Confidence-accuracy correlation | B has better calibration than A |
+| **Recovery Rate** | % cases where branching recovers from bad initial path | ≥40% of initially-wrong cases |
+
+### Implementation Requirements
+
+1. **Branching Controller** - Extends cognitive router to generate multiple pathway selections
+2. **State Checkpointing** - Save KSC state at branch point for restoration
+3. **Candidate Comparator** - Compares outputs for agreement/conflict
+4. **Reconciliation Module** - Merges compatible partial solutions (if needed)
+5. **Selection Gate** - Chooses final output based on confidence + consistency
+
+### Resource Budget
+
+- **Implementation Time:** 2-3 weeks
+- **Training:** Fine-tune existing Prototype (150M) - no pretraining from scratch
+- **Evaluation:** CPU-only, ≤4 hours for full MSR-100
+- **Memory Overhead:** ≤50 MB for checkpointing
+
+### Success Criteria (KEEP)
+
+Multi-Path Branching is **adopted** if:
+1. Accuracy improvement ≥8% over Baseline A on MSR-100
+2. Accuracy improvement ≥5% over Control C on MSR-100
+3. Compute efficiency no worse than Control C (FLOPs per correct answer)
+4. Calibration (confidence-accuracy correlation) improves
+5. No regression on standard benchmarks (ARC-Easy, GSM8K-100)
+
+### Modification Criteria (MODIFY)
+
+Multi-Path Branching is **modified** if:
+1. Accuracy improvement 3-8% (promising but not conclusive)
+2. Compute efficiency slightly worse (≤20%)
+3. Works only on specific problem categories
+
+→ Action: Optimize branching strategy, reduce candidate count, or apply selectively
+
+### Failure Criteria (REJECT)
+
+Multi-Path Branching is **rejected** if:
+1. Accuracy improvement <3% over Baseline A
+2. Compute efficiency >30% worse than Control C
+3. Introduces instability or training difficulties
+4. No improvement on calibration
+
+→ Action: Abandon multi-path approach; focus on single-path depth optimization
+
+### Timeline
+
+| Week | Milestone |
+|------|-----------|
+| 1 | Implement branching controller and state checkpointing |
+| 2 | Implement candidate comparator and selection gate |
+| 3 | Create MSR-100 benchmark dataset |
+| 4 | Run experiments (A/B/C comparison) |
+| 5 | Analyze results, write experiment report |
+| 6 | Decision: KEEP / MODIFY / REJECT |
+
+---
+
+## Part XXVI: Experiment Sequencing Rules
+
+Experiments must follow strict sequencing to maximize information gain while minimizing resource waste:
+
+### Rule 1: Baseline First
+Never run an experiment without a stable, well-characterized baseline. Current baseline (Phases 0-6) must pass all unit tests before Experiment 001 begins.
+
+### Rule 2: One Variable at a Time
+Each experiment isolates ONE architectural change. Do not combine multi-path branching with failure intelligence in the same experiment.
+
+### Rule 3: Predefined Success Criteria
+Success/failure criteria must be defined BEFORE running the experiment. Post-hoc criterion adjustment is prohibited.
+
+### Rule 4: Compute Budget Enforcement
+Each experiment has a maximum compute budget. If preliminary results clearly exceed budget without conclusive findings, pause and reassess.
+
+### Rule 5: Ablation Required
+Any successful experiment must undergo ablation to identify which components are actually responsible for improvement.
+
+### Rule 6: Regression Testing
+Experimental modifications must not degrade performance on existing benchmarks. Run full benchmark suite before and after.
+
+### Rule 7: Documentation Mandatory
+Every experiment produces a written report including:
+- Hypothesis
+- Experimental design
+- Raw results (tables, plots)
+- Statistical analysis
+- Decision with justification
+- Lessons learned
+
+---
+
+## Part XXVII: Architecture Promotion Rules
+
+An experimental component graduates to production architecture only after satisfying ALL criteria:
+
+### Promotion Criteria
+
+| Criterion | Requirement | Evidence Needed |
+|-----------|-------------|-----------------|
+| **Benchmark Improvement** | Statistically significant (p<0.01) improvement on relevant benchmarks | Comparison tables, t-test results |
+| **Efficiency** | No unacceptable resource overhead | RAM, FLOPs, latency measurements |
+| **Stability** | No training or inference instabilities introduced | Training logs, failure rate analysis |
+| **Ablation** | Component's individual contribution isolated and verified | Ablation study results |
+| **Regression Tests** | No degradation on existing benchmarks | Full benchmark suite comparison |
+| **Code Quality** | Production-ready implementation with tests | Unit tests, integration tests pass |
+| **Documentation** | Complete documentation of usage and limitations | Architecture docs updated |
+
+### Promotion Process
+
+1. **Experiment Complete** → Written report submitted
+2. **Peer Review** → At least one other developer reviews results
+3. **Integration Plan** → Detailed plan for merging into production
+4. **Staging Branch** → Merge to staging branch first
+5. **Full Benchmark Run** → Complete benchmark suite on staging
+6. **Production Merge** → Merge to main branch after all checks pass
+7. **Version Bump** → Increment minor version number
+
+---
+
+## Part XXVIII: Failure/Abandonment Rules
+
+Not all experiments will succeed. Clear abandonment criteria prevent wasting resources on dead ends.
+
+### Abandonment Criteria
+
+An experiment is abandoned if ANY of the following occur:
+
+| Condition | Trigger | Action |
+|-----------|---------|--------|
+| **Clear Failure** | Results fail to meet minimum success threshold by wide margin (>50% shortfall) | Stop immediately, document lessons |
+| **Resource Exhaustion** | Experiment exceeds budget by >100% without conclusive results | Pause, reassess feasibility |
+| **Instability** | Introduces NaN/inf, training divergence, or inference crashes | Debug for 1 week; if unresolved, abandon |
+| **Better Alternative Found** | Another approach shows superior results in parallel experiment | Pivot to better approach |
+| **Premature** | Prerequisites not yet met (e.g., need better training infrastructure first) | Defer to future phase |
+| **Fundamental Flaw Discovered** | Theoretical or empirical flaw invalidates hypothesis | Document flaw, abandon cleanly |
+
+### Clean Abandonment Process
+
+1. **Stop Computation** - Halt all training/evaluation immediately
+2. **Document Results** - Write "negative results" report explaining what was tried and why it failed
+3. **Archive Code** - Move experimental code to `experiments/archive/` directory
+4. **Update Roadmap** - Mark hypothesis as REJECTED with justification
+5. **Lessons Learned** - Identify what was learned that informs future directions
+
+### Negative Results Value
+
+Failed experiments are valuable if they:
+- Rule out a promising-looking direction
+- Reveal unexpected interactions or constraints
+- Provide data that refines future hypotheses
+- Prevent others from making the same mistake
+
+**All negative results must be documented with the same rigor as positive results.**
+
+---
+
+## Part XXIX: Long-Term Architecture Discovery Program
+
+### Vision
+
+The ultimate goal is not merely to assemble known components but to discover computational mechanisms that deliver unprecedented intelligence-per-compute ratios.
+
+### Staged Approach
+
+| Stage | Method | Prerequisites | Timeline |
+|-------|--------|---------------|----------|
+| **Stage 1: Human-Designed Candidates** | Researchers propose architectures based on principles | Stable baseline, benchmark suite | Phase 1-3 |
+| **Stage 2: Automated Hyperparameter Search** | Grid/random/Bayesian search over component parameters | Stage 1 complete, search infrastructure | Phase 4-6 |
+| **Stage 3: Component Selection** | Automated selection among known component types | Stage 2 complete, component library | Phase 7-9 |
+| **Stage 4: Architecture Optimization** | Gradient-based or evolutionary architecture search | Stage 3 complete, differentiable search space | Phase 10-12 |
+| **Stage 5: Controlled Self-Modification** | System proposes and tests its own modifications | All prior stages, safety guarantees | Phase 13+ |
+
+### Safety Constraints
+
+Every stage enforces:
+1. **Human Oversight** - Humans approve progression to next stage
+2. **Interpretability** - Discovered architectures must be analyzable
+3. **Safety Bounds** - Hard constraints on resource usage, behavior
+4. **Reversibility** - Any change can be rolled back
+5. **Verification** - Discovered architectures must pass verification suite
+
+### Novel Mechanism Discovery
+
+If existing architectures prove insufficient, Khwarizmi will pursue genuinely novel mechanisms:
+
+**Design Principles:**
+- Computational efficiency (FLOPs, memory, latency)
+- Stability (bounded gradients, eigenvalues, activations)
+- Interpretability (analyzable internal representations)
+- Modularity (clean interfaces between components)
+- Verifiability (deterministic checking where possible)
+
+**Process:**
+1. Identify specific failure mode of existing architectures
+2. Formulate mathematical/computational specification for new mechanism
+3. Implement minimal prototype
+4. Test in isolation with controlled experiments
+5. Iterate or discard based on evidence
+
+---
+
+## Part XXX: Nano/Mobile/Pro/Ultra Progression
+
+### Tier Definition
+
+The four tiers represent capacity allocations over a shared cognitive architecture, not fundamentally different systems.
+
+| Parameter | Nano | Mobile | Pro | Ultra |
+|-----------|------|--------|-----|-------|
+| **Target Footprint** | ≤500 MB | ≤900 MB | ≤1.5 GB | ≤2 GB |
+| **Model Parameters** | ~50M | ~150M | ~500M | ~1.5B |
+| **Active Parameters** | ~25M | ~75M | ~250M | ~750M |
+| **Memory Slots** | 128 | 256 | 512 | 1024 |
+| **Context Length** | 8K | 16K | 32K | 64K |
+| **MoE Experts** | 4 total, 2 active | 6 total, 2 active | 8 total, 2 active | 8 total, 3 active |
+| **Max Recurrent Cycles** | 3 | 4 | 6 | 8 |
+| **Search Paths** | 1 (fixed) | 1-2 | 2-3 | 3-5 |
+| **Precision** | INT4/INT5 | INT5/INT8 | FP16/INT8 | FP16 |
+| **Compression** | Aggressive | Moderate | Light | Minimal |
+
+### Progression Strategy
+
+Development follows a "Nano-first" approach:
+
+1. **Validate on Nano** - If it doesn't work at smallest scale, it won't work at larger scales
+2. **Scale to Mobile** - Verify improvements hold with moderate capacity
+3. **Optimize for Pro** - Tune for sweet spot of capability vs. resource
+4. **Maximize at Ultra** - Push to absolute limits within 2 GB constraint
+
+### Shared Core Guarantee
+
+All tiers guarantee:
+- Same reasoning philosophy
+- Same cognitive pathways
+- Same memory operations
+- Same verification mechanisms
+- Same tool interfaces
+
+Differences are ONLY in:
+- Capacity (parameters, memory slots, context)
+- Depth (layers, recurrent cycles)
+- Breadth (experts, search paths)
+- Precision (quantization level)
+
+---
+
+## Part XXXI: Universal Utility Goals
+
+### Target Users
+
+Khwarizmi ultimately serves diverse users across languages and domains:
+
+| User Category | Primary Needs | Khwarizmi Capabilities Required |
+|---------------|---------------|--------------------------------|
+| **Students** | Homework help, concept explanation, practice problems | Reasoning, mathematics, language understanding |
+| **Teachers** | Lesson planning, exercise generation, grading assistance | Planning, language generation, verification |
+| **Programmers** | Code generation, debugging, refactoring, documentation | Coding, AST verification, planning |
+| **Researchers** | Literature review, hypothesis generation, experiment design | Reasoning, memory, planning, multilingual |
+| **Scientists** | Data analysis, equation solving, unit verification | Mathematics, physics tools, verification |
+| **Doctors** | Medical information retrieval, guideline lookup | Knowledge retrieval, verification, caution |
+| **Employees** | Document drafting, email composition, scheduling | Language, planning, tool use |
+| **Parents** | Educational activities, explanations, safety advice | Reasoning, language, verification |
+| **General Users** | Questions, recommendations, conversation | All capabilities |
+| **Arabic Speakers** | All above in Arabic (MSA, dialects) | Multilingual, cross-lingual consistency |
+| **English Speakers** | All above in English | Language understanding |
+| **Franco-Arabic Users** | Mixed-language interaction | Dialect handling, code-switching |
+
+### Development Priority
+
+Capabilities are developed in order of universal utility:
+
+1. **Foundation** - Basic reasoning, language understanding (all users)
+2. **Verification** - Reliable, trustworthy outputs (all users)
+3. **Efficiency** - Runs on user devices (accessibility)
+4. **Specialization** - Domain-specific capabilities (programmers, scientists, etc.)
+5. **Optimization** - Performance tuning for specific use cases
+
+### Application Strategy
+
+**Do NOT build separate specialized systems prematurely.**
+
+First establish the underlying cognitive architecture with universal capabilities. Applications come afterward as configurations or fine-tunings of the base system.
+
+---
+
+## Part XXXII: Risk Management
+
+### Technical Risks
+
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| **KSC fails perplexity parity** | Medium | High | Hybrid fallback; continue optimization |
+| **MoE too slow on CPU** | Medium | High | Prune MoE; use dense layers instead |
+| **Adaptive compute unstable** | Low | Medium | Fixed-depth fallback; improve training |
+| **Memory gating fails to learn** | Medium | Medium | Simplify gates; manual heuristics |
+| **Multi-path branching too expensive** | Medium | Low | Reduce candidate count; selective activation |
+| **Training infrastructure inadequate** | High | High | Partner with institutions; cloud credits |
+| **Quantization degrades quality** | Medium | Medium | Heterogeneous compression; selective precision |
+
+### Strategic Risks
+
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| **Frontier models improve faster** | High | Medium | Focus on efficiency niche; different metrics |
+| **Funding insufficient** | Medium | High | Open-source community; phased development |
+| **Key developers leave** | Medium | Medium | Documentation; knowledge sharing |
+| **Hardware requirements increase** | Low | Medium | Aggressive quantization; algorithm improvements |
+| **Regulatory restrictions** | Low | Medium | Compliance-first design; transparency |
+
+### Contingency Plans
+
+**If KSC underperforms:**
+1. Optimize KSC variants (different gating, state structures)
+2. Test alternative recurrent architectures (xLSTM, RWKV principles)
+3. Consider lightweight attention hybrids (local attention only)
+4. Last resort: accept modest parameter increase for equivalent capability
+
+**If MoE proves impractical:**
+1. Reduce expert count
+2. Use Top-1 instead of Top-2
+3. Replace with conditional computation (dynamic depth)
+4. Fall back to dense layers with careful pruning
+
+**If multi-path reasoning fails:**
+1. Improve single-path ARRC (more cycles, better halting)
+2. Add verification iterations instead of branching
+3. Use external tools for difficult problems
+4. Accept capability limitation; focus on efficiency wins
+
+---
+
+## Part XXXIII: Immediate Next Action
+
+### Current Status
+- Phases 0-6: ✅ Complete and tested
+- Router confidence thresholds: ⚠️ Need tuning (3 failing tests)
+- Agent loop edge case: ⚠️ Need fix (1 failing test)
+- Sandbox import blocking: ⚠️ Need review (5 error tests)
+- DAG comprehension handling: ⚠️ Need fix (1 error test)
+
+### Priority Order (Next 4 Weeks)
+
+**Week 1: Stabilize Baseline**
+1. Fix router confidence threshold tests
+2. Fix agent loop max iteration test
+3. Review sandbox import blocking logic
+4. Fix DAG comprehension analyzer bug
+5. Ensure all Phase 0-6 tests pass
+
+**Week 2: Prepare for Experiment 001**
+1. Create MSR-100 benchmark dataset
+2. Implement state checkpointing for KSC
+3. Design branching controller interface
+4. Set up experiment tracking infrastructure
+
+**Week 3-4: Begin Experiment 001 Implementation**
+1. Implement branching controller
+2. Implement candidate comparator
+3. Implement selection gate
+4. Run preliminary tests on small scale
+
+### Success Milestones
+
+| Date | Milestone |
+|------|-----------|
+| Week 1 end | All Phase 0-6 tests passing (604/604) |
+| Week 2 end | Experiment 001 infrastructure ready |
+| Week 3 end | Branching implementation complete |
+| Week 4 end | Preliminary results available |
+
+---
+
+## Appendix A: Glossary
+
+[Existing glossary retained - see previous version]
+
+---
+
+## Appendix B: Configuration Examples
+
+[Existing examples retained - see previous version]
+
+Add these to `khwarizmi/config/tiers.py`:
+
+```python
+def get_nano_config() -> KhwarizmiConfig:
+    """Nano tier: ≤500 MB footprint, minimal smartphones."""
+    return KhwarizmiConfig(
+        vocab_size=32768,
+        d_model=384,
+        n_layers=12,
+        n_heads=6,
+        num_experts=4,
+        top_k_experts=2,
+        moe_frequency=3,
+        memory_dim=384,
+        memory_slots=128,
+        short_term_capacity=64,
+        max_recurrent_cycles=3,
+        max_seq_len=8192,
+        gamma_min=0.85,
+        gamma_max=0.995,
+        default_compression="int5",
+        num_pathways=5,
+        tier_name="Nano",
+        target_footprint_mb=500,
+    )
+
+
+def get_mobile_config() -> KhwarizmiConfig:
+    """Mobile tier: ≤900 MB footprint, capable smartphones."""
+    return KhwarizmiConfig(
+        vocab_size=32768,
+        d_model=512,
+        n_layers=18,
+        n_heads=8,
+        num_experts=6,
+        top_k_experts=2,
+        moe_frequency=3,
+        memory_dim=512,
+        memory_slots=256,
+        short_term_capacity=128,
+        max_recurrent_cycles=4,
+        max_seq_len=16384,
+        gamma_min=0.85,
+        gamma_max=0.997,
+        default_compression="int5",
+        num_pathways=5,
+        tier_name="Mobile",
+        target_footprint_mb=900,
+    )
+
+
+def get_pro_config() -> KhwarizmiConfig:
+    """Pro tier: ≤1.5 GB footprint, frontier reasoning on consumer hardware."""
+    return KhwarizmiConfig(
+        vocab_size=65536,
+        d_model=1024,
+        n_layers=30,
+        n_heads=16,
+        num_experts=8,
+        top_k_experts=2,
+        moe_frequency=2,
+        memory_dim=1024,
+        memory_slots=512,
+        short_term_capacity=256,
+        max_recurrent_cycles=6,
+        max_seq_len=32768,
+        gamma_min=0.88,
+        gamma_max=0.998,
+        default_compression="fp16",
+        num_pathways=7,
+        tier_name="Pro",
+        target_footprint_mb=1500,
+    )
+
+
+def get_ultra_config() -> KhwarizmiConfig:
+    """Ultra tier: ≤2 GB footprint, maximum capability within accessible limits."""
+    return KhwarizmiConfig(
+        vocab_size=65536,
+        d_model=2048,
+        n_layers=48,
+        n_heads=32,
+        num_experts=8,
+        top_k_experts=3,
+        moe_frequency=2,
+        memory_dim=2048,
+        memory_slots=1024,
+        short_term_capacity=512,
+        max_recurrent_cycles=8,
+        max_seq_len=65536,
+        gamma_min=0.90,
+        gamma_max=0.999,
+        default_compression="fp16",
+        num_pathways=10,
+        tier_name="Ultra",
+        target_footprint_mb=2000,
+    )
 ```
-Phase 1 (already largely complete)
-    ↓
-Phase 2 (Meta-Reasoning)
-    ↓
-Phase 3 (Failure Intelligence)
-    ↓
-Phase 4 (Contradiction Detection)
-    ↓
-Phase 5 (Multi-Path Reasoning)
-    ↓
-Phase 6 (Math Hybrid) ← Parallel with Phase 7
-Phase 7 (Multimodal)   ←
-    ↓
-Phase 8 (Multilingual Tokenizer)
-    ↓
-Phase 9 (Knowledge-on-Demand)
-    ↓
-Phase 10 (Heterogeneous Compression)
-    ↓
-Phase 11 (Training Infrastructure)
-    ↓
-Phase 12 (Comprehensive Evaluation)
-    ↓
-Phase 13 (Quantization Runtime)
-    ↓
-Phase 14 (Edge Deployment)
-    ↓
-Phase 15 (Adversarial Hardening)
-    ↓
-Phase 16 (Stable Release)
-```
+
+---
+
+## Appendix C: Architecture Decision Log
+
+[Existing log retained - see previous version]
+
+---
+
+## Appendix D: Research Hypothesis Registry
+
+[Expanded with decisions from Research Decision Matrix - see Part XXIII]
+
+---
+
+## Appendix E: Architecture Kill List
+
+[Existing list retained - see previous version]
+
+Additional entries:
+
+| Approach | Reason for Exclusion | Conditions for Reconsideration |
+|----------|---------------------|-------------------------------|
+| **Replacing KSC with xLSTM** | KSC already has matrix state; no evidence xLSTM superior | If KSC fails associative recall benchmarks where xLSTM succeeds |
+| **SSM/Transformer hybrid** | Violates sub-quadratic memory principle | Only if pure recurrent fundamentally inadequate |
+| **Blind copying of Priming/Titans/DeltaNet** | External research = hypothesis, not decision | If ablation shows clear advantage on Khwarizmi benchmarks |
+| **Multi-path without ablation** | Must prove value over single-path depth | Only if single-path demonstrably limited |
+
+---
+
+## Document History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | 2026-08-11 | Initial 17-phase roadmap |
+| 2.0 | 2026-08-11 | Architecture reset with Islamic alignment |
+| 3.0 | 2026-08-19 | Added Physics/Art/Creativity domains |
+| 4.0 | 2026-08-27 | Complete restructuring for Nano/Mobile/Pro/Ultra |
+| 5.0 | 2026-08-28 | Architecture Research & General Intelligence Strategy upgrade |
+| **6.0** | **2026-08-29** | **Final Architecture Audit & Roadmap Reconciliation: Added Research Decision Matrix, Experiment 001 specification, Benchmark Strategy, Experiment Sequencing Rules, Architecture Promotion/Abandonment Rules, Long-Term Discovery Program, Universal Utility Goals, Risk Management, Immediate Next Actions** |
+
+---
+
+**End of Khwarizmi Master Roadmap v6.0**
 
 ---
 
