@@ -1,0 +1,377 @@
+{
+  "metadata": {
+    "timestamp": "2026-08-31T16:43:38.206569",
+    "git_commit": "f328eec4ea2b546b7da875202960966885470072",
+    "git_branch": "qwen-code-32410811-4cc8-4fe0-a97c-a19bff7c45e4",
+    "test_version": "1.0.0-reality-check",
+    "environment": {
+      "python_version": "3.12.10 (main, Apr  9 2025, 00:30:28) [GCC 12.2.0]",
+      "torch_version": "2.7.1+cu126",
+      "cuda_available": false,
+      "device_count": 0,
+      "cpu_count": 2
+    }
+  },
+  "configuration": {
+    "tier": "TinyTest",
+    "config_dict": {
+      "vocab_size": 512,
+      "d_model": 64,
+      "n_layers": 2,
+      "n_heads": 4,
+      "d_expansion": 16,
+      "d_ff": 128,
+      "num_experts": 4,
+      "top_k_experts": 2,
+      "moe_frequency": 2,
+      "enable_moe": true,
+      "moe_noise_enabled": true,
+      "expert_d_ff": null,
+      "max_seq_len": 128,
+      "gamma_min": 0.85,
+      "gamma_max": 0.999,
+      "max_recurrent_cycles": 3,
+      "min_recurrent_cycles": 1,
+      "enable_adaptive_compute": true,
+      "halting_epsilon": 0.01,
+      "memory_dim": 64,
+      "memory_slots": 16,
+      "short_term_capacity": 128,
+      "utility_threshold": 0.8,
+      "read_threshold": 0.5,
+      "write_threshold": 0.5,
+      "update_threshold": 0.5,
+      "forget_threshold": 0.7,
+      "update_similarity_threshold": 0.88,
+      "utility_decay_lambda": 0.01,
+      "num_pathways": 5,
+      "dropout": 0.0,
+      "temperature": 1.0,
+      "load_balance_alpha": 0.01,
+      "ponder_cost_beta": 0.01,
+      "enable_reasoning_core": true,
+      "min_reasoning_steps": 1,
+      "max_reasoning_steps": 3,
+      "reasoning_confidence_threshold": 0.85,
+      "max_reasoning_corrections": 2,
+      "reasoning_confidence_beta": 0.01,
+      "reasoning_refinement_beta": 0.01,
+      "verification_threshold": 0.75,
+      "tier_name": "TinyTest"
+    }
+  },
+  "experiments": [
+    {
+      "name": "KSC_MEMORY_RETENTION",
+      "status": "pass",
+      "metrics": {
+        "test_distances": [
+          128,
+          256,
+          512,
+          1024,
+          2048,
+          4096,
+          8192
+        ],
+        "results_by_distance": {
+          "128": {
+            "accuracy": 1.0,
+            "output_shape": [
+              1,
+              128,
+              512
+            ],
+            "status": "pass"
+          },
+          "256": {
+            "accuracy": 0.0,
+            "status": "skipped_exceeds_max_seq_len"
+          },
+          "512": {
+            "accuracy": 0.0,
+            "status": "skipped_exceeds_max_seq_len"
+          },
+          "1024": {
+            "accuracy": 0.0,
+            "status": "skipped_exceeds_max_seq_len"
+          },
+          "2048": {
+            "accuracy": 0.0,
+            "status": "skipped_exceeds_max_seq_len"
+          },
+          "4096": {
+            "accuracy": 0.0,
+            "status": "skipped_exceeds_max_seq_len"
+          },
+          "8192": {
+            "accuracy": 0.0,
+            "status": "skipped_exceeds_max_seq_len"
+          }
+        },
+        "max_seq_len_config": 128
+      },
+      "failures": [],
+      "errors": [],
+      "evidence": {
+        "model_config": {
+          "d_model": 64,
+          "n_layers": 2,
+          "gamma_min": 0.85,
+          "gamma_max": 0.999
+        }
+      }
+    },
+    {
+      "name": "KSC_OVERWRITE_RESET",
+      "status": "pass",
+      "metrics": {
+        "state_changed_on_overwrite": true,
+        "retention_valid_old": true,
+        "retention_valid_new": true,
+        "delay_test_results": {
+          "1": {
+            "finite": true,
+            "differs_from_initial": true
+          },
+          "5": {
+            "finite": true,
+            "differs_from_initial": true
+          },
+          "10": {
+            "finite": true,
+            "differs_from_initial": true
+          },
+          "20": {
+            "finite": true,
+            "differs_from_initial": true
+          }
+        }
+      },
+      "failures": [],
+      "errors": [],
+      "evidence": {
+        "gamma_bounds": [
+          0.85,
+          0.999
+        ],
+        "state_shape": [
+          1,
+          4,
+          16,
+          16
+        ]
+      }
+    },
+    {
+      "name": "ARRC_COMPUTE_SAVINGS",
+      "status": "pass",
+      "metrics": {
+        "fixed_compute_mean_cycles": 1.0,
+        "adaptive_compute_mean_cycles": 2.75,
+        "tokens_halted_early": 16,
+        "tokens_at_max": 48,
+        "halting_variance": 0.190476194024086,
+        "ponder_loss_adaptive": 0.03345761075615883,
+        "total_tokens": 64,
+        "logical_compute_reduction": 0.08333333333333333,
+        "physical_flops_measured": false,
+        "note": "Logical halting measured; physical FLOP savings require kernel-level profiling"
+      },
+      "failures": [],
+      "errors": [],
+      "evidence": {
+        "max_recurrent_cycles": 3,
+        "min_recurrent_cycles": 1,
+        "halting_epsilon": 0.01,
+        "ponder_cost_beta": 0.01
+      }
+    },
+    {
+      "name": "MOE_VS_DENSE",
+      "status": "pass",
+      "metrics": {
+        "total_parameters": 66816,
+        "expert_parameters": 66304,
+        "router_parameters": 512,
+        "active_parameters_per_token": 33664,
+        "active_param_ratio": 0.5038314176245211,
+        "num_experts_total": 4,
+        "top_k": 2,
+        "experts_executed_last_forward": 4,
+        "expert_fractions": [
+          0.4765625,
+          0.5,
+          0.5,
+          0.5234375
+        ],
+        "routing_aux_loss": 0.020043902099132538,
+        "avg_sparse_latency_ms": 1.6722614999935104
+      },
+      "failures": [],
+      "errors": [],
+      "evidence": {
+        "config_num_experts": 4,
+        "config_top_k": 2,
+        "config_d_ff": 128,
+        "config_expert_d_ff": null
+      }
+    },
+    {
+      "name": "MEMORY_SUBSYSTEM_AUDIT",
+      "status": "error",
+      "metrics": {},
+      "failures": [],
+      "errors": [
+        "memory_table is missing required key 'keys'",
+        "Traceback (most recent call last):\n  File \"/workspace/benchmarks/reality_check/run_reality_check.py\", line 562, in run_memory_subsystem_audit\n    updated_table_3 = long_term_memory.forget(\n                      ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/khwarizmi/memory/long_term.py\", line 475, in forget\n    self._validate_table(memory_table, batch_size)\n  File \"/workspace/khwarizmi/memory/long_term.py\", line 133, in _validate_table\n    raise ValueError(f\"memory_table is missing required key {key!r}\")\nValueError: memory_table is missing required key 'keys'\n"
+      ],
+      "evidence": {}
+    },
+    {
+      "name": "COGNITIVE_ROUTING_AUDIT",
+      "status": "pass",
+      "metrics": {
+        "probs_shape_valid": true,
+        "pathway_shape_valid": true,
+        "pathways_in_range": true,
+        "probs_sum_to_one": true,
+        "is_deterministic": true,
+        "has_pathway_costs": true,
+        "router_sees_input": true,
+        "input_sensitive": true,
+        "num_pathways": 5,
+        "pathway_names": [
+          "FAST",
+          "CODING",
+          "REASONING",
+          "PROJECT_PLAN",
+          "VERIFICATION"
+        ]
+      },
+      "failures": [],
+      "errors": [],
+      "evidence": {
+        "sample_routing_probs": [
+          0.0886644795536995,
+          0.02903497964143753,
+          0.8548360466957092,
+          0.0208063293248415,
+          0.006658123340457678
+        ],
+        "sample_selected_pathway": 2,
+        "pathway_costs": [
+          0.1,
+          0.6,
+          0.7,
+          0.8,
+          0.9
+        ]
+      }
+    },
+    {
+      "name": "TIER_DEFINITIONS_AUDIT",
+      "status": "fail",
+      "metrics": {
+        "available_tiers": [
+          "TinyTest",
+          "Prototype",
+          "Prototype-50M",
+          "Prototype-50M_ERROR",
+          "Prototype-150M",
+          "Prototype-150M_ERROR",
+          "Small",
+          "Edge"
+        ],
+        "nano_mobile_pro_ultra_present": false,
+        "documented_tiers": [
+          "Nano",
+          "Mobile",
+          "Pro",
+          "Ultra"
+        ],
+        "implemented_tiers": [
+          "TinyTest",
+          "Prototype",
+          "Small",
+          "Edge"
+        ],
+        "documentation_gap": true,
+        "tier_count": 6
+      },
+      "failures": [
+        "Documented tiers (Nano/Mobile/Pro/Ultra) not found in implementation. Implementation uses TinyTest/Prototype/Small/Edge naming."
+      ],
+      "errors": [],
+      "evidence": {
+        "tier_configs": {
+          "TinyTest": {
+            "vocab_size": 512,
+            "d_model": 64,
+            "n_layers": 2,
+            "n_heads": 4,
+            "d_expansion": 16,
+            "d_ff": 128,
+            "num_experts": 4,
+            "top_k_experts": 2,
+            "max_seq_len": 128,
+            "memory_slots": 16,
+            "tier_name": "TinyTest"
+          },
+          "Prototype": {
+            "vocab_size": 32768,
+            "d_model": 512,
+            "n_layers": 12,
+            "n_heads": 8,
+            "d_expansion": 32,
+            "d_ff": 2048,
+            "num_experts": 8,
+            "top_k_experts": 2,
+            "max_seq_len": 2048,
+            "memory_slots": 256,
+            "tier_name": "Prototype"
+          },
+          "Prototype-50M": {
+            "error": "'NoneType' object has no attribute 'vocab_size'"
+          },
+          "Prototype-150M": {
+            "error": "'NoneType' object has no attribute 'vocab_size'"
+          },
+          "Small": {
+            "vocab_size": 32768,
+            "d_model": 1024,
+            "n_layers": 24,
+            "n_heads": 16,
+            "d_expansion": 64,
+            "d_ff": 4096,
+            "num_experts": 8,
+            "top_k_experts": 2,
+            "max_seq_len": 4096,
+            "memory_slots": 512,
+            "tier_name": "Small"
+          },
+          "Edge": {
+            "vocab_size": 65536,
+            "d_model": 2048,
+            "n_layers": 32,
+            "n_heads": 32,
+            "d_expansion": 64,
+            "d_ff": 8192,
+            "num_experts": 8,
+            "top_k_experts": 2,
+            "max_seq_len": 8192,
+            "memory_slots": 1024,
+            "tier_name": "Edge"
+          }
+        }
+      }
+    }
+  ],
+  "summary": {
+    "total_experiments": 7,
+    "passed": 5,
+    "failed": 1,
+    "errors": 1,
+    "skipped": 0
+  }
+}
