@@ -1,0 +1,398 @@
+{
+  "metadata": {
+    "timestamp": "2026-09-03T10:22:40.261103",
+    "git_commit": "e27dd766a71617f1244e47ac4c6f3c44dfb7dbd9",
+    "git_branch": "HEAD",
+    "test_version": "2.0.0-reality-check-audit",
+    "environment": {
+      "python_version": "3.12.14 (main, Sep  1 2026, 00:10:07) [GCC 14.2.0]",
+      "torch_version": "2.14.0+cu130",
+      "cuda_available": false,
+      "device_count": 0,
+      "cpu_count": 4
+    }
+  },
+  "configuration": {
+    "tier": "TinyTest",
+    "config_dict": {
+      "vocab_size": 512,
+      "d_model": 64,
+      "n_layers": 2,
+      "n_heads": 4,
+      "d_expansion": 16,
+      "d_ff": 128,
+      "num_experts": 4,
+      "top_k_experts": 2,
+      "moe_frequency": 2,
+      "enable_moe": true,
+      "moe_noise_enabled": true,
+      "expert_d_ff": null,
+      "max_seq_len": 128,
+      "gamma_min": 0.85,
+      "gamma_max": 0.999,
+      "max_recurrent_cycles": 3,
+      "min_recurrent_cycles": 1,
+      "enable_adaptive_compute": true,
+      "halting_epsilon": 0.01,
+      "memory_dim": 64,
+      "memory_slots": 16,
+      "short_term_capacity": 128,
+      "utility_threshold": 0.8,
+      "read_threshold": 0.5,
+      "write_threshold": 0.5,
+      "update_threshold": 0.5,
+      "forget_threshold": 0.7,
+      "update_similarity_threshold": 0.88,
+      "utility_decay_lambda": 0.01,
+      "num_pathways": 5,
+      "dropout": 0.0,
+      "temperature": 1.0,
+      "load_balance_alpha": 0.01,
+      "ponder_cost_beta": 0.01,
+      "enable_reasoning_core": true,
+      "min_reasoning_steps": 1,
+      "max_reasoning_steps": 3,
+      "reasoning_confidence_threshold": 0.85,
+      "max_reasoning_corrections": 2,
+      "reasoning_confidence_beta": 0.01,
+      "reasoning_refinement_beta": 0.01,
+      "verification_threshold": 0.75,
+      "tier_name": "TinyTest"
+    }
+  },
+  "experiments": [
+    {
+      "name": "KSC_MEMORY_RETENTION",
+      "status": "UNSUPPORTED",
+      "metrics": {
+        "has_forward": true,
+        "has_step_forward": true,
+        "has_init_state": true,
+        "has_read_method": false,
+        "has_retrieve_method": false,
+        "has_query_method": false,
+        "retrieval_capable": true,
+        "state_shape": [
+          1,
+          4,
+          16,
+          16
+        ],
+        "true_retrieval_test_supported": false
+      },
+      "failures": [
+        "KhwarizmiStateCell does not support associative retrieval. No decoder/probe interface exists to query stored values by key."
+      ],
+      "errors": [],
+      "evidence": {
+        "ksc_interface": "forward(), step_forward(), init_state() only",
+        "missing_methods": "No read(), retrieve(), query(), or decode() methods",
+        "state_type": "Recurrent matrix S_t of shape (batch, n_heads, d_k, d_n)",
+        "conclusion": "KSC is a recurrent state cell, not an associative memory with decoder. Cannot perform true retrieval."
+      }
+    },
+    {
+      "name": "KSC_OVERWRITE_RESET",
+      "status": "UNSUPPORTED",
+      "metrics": {
+        "state_changed_on_new_input": true,
+        "retention_valid_old": true,
+        "retention_valid_new": true,
+        "semantic_overwrite_measurable": false,
+        "new_value_retrieval_accuracy": null,
+        "stale_old_value_rate": null,
+        "overwrite_success_rate": null
+      },
+      "failures": [
+        "Semantic overwrite cannot be measured: no decoder/probe to retrieve values by key"
+      ],
+      "errors": [],
+      "evidence": {
+        "methodology": "Cannot measure semantic overwrite - no decoder/probe interface exists",
+        "state_change_detected": true,
+        "conclusion": "KSC state changes on new input, but semantic overwrite of key-value pairs cannot be measured without a retrieval interface."
+      }
+    },
+    {
+      "name": "ARRC_COMPUTE_SAVINGS",
+      "status": "PASS",
+      "metrics": {
+        "fixed_compute_mean_cycles": 1.0,
+        "adaptive_compute_mean_cycles": 2.765625,
+        "tokens_halted_early": 15,
+        "tokens_at_max": 49,
+        "tokens_at_min": 0,
+        "halting_variance": 0.1822916716337204,
+        "ponder_loss_adaptive": 0.03304549306631088,
+        "total_tokens": 64,
+        "tokens_per_cycle_fixed": 64.0,
+        "tokens_per_cycle_adaptive": 23.1412,
+        "fixed_wall_time_ms": 6.1841,
+        "adaptive_wall_time_ms": 16.828,
+        "latency_reduction_ratio": -1.7212,
+        "output_finite_fixed": true,
+        "output_finite_adaptive": true,
+        "total_reasoning_invocations": 177,
+        "logical_compute_reduction": -1.7656,
+        "physical_flops_measured": false,
+        "note": "Logical halting measured via invocation counts and wall-clock timing. Physical FLOP savings require kernel-level profiling. Do not interpret logical cycle reduction as physical compute savings."
+      },
+      "failures": [],
+      "errors": [],
+      "evidence": {
+        "max_recurrent_cycles": 3,
+        "min_recurrent_cycles": 1,
+        "halting_epsilon": 0.01,
+        "ponder_cost_beta": 0.01,
+        "methodology": "Compare fixed (force_cycles=1) vs adaptive compute on identical input. Wall-clock timing used, NOT FLOP counting."
+      }
+    },
+    {
+      "name": "MOE_VS_DENSE",
+      "status": "PASS",
+      "metrics": {
+        "moe_total_parameters": 66816,
+        "moe_expert_parameters": 66304,
+        "moe_router_parameters": 512,
+        "moe_active_parameters_per_token": 33664,
+        "moe_active_param_ratio": 0.5038,
+        "dense_total_parameters": 33088,
+        "dense_capacity_ff": 256,
+        "param_ratio_moe_to_dense": 2.0193,
+        "num_experts_total": 4,
+        "top_k": 2,
+        "experts_executed_last_forward": 4,
+        "expert_fractions": [
+          0.4765625,
+          0.43359375,
+          0.5390625,
+          0.55078125
+        ],
+        "routing_aux_loss": 0.020166262984275818,
+        "avg_sparse_latency_ms": 1.1594,
+        "avg_dense_latency_ms": 0.2977,
+        "routing_overhead_ms": 0.8617,
+        "routing_overhead_ratio": 2.8946,
+        "output_shapes_match": true,
+        "sparse_output_shape": [
+          4,
+          64,
+          64
+        ],
+        "dense_output_shape": [
+          4,
+          64,
+          64
+        ],
+        "moe_param_memory_mb": 0.2549,
+        "dense_param_memory_mb": 0.1262,
+        "comparison_fair": true,
+        "notes": "Controlled comparison: same input/output shapes, comparable hidden capacity"
+      },
+      "failures": [],
+      "errors": [],
+      "evidence": {
+        "config_num_experts": 4,
+        "config_top_k": 2,
+        "config_d_ff": 128,
+        "config_expert_d_ff": null,
+        "dense_capacity": 256,
+        "methodology": "Compare sparse MoE against dense MLP with comparable capacity. Input shape: (B, L, D). Output shape: (B, L, D). Timing: wall-clock with 10 warm-up runs."
+      }
+    },
+    {
+      "name": "MEMORY_SUBSYSTEM_AUDIT",
+      "status": "FAIL",
+      "metrics": {
+        "read_implemented": true,
+        "read_shape_valid": true,
+        "write_implemented": true,
+        "update_implemented": true,
+        "update_mask_observed": true,
+        "forget_implemented": true,
+        "gating_controller_functional": true,
+        "memory_slots": 16,
+        "memory_dim": 64,
+        "UPDATE_runtime_integrated": false,
+        "read_called_in_model_forward": true,
+        "write_called_in_model_forward": true,
+        "forget_called_in_model_forward": true
+      },
+      "failures": [
+        "UPDATE is NOT invoked by KhwarizmiModel.forward(). Only READ, WRITE, and FORGET are called during model execution."
+      ],
+      "errors": [],
+      "evidence": {
+        "read_output_shape": [
+          2,
+          64
+        ],
+        "gates_sample": {
+          "read": 0.393315851688385,
+          "write": 0.23674452304840088,
+          "update": 0.5663933753967285,
+          "forget": 0.07390037178993225
+        },
+        "model_forward_inspection": "READ, WRITE, FORGET called; UPDATE NOT called"
+      }
+    },
+    {
+      "name": "COGNITIVE_ROUTING_AUDIT",
+      "status": "PASS",
+      "metrics": {
+        "probs_shape_valid": true,
+        "pathway_shape_valid": true,
+        "pathways_in_range": true,
+        "probs_sum_to_one": true,
+        "is_deterministic": true,
+        "has_pathway_costs": true,
+        "router_sees_input": true,
+        "input_sensitive": true,
+        "perturbation_sensitive": true,
+        "num_pathways": 5,
+        "pathway_names": [
+          "FAST",
+          "CODING",
+          "REASONING",
+          "PROJECT_PLAN",
+          "VERIFICATION"
+        ]
+      },
+      "failures": [],
+      "errors": [],
+      "evidence": {
+        "sample_routing_probs_input1": [
+          0.008477491326630116,
+          0.3231978416442871,
+          0.07286599278450012,
+          0.5046172738075256,
+          0.09084141254425049
+        ],
+        "sample_routing_probs_input2": [
+          0.11091270297765732,
+          0.06653091311454773,
+          0.5427967309951782,
+          0.04659014567732811,
+          0.23316946625709534
+        ],
+        "sample_selected_pathway_input1": 3,
+        "sample_selected_pathway_input2": 2,
+        "pathway_costs": [
+          0.1,
+          0.6,
+          0.7,
+          0.8,
+          0.9
+        ],
+        "input_sensitivity_evidence": "Different inputs produce different routing probabilities"
+      }
+    },
+    {
+      "name": "TIER_DEFINITIONS_AUDIT",
+      "status": "FAIL",
+      "metrics": {
+        "available_tiers": [
+          "TinyTest",
+          "Prototype",
+          "Small",
+          "Edge"
+        ],
+        "nano_mobile_pro_ultra_present": false,
+        "documented_tiers": [
+          "Nano",
+          "Mobile",
+          "Pro",
+          "Ultra"
+        ],
+        "implemented_tiers": [
+          "TinyTest",
+          "Prototype",
+          "Small",
+          "Edge"
+        ],
+        "documentation_gap": true,
+        "tier_count": 4
+      },
+      "failures": [
+        "Documented tiers (Nano/Mobile/Pro/Ultra) not found in implementation. Implementation uses TinyTest/Prototype/Small/Edge naming. Do not rename implemented configurations to match roadmap names."
+      ],
+      "errors": [],
+      "evidence": {
+        "tier_configs": {
+          "TinyTest": {
+            "vocab_size": 512,
+            "d_model": 64,
+            "n_layers": 2,
+            "n_heads": 4,
+            "d_expansion": 16,
+            "d_ff": 128,
+            "num_experts": 4,
+            "top_k_experts": 2,
+            "max_seq_len": 128,
+            "memory_slots": 16,
+            "tier_name": "TinyTest"
+          },
+          "Prototype": {
+            "vocab_size": 32768,
+            "d_model": 512,
+            "n_layers": 12,
+            "n_heads": 8,
+            "d_expansion": 32,
+            "d_ff": 2048,
+            "num_experts": 8,
+            "top_k_experts": 2,
+            "max_seq_len": 2048,
+            "memory_slots": 256,
+            "tier_name": "Prototype"
+          },
+          "Small": {
+            "vocab_size": 32768,
+            "d_model": 1024,
+            "n_layers": 24,
+            "n_heads": 16,
+            "d_expansion": 64,
+            "d_ff": 4096,
+            "num_experts": 8,
+            "top_k_experts": 2,
+            "max_seq_len": 4096,
+            "memory_slots": 512,
+            "tier_name": "Small"
+          },
+          "Edge": {
+            "vocab_size": 65536,
+            "d_model": 2048,
+            "n_layers": 32,
+            "n_heads": 32,
+            "d_expansion": 64,
+            "d_ff": 8192,
+            "num_experts": 8,
+            "top_k_experts": 2,
+            "max_seq_len": 8192,
+            "memory_slots": 1024,
+            "tier_name": "Edge"
+          }
+        },
+        "implemented_tier_names": [
+          "TinyTest",
+          "Prototype",
+          "Small",
+          "Edge"
+        ],
+        "documented_tier_names": [
+          "Nano",
+          "Mobile",
+          "Pro",
+          "Ultra"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total_experiments": 7,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "unsupported": 0
+  }
+}
