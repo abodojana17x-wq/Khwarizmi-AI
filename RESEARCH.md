@@ -1,79 +1,86 @@
-# Khwarizmi AI: Architectural Research & Literature Comparison
-**Document Version:** 2.0 (Phase 0 Architecture Reset)  
-**Date:** 2026-08-11  
-**Status:** Implementation-Ready Research Synthesis  
+# Khwarizmi AI: Evidence-Led Research & Frontier Comparison
 
----
+**Document version:** 3.0
 
-## 1. Epistemological Classification Rules
+**Reviewed:** 2026-09-05
+**Scope:** Research and planning, not a claim of implemented capability or a new model release.
 
-In accordance with strict research and engineering rigor, every claim, comparison, and design choice in this document is tagged with one of four explicit epistemological labels:
-* **[FACT]:** Proven mathematical reality or established empirical consensus in peer-reviewed computer science literature.
-* **[RESEARCH FINDING]:** Empirical result reported under specific published benchmark conditions.
-* **[HYPOTHESIS]:** Proposed theoretical mechanism or efficiency assumption requiring empirical verification in Khwarizmi.
-* **[DESIGN DECISION]:** Concrete architectural choice adopted for Khwarizmi AI based on technical trade-off analysis.
+## 1. Evidence rules
 
----
+- **[SOURCE REPORT]:** A result or feature described by its publisher. Not independently reproduced here.
+- **[CODE OBSERVATION]:** A property visible in the inspected repository, with a file reference.
+- **[HISTORICAL MEASUREMENT]:** A recorded run tied to its original code revision and settings, not today's test result.
+- **[HYPOTHESIS]:** A proposed benefit that requires a controlled experiment.
+- **[DECISION]:** A project planning choice, not a measured benefit.
 
-## 2. Comparative Analysis of Efficient Sequence Models & Modern Architectures
+Every quantitative claim needs a source, date, model/checkpoint, task version, conditions and limitations. An unsupported test is not a pass, a failed measurement is not proof of a failed architecture, and a working tensor interface is not evidence of learned reasoning.
 
-The table below provides a comprehensive engineering breakdown of major frontier sequence models, recurrent architectures, and algorithmic techniques.
+## 2. What is publicly reported about GPT-6?
 
-| Technique / Model | Problem Solved | Compute Cost | Memory Cost | Latency Impact | Training Difficulty | Reasoning Benefit | Long-Context Benefit | Low-Resource Benefit | Hardware Efficiency | Adopt in Khwarizmi? |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Mamba / Mamba-2 / Mamba-3** (Selective SSMs) | $O(L^2)$ attention compute & KV cache memory scaling. | $O(L \cdot d)$ per token | $O(1)$ recurrent state during inference | **Very Low** (linear decoding) | **Medium-High** (requires custom GPU/CPU kernels) | **Moderate** (good associative recall, weaker multi-step dynamic routing) | **High** ($100\text{K}+$ sequences without KV bloat) | **Very High** (minimal RAM footprint) | **High** (tensor-core hardware-aware tiling in Mamba-2) | **ADOPT PRINCIPLE (Not Copy):** Adopt selective state gating and associative scans in KSC **[DESIGN DECISION]**. |
-| **RWKV (v5 / v6 / Eagle)** (Linear Attention / RNN) | Combining RNN $O(1)$ decoding with Transformer parallel training. | $O(L \cdot d)$ | $O(1)$ fixed state | **Very Low** | **Low-Medium** | **Moderate** (limited associative copy capacity vs attention) | **High** (no KV cache) | **Very High** (runs easily on CPU/edge) | **Very High** (pure matrix-vector muls) | **ADOPT PRINCIPLE:** Adopt time-decay recurrence and SIMD-friendly linear state updates **[DESIGN DECISION]**. |
-| **xLSTM** (sLSTM / mLSTM) | Scalar memory bottleneck of classic LSTMs via exponential gating & matrix state. | $O(L \cdot d^2)$ for matrix memory | $O(d^2)$ state per head | **Low-Medium** | **Medium** | **Good** (stronger syntactic and arithmetic tracking) | **High** (stable long-range retention) | **High** (modest RAM) | **Medium** (requires careful normalization for exp gates) | **ADOPT PRINCIPLE:** Adopt matrix-valued recurrent state with stabilized exponential retention in KSC **[DESIGN DECISION]**. |
-| **DeltaNet / Gated Linear Attention** | Fast associative recall and in-context learning without softmax attention. | $O(L \cdot d^2)$ | $O(d^2)$ state | **Low** | **Medium** | **Good** (fast associative key-value binding) | **High** (constant state memory) | **High** | **High** (associative scan parallel prefill) | **ADOPT PRINCIPLE:** Adopt delta-rule associative state updates for working memory **[DESIGN DECISION]**. |
-| **Titans / Learned Neural Memory** | Forgetting over very long horizons by combining attention with a learned neural memory layer. | Moderate ($O(L \cdot d) + \text{mem update}$) | Small non-parametric + state memory | **Medium** | **High** (training dual-loop memory updates is complex) | **Very High** (retains complex project facts over 100K tokens) | **Very High** (persistent knowledge without prompt stuffing) | **High** (offloads context to compact memory store) | **Medium** (requires custom gating kernels) | **ADOPT PRINCIPLE:** Adopt Utility-Gated Long-Term Persistent Memory with explicit READ/WRITE/FORGET gates **[DESIGN DECISION]**. |
-| **Liquid Neural Networks (LNNs)** | Continuous-time adaptation and robustness in dynamic, low-parameter regimes. | Very Low (small ODE networks) | Extremely Low | **Very Low** | **High** (ODE solver instabilities during BPTT) | **Moderate** (excellent for control; less proven for complex symbolic math) | **Moderate** | **Extreme** (can run on microcontrollers) | **High** | **SELECTIVE ADOPTION:** Adopt continuous-time stability bounds for KSC retention $\gamma_{\min}$ **[DESIGN DECISION]**. |
-| **Sparse Mixture-of-Experts (MoE)** | Scaling model capacity and knowledge without linearly scaling inference compute. | Constant per token ($O(K/E)$ active) | **High** (must store all $E$ expert weights in RAM/VRAM) | **Low** (only $K$ experts execute) | **High** (load balancing, routing collapse, communication overhead) | **High** (domain specializations for math/coding) | **Neutral** | **Medium-Low** (RAM footprint can exceed 4GB on edge devices) | **Medium** (memory bandwidth bound on CPU) | **EXPERIMENTAL (Phase 4):** Adopt Top-2/8 MoE; **mandatory ablation** to prune if CPU RAM is exceeded **[DESIGN DECISION]**. |
-| **Modern Routing & Adaptive Compute (ACT / ARRC)** | Wasting compute on simple tokens; under-computing complex reasoning tokens. | Dynamic (0.5x to 4.0x average) | Constant | **Dynamic** (fast on easy queries; deeper on hard queries) | **Medium-High** (ponder cost regularization & halting stability) | **Very High** (enables iterative self-correction and multi-step deduction) | **Neutral** | **Very High** (saves energy/CPU on 70% of routine queries) | **High** | **FULL ADOPTION:** Adopt Cognitive Router and Adaptive Recurrent Reasoning Cycles (ARRC) **[DESIGN DECISION]**. |
-| **Inference Optimization & Quantization (GGUF/llama.cpp)** | Deploying multi-billion parameter models on offline consumer CPUs and edge RAM. | Very Low (4-bit/8-bit integer math) | **4x-8x Reduction** (4-bit GGUF fits 3B in $<2\text{GB}$ RAM) | **Very Low** (SIMD AVX2/NEON vector acceleration) | **Low** (post-training quantization & calibration) | **Neutral** (minimal accuracy loss at 5-bit/8-bit) | **Neutral** | **Extreme** (essential for offline edge requirement) | **Extreme** (maximizes memory bandwidth utilization) | **FULL ADOPTION:** Native GGUF export and SIMD CPU inference runtime in Phase 12 **[DESIGN DECISION]**. |
+The official OpenAI announcement and system card were accessed on **2026-09-05**. They identify **GPT-6 Astra**, with the announced API name `gpt-6-astra` [S1, S2]. This review did not call the model, test account access, purchase inference, or independently reproduce its scores. Availability is described as a staged rollout; verify access and the exact snapshot before any comparison.
 
----
+| Item | Published information [SOURCE REPORT, S1] | Implication for Khwarizmi |
+| --- | --- | --- |
+| Software engineering | Terminal-Bench 4.0: **57.9%**; DeepSWE v1.1: **74.1%** | Compete on verified task completion, not the number of reasoning modules. These different task suites cannot be pooled into a Khwarizmi score. |
+| Long-running coding sessions | Codex can preserve notes and search earlier context windows | Memory alone is not a unique advantage. Test freshness, provenance, restart recovery and local privacy. The described feature belongs to the model-plus-Codex system. |
+| Reasoning and science | GPQA Diamond: **96.0%**; FrontierMath Tier 4 (v2): **97.6%** | A small-model claim of universal superiority requires extraordinary independent evidence. |
+| Long context | MRCR v2 8-needle, 512K–1M: **96.3%** | Fixed-size recurrent state is a resource property, not evidence of comparable recall. |
+| API price | Standard: **$10 / million input tokens**, **$50 / million output tokens**, separate cache rates | Price is a dated published quote, not a project spend authorization or a complete per-task cost. |
 
-## 3. Extraction of Engineering Principles from Frontier Systems (GPT / Claude / Kimi)
+**Comparison caveat:** S1 says scores are the maximum at any effort and may come from a research environment or API rather than production ChatGPT. Different harnesses, budgets, tools, safeguards and task versions matter. Do not compare these numbers directly to local synthetic tests or use them as Khwarizmi acceptance thresholds.
 
-> **CRITICAL COMPLIANCE NOTE:**  
-> Khwarizmi AI does **not** copy the proprietary weights, APIs, or architectural schemas of GPT-4, Claude 3.5, or Kimi K1.5. Instead, we extract their **publicly established engineering principles** and adapt them to an offline, sub-quadratic, low-resource paradigm.
+**Safety lesson [SOURCE REPORT, S2]:** The system card reports improved boundary-following and prompt-injection resistance, but also decreased reasoning monitorability in adversarial tests. It does not support “perfectly safe” claims. Khwarizmi should enforce permissions outside the model and audit actions and artifacts, not trust the model's own confidence or narrative.
 
-### 3.1 Principle 1: Latent Reasoning & Compute Scaling (Inspired by OpenAI o1/GPT & Kimi K1.5)
-* **[FACT]:** Scaling test-time computation via iterative reasoning or reinforcement learning on verifiable rewards significantly outperforms scaling pretraining compute alone on mathematical and coding benchmarks.
-* **[RESEARCH FINDING]:** Exposing verbose, raw ASCII chain-of-thought tokens increases generation latency and consumes user prompt context without guaranteeing verification.
-* **[DESIGN DECISION]:** Khwarizmi AI implements **Adaptive Recurrent Reasoning Cycles (ARRC)** in the neural core. Reasoning occurs iteratively inside latent state representations $S_t^{(k)}$ until the learned halting gate triggers, synthesizing verified conclusions without ASCII token bloat.
+**Unknowns:** This review does not establish GPT-6's parameter count, detailed proprietary architecture, training compute or full training data. Do not invent these to design a supposed architectural countermeasure.
 
-### 3.2 Principle 2: Tool-Integrated Coding & Verification (Inspired by Claude 3.5 Sonnet / Kimi)
-* **[FACT]:** Combining neural code generation with deterministic compiler/AST feedback loops reduces syntax errors and hallucinatory APIs by an order of magnitude.
-* **[DESIGN DECISION]:** Khwarizmi AI preserves the legacy `rafig/python_brain` standard-library AST analyzer as an **Offline Verification Tool**. When the Cognitive Router selects the `CODING PATH`, the model generates code, invokes the AST tool offline, parses issues, and repairs them before emitting the final response.
+## 3. Project evidence and the actual gap
 
-### 3.3 Principle 3: Structured Long-Horizon Memory (Inspired by Titans & Modern Agent Memory)
-* **[FACT]:** Unbounded context windows ($>1\text{M}$ tokens) suffer from the "lost-in-the-middle" phenomenon and quadratic memory/compute scaling.
-* **[RESEARCH FINDING]:** Persistent key-value memory stores with explicit write/forget policies outperform pure prompt stuffing on multi-week software engineering tasks.
-* **[DESIGN DECISION]:** Khwarizmi AI implements a **Dual Memory Architecture** combining an ephemeral KSC working buffer with a Utility-Gated Persistent KV Store and deterministic DAG project planner (`rafig/reasoning`).
+| Observation | Evidence | Consequence |
+| --- | --- | --- |
+| KSC, memory, MoE and adaptive-compute implementations exist | `khwarizmi/core/`, `memory/`, `experts/`, `reasoning/` | Useful research baseline; not a trained frontier competitor. |
+| The neural agent's test encoder clamps character code points to the vocabulary limit | `khwarizmi/agent/agent_loop.py`, `encode_prompt_to_ids` | Distinct Arabic characters can collide for small vocabularies. Implement reversible encoding before claiming Arabic neural understanding. |
+| The agent returns logits and diagnostics | `khwarizmi/agent/agent_loop.py`, `AgentResponseFrame` | Define a trained checkpoint, tokenizer and decoded generation path before calling this a usable assistant. |
+| The current restricted Python executor is not an OS security boundary | `khwarizmi/coding/execution_sandbox.py`: same-process execution; non-allowlisted imports can fall through | Do not run untrusted generated programs until independent process/OS isolation is reviewed and tested. |
+| Historic memory audit reports UPDATE absent from the main model path | `runs/reality_check/6ef7273377f3.json`, revision `e27dd766` | Reproduce on the current revision and test runtime integration before fixing or declaring it solved. |
+| The same archived run has inconsistent summary counts and per-experiment statuses | `runs/reality_check/6ef7273377f3_summary.md` | Preserve raw history, but invalidate it as release certification; repair and rerun the evaluator. |
+| Historical ARRC and MoE timings do not demonstrate a speed win | Same run: adaptive 16.828 ms vs fixed 6.1841 ms; sparse 1.1594 ms vs dense 0.2977 ms | Configuration-specific observations only. Compare trained models at matched quality, report uncertainty, and profile actual work. |
 
----
+No comparable real-task GPT-6 result is established by the inspected artifacts. PyTorch is absent from the review environment; neural tests and benchmarks were **not rerun** during this documentation review. Historical test counts must not be presented as a current green test suite.
 
-## 4. Why Khwarizmi State Cell (KSC) Over Pure Attention?
+## 4. Corrected engineering principles
 
-1. **Memory Complexity [FACT]:** Multi-Head Attention requires $O(L^2)$ time and $O(L \cdot d)$ KV-cache RAM. For a 32,000 token sequence, a 3B parameter model's KV cache can consume over 3 GB of RAM alone, exceeding our offline edge device budget.
-2. **KSC Advantage [FACT]:** KSC maintains a fixed-size matrix recurrent state $S_t \in \mathbb{R}^{d_k \times d_n}$, consuming $O(1)$ memory with respect to sequence length ($<50\text{ MB}$ total state RAM regardless of context length).
-3. **Stability Guarantee [HYPOTHESIS -> DESIGN DECISION]:** By enforcing diagonal Hurwitz eigenvalue bounding ($\gamma_{\min} = 0.85$), KSC guarantees numerical stability over $100{,}000+$ tokens on CPU FP32/FP16 SIMD registers.
+These replace the previous document's unsupported universal performance claims.
 
----
+1. **Sequence length:** Standard dense self-attention has quadratic attention work in sequence length; autoregressive KV storage generally grows linearly with retained tokens. Optimized attention kernels, grouped-query attention, caching and windowing change practical memory and cost. A recurrent decoder's fixed-size state does not make training activations, input buffering, output logits or project storage constant-memory.
+2. **Stability:** Bounded retention coefficients alone do not prove global stability of nonlinear blocks, unbounded inputs, learned projections, or all floating-point precisions. Validate state norms, gradients, NaN/Inf, long-sequence behavior and generation quality separately.
+3. **Adaptive computation:** Extra inference compute may help specific trained models and tasks; it is not a general proof that inference scaling beats pretraining. Logical halting counts are not measured FLOPs or wall-clock savings.
+4. **Sparse experts:** Top-k activation can reduce active expert computation, but all resident weights and routing overhead still count. Report both total and active parameters and separate matched-memory from matched-compute comparisons.
+5. **Verification:** AST validity catches syntax/structure errors, not behavioral correctness. Hidden tests, property tests and independent specifications are required; model-generated tests alone can share the model's mistake [S3].
+6. **Quantization:** GGUF is a file format, not automatic runtime support for arbitrary custom recurrent operators. KSC needs verified operator support or a dedicated backend before export promises [S4]. Quantization quality loss is an experiment, not assumed negligible.
+7. **Memory:** Retrieval stores do not inherently outperform long contexts. Evaluate naive recent-context, text search, structured memory and learned memory under the same tasks and retrieval budgets.
+8. **Confidence:** An uncalibrated neural head or heuristic score is not a probability of correctness. Measure calibration on held-out outcomes and evaluate abstention with coverage.
 
-## 5. Architectural Decision Matrix for Khwarizmi AI
+## 5. Minimal hypothesis queue
 
-```
-+---------------------------------------------------------------------------------------------------------+
-|                                  KHWARIZMI AI CORE ARCHITECTURAL MATRIX                                 |
-+---------------------------------------------------------------------------------------------------------+
-| 1. PRIMARY SEQUENCE MODELING  --> Khwarizmi State Cell (KSC) (Sub-quadratic matrix recurrence, O(1) KV) |
-| 2. COGNITIVE ROUTING          --> Learned Gate π_θ(p|x) over {FAST, CODING, REASONING, PLAN, VERIF}      |
-| 3. EXPERT CAPACITY            --> Top-2/8 Sparse MoE (Phase 4; subjected to strict RAM ablation gates)  |
-| 4. PERSISTENT KNOWLEDGE       --> Dual Memory System (Short-term buffer + Utility-gated Long-term KV)   |
-| 5. REASONING MECHANISM        --> Adaptive Recurrent Reasoning Cycles (ARRC) + Latent Halting Gates     |
-| 6. DETERMINISTIC TOOLS        --> Layered isolation of rafig/reasoning (DAGs) & rafig/python_brain(AST) |
-| 7. OFFLINE INFERENCE RUNTIME  --> Native 4/5/8-bit GGUF export + SIMD AVX2/NEON memory-mapped engine    |
-+---------------------------------------------------------------------------------------------------------+
-```
+**[DECISION]** Keep existing components as controls, not as protected winners. Run at most two research experiments concurrently. Spend no scale-up budget before baseline data and evaluation are sound.
+
+| ID | Hypothesis | Smallest controlled comparison | Promotion requirement (proposed, not achieved) |
+| --- | --- | --- | --- |
+| H1 | Evidence-backed project memory improves long-session outcomes | Same checkpoint and tasks: recent context vs text search vs provenance-tagged memory | Lower confidence bound of paired success improvement above zero; no stale-constraint or privacy regression. |
+| H2 | Verification-guided repair improves code correctness | Same checkpoint: one attempt vs bounded test-and-repair; separately report a matched total-budget control | Better hidden-test success within the declared time cap; evaluator tests never exposed to the repair agent. |
+| H3 | KSC gives a better quality/resource trade-off | Small KSC vs small dense Transformer, same tokenizer, data and training-token budget; additionally report training FLOPs and wall time | Comparable held-out quality with a measured memory or latency gain, across at least 3 training seeds. |
+| H4 | ARRC spends compute where it helps | Trained checkpoint: fixed 1, fixed max and adaptive cycles | A measured quality/latency Pareto gain, not just varying halt probabilities. |
+| H5 | Sparse MoE helps on the intended device | Dense vs MoE: one matched-total-parameter study and one matched-active-compute study | A quality/resource gain that survives real peak-RAM and p95 latency accounting. |
+
+**Deferred:** Multi-agent swarms, automatic architecture invention, world models, continual online weight updates, multimodal expansion and a proliferation of specialist memories. Reopen one only when a measured failure justifies it. Specialist safety/alignment constraints still apply; deferring a domain does not remove safety review.
+
+## 6. Source register
+
+All sources below were read on **2026-09-05**. External content can change; freeze the benchmark versions and archive permitted source metadata before a formal experiment.
+
+- **[S1] OpenAI — GPT-6 Astra: A new generation of intelligence.** https://openai.com/index/gpt-6-astra/ — first-party announcement, reported scores, harness caveats, API identifier and pricing. Not independent validation.
+- **[S2] OpenAI — GPT-6 Astra System Card.** https://deploymentsafety.openai.com/gpt-6-astra — reviewed safety overview and relevant safety/alignment sections; not a claim to have reproduced the full system-card evaluation.
+- **[S3] EvalPlus.** https://evalplus.github.io/ — project description of HumanEval+/MBPP+ expanded test suites and repository/code-efficiency evaluation. Use versioned artifacts and check licenses before ingestion.
+- **[S4] ggml-org — llama.cpp.** https://github.com/ggml-org/llama.cpp — local inference, quantization and backend documentation. Does not establish compatibility of Khwarizmi's custom KSC implementation.
+
+Execution priorities are in [ROADMAP.md](./ROADMAP.md); comparison rules are in [BENCHMARKS.md](./BENCHMARKS.md). Research references do not authorize online runtime dependencies, model downloads, teacher-data collection or paid API usage.
