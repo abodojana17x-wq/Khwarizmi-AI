@@ -1,11 +1,148 @@
-# KHwarizmi Master Roadmap — Architecture Research & General Intelligence Strategy
+# Khwarizmi Master Roadmap — Evidence-Led Competitive Strategy
 
-**Document Status:** Authoritative Master Plan  
-**Version:** 5.0 (Architecture Research & General Intelligence Upgrade)  
-**Date:** 2026-08-28  
-**Supersedes:** ROADMAP.md v4.0
+**Document status:** Active execution plan followed by a historical research backlog.
+
+**Version:** 6.0 — 2026-09-05
+
+**Supersedes:** v5.0 execution order, unsupported completion claims and unconditional resource promises. This is a planning revision, not a trained-model release.
+
+## Active plan: read this section first
+
+**Precedence:** This active plan and the current evaluation protocol in [BENCHMARKS.md](./BENCHMARKS.md) control the next work. The v5 material below is preserved as research history, not authorization to implement every proposed component. Older commands, phase labels, test counts, tier guarantees and architecture claims need verification before reuse. Conflicting older instructions in other documents do not override these acceptance gates. See [RESEARCH.md](./RESEARCH.md) for sources and [the Arabic plan](./الخطة%20.md) for the owner-facing summary.
+
+### A. Mission and a credible path to competing with GPT-6
+
+**Long-term mission remains:** discover a more compute- and memory-efficient general cognitive architecture. General superiority over GPT-6 is an aspiration, not an established result or a 90-day promise.
+
+**First proof of value:** a private, offline engineering assistant that understands Arabic/Egyptian Arabic and English project requests, navigates a local Python repository, remembers current constraints, proposes a minimal patch and supplies independently checked evidence. Start with Python-only, single-repository tasks; do not launch browser/computer control, multimodal generation or autonomous production changes in the MVP.
+
+The differentiator is **a verified outcome with local control**, not a bigger diagram: trace each claim to a file, test result or explicit uncertainty; preserve user decisions across sessions; stop safely when a task cannot be completed within its permissions or budget.
+
+“Beat GPT-6” has three separate meanings:
+
+1. **Quality win:** outperform an identified GPT-6 snapshot on a preregistered held-out task distribution with comparable tools and budgets, meeting the statistical rule in BENCHMARKS.md.
+2. **Efficiency win:** attain comparable quality at lower measured time or total cost, reported as a separate claim. Cloud hardware/FLOPs may be unknown; do not invent equal-compute comparisons.
+3. **Deployment fit:** work with no network and local-only data on a named machine. This is valuable even without a quality win, but is not proof of greater general intelligence. A cloud model unavailable offline is marked ineligible for that deployment track, not assigned zero intelligence.
+
+### B. Two tracks, without silently changing the from-scratch rule
+
+| Track | Purpose | Current permission and boundary |
+| --- | --- | --- |
+| **R — original architecture research (default)** | Train small KSC and dense controls from scratch, measure language learning, recall and quality/resource trade-offs | Preserves the project's no-pretrained-model rule. Existing prototypes are experimental controls. No broad capability promise. |
+| **P — practical assistant system** | Integrate local repository tools, evidence, recovery and a backend-independent generation contract | Non-model tooling can proceed now. A pretrained open-weight local backend is an **optional proposal requiring owner approval**, license review and a hardware fit check. It must not be described as an original Khwarizmi-trained model. |
+
+If pretrained models are declined, P remains a tools/verification demonstrator until R produces a useful trained checkpoint; do not fill the gap with canned responses marketed as intelligence. The 90-day outcome is then a credible research baseline and limited prototype, not a frontier assistant.
+
+Online research during development is distinct from offline product operation. Any teacher-model data, external benchmark call, download, hosted service or paid computation requires separate approval, lawful data handling and provenance. Never send a private repository to a cloud comparator by default. No paid call or model download is authorized by this plan.
+
+### C. Reality gate before another architecture feature
+
+The codebase contains meaningful components, but “implemented”, “integrated”, “trained”, “evaluated” and “release-ready” are different states. Require an evidence record for each.
+
+| Priority | Observed gap | Next action and acceptance evidence |
+| --- | --- | --- |
+| P0 | Historical reality-check summaries disagree with per-experiment statuses | Fix aggregation with fixture tests covering PASS/FAIL/ERROR/SKIPPED/UNSUPPORTED; counts must sum to the total and missing measurements must never pass. Rerun against the exact current commit. |
+| P0 | Existing executor uses same-process restricted Python; it is not a reviewed isolation boundary | Until OS isolation is available, allow static inspection only for untrusted code. Deliver process/OS isolation with network denied, temporary workspace, resource limits, process-tree timeout and no host credentials. Sandbox acceptance requires a separate security review. |
+| P0 | Character clamping loses distinctions in small-vocabulary neural-agent input | Implement a reversible byte-first encoder or trained tokenizer with fallback. Require exact Arabic/English/code round trips, no silent truncation and explicit context-limit errors. |
+| P0 | No demonstrated trained assistant decoding path in inspected evidence | Record tokenizer/checkpoint hashes; show reproducible decoded inference on held-out inputs. Mark random initialization as untrained and do not present logits as useful responses. |
+| P1 | Historical UPDATE path gap and duplicate agent/router implementations | Reproduce with current `KhwarizmiModel`; map both `agent/` and `integration/` contracts, then select one supported end-to-end path without a blanket rewrite. Test READ/WRITE/UPDATE/FORGET through that path. |
+| P1 | KSC recall lacks a meaningful trained decoder/probe evaluation | Train a probe or model on disjoint examples; score actual recovered values, negatives and chance controls. No cosine/logit-sensitivity proxy labeled retrieval accuracy. |
+| P1 | Claimed tiers are not implemented deployment configurations | Keep `TinyTest`, `Prototype`, `Small`, `Edge` identifiers intact; treat Nano/Mobile/Pro/Ultra as proposed deployment profiles only. |
+
+Historical evidence: `runs/reality_check/6ef7273377f3.json` and its summary are from a prior revision; they are diagnostic clues, not a current certification. PyTorch is unavailable in this review environment, so neural regression status is unverified. Do not copy historical “all tests pass” claims into a release.
+
+### D. Smallest useful system and integration contracts
+
+Proposed flow, not all implemented today:
+
+```text
+Request + explicit permissions
+  -> typed task specification + acceptance criteria
+  -> repository snapshot + local search + current project decisions
+  -> one planner with time/tool/retry budgets
+  -> generator backend (R checkpoint, or approved P backend)
+  -> candidate patch in an isolated workspace
+  -> static checks + executable developer tests under OS isolation
+  -> bounded repair or abstain
+  -> evidence bundle + human approval before applying consequential changes
+```
+
+- **TaskSpec:** request, language, repository revision, allowed paths/actions, constraints, success criteria, maximum time, tool calls and repair attempts.
+- **ProjectMemory:** source path and content hash, repository revision, decision author/time, validity, superseded-by pointer, sensitivity and deletion scope. Start with local text search and structured records; add learned retrieval only after it wins an ablation.
+- **GenerationResult:** backend/checkpoint/tokenizer identity, decoded output, stop reason and consumption. No implied confidence from an untrained score.
+- **ToolResult:** exact command and workspace, exit status, bounded stdout/stderr, duration, timeout and artifacts. Treat repository text/tool output as data, not permission changes.
+- **EvidenceBundle:** patch, tests actually executed, failures, untested assumptions, provenance and task outcome. “Verified” means the declared checks passed, not that all possible bugs are absent.
+
+Use explicit failure states: unsupported, needs-approval, failed-check, timeout, resource-limit, insufficient-evidence. Stop repeated identical repairs and never weaken tests or permissions to force success. No irreversible actions, network enabling, credential access, package installation or self-modification without an authorized workflow.
+
+### E. 90-day plan with stage gates
+
+**Capacity assumption:** 2 contributors, approximately 20 combined focused hours/week (~240–260 hours total), with research compute approved separately. These are sequencing estimates, not guaranteed dates. A solo contributor scales scope/time; a failed gate postpones dependent work. Assign a named owner before each milestone. Suggested roles are Evaluation/Research (E) and Runtime/Tools (T); one person may fill both, but should obtain independent review for security and final scoring.
+
+| Milestone | Window | Owner | Deliverables | Exit gate / stop condition |
+| --- | --- | --- | --- | --- |
+| **M0: Establish truth** | Days 1–14 | E + T | Reproducible environment; current test inventory; repaired result aggregation; capability ledger; backend decision; isolation threat model | No unexplained regressions; known failures are visible and block affected release claims; all result statuses counted; unsafe execution disabled. No model scale-up. |
+| **M1: Minimal learning and evaluation** | Days 15–30 | E | Reversible tokenizer; checkpoint save/resume and decoded inference; 20-task evaluator smoke set; dataset/license manifest; KSC and dense tiny controls | Resume reproduces loss within a declared numerical tolerance; held-out language loss beats an untrained/unigram control; functional evaluator checks reject deliberately wrong candidates. No semantic reasoning claim from synthetic loss. |
+| **M2: First end-to-end task** | Days 31–45 | T, E reviews | Local search; typed contracts; one agent path; reviewed isolation; patch/test/evidence loop; bounded repair | At least 5 distinct developer-set repair tasks completed with real artifacts, no fake success; tests/permissions cannot be modified by the agent. A demo milestone, not a general benchmark score. If isolation fails, static-only demo. |
+| **M3: Memory and meaningful comparison** | Days 46–60 | E + T | Versioned project decisions; stale-memory/reset/delete tests; development-set comparisons; failure taxonomy | No observed cross-project leakage or stale-constraint violations on required fixtures; per-task traces and matched controls; failure to improve triggers simplification, not another module. |
+| **M4: Improve the bottleneck** | Days 61–75 | E | At most 2 active ablations; select retrieval/verification/data or KSC/ARRC/MoE experiment based on M3 errors | Promote only a replicated quality/resource gain on development data. Freeze candidate and thresholds before the hidden evaluation; no blind tier expansion. |
+| **M5: Independent challenge** | Days 76–90 | E, independent reviewer | Frozen 200-case held-out suite, up to 3 repetitions where affordable; approved comparator; resource profile; reproducibility report | Publish win, tie, loss or inconclusive with uncertainty. No “beats GPT-6” without the declared evidence rule. If access, budget, checkpoint or isolation is missing, publish the blocker and research result instead. |
+
+**Critical path:** M0 -> tokenizer/data/evaluator M1 -> trained or approved backend + reviewed isolation -> M2 -> M3 -> frozen M4 -> M5. Corpus preparation and safe static tools can run in parallel; adding architectures before M1 cannot substitute for this path.
+
+### F. First ten actionable tickets
+
+Each ticket needs an owner, reproduction, acceptance test and one focused PR. Follow the existing module layout instead of creating a second framework.
+
+1. **EVAL-01:** repair/validate `benchmarks/reality_check/run_reality_check.py` aggregation; hand-built mixed-status fixtures must match their summaries and non-success semantics.
+2. **SAFE-01:** document threat model and block untrusted execution through all current agent entry points until isolation is independently validated.
+3. **CORE-01:** replace lossy neural-agent input encoding; test Arabic, Egyptian mixed text, emoji as input data, whitespace, Python indentation and oversize requests. No UI embellishments required.
+4. **DATA-01:** create a small licensed corpus manifest, disjoint repository/source splits, normalization and dedup rules; exclude hidden evaluation material.
+5. **TRAIN-01:** implement the minimal optimizer/checkpoint/resume/decoding path; add a tiny overfit test and a genuinely held-out learning test.
+6. **EVAL-02:** define outcome scoring and 20 development smoke tasks, including wrong-but-parsable code, impossible tasks, timeouts and tampered tests.
+7. **AGENT-01:** select the supported integration path and implement typed task/tool/evidence boundaries without deleting legacy controls.
+8. **SAFE-02:** implement reviewed isolated execution with path, network, resource and child-process tests. Keep generated code away from evaluator assets.
+9. **MEM-01:** reproduce and address memory UPDATE integration; add provenance, supersession and cross-project isolation fixtures.
+10. **BENCH-01:** run the first same-data KSC/dense study and system-level search/verification ablations; publish negative results and a bottleneck decision.
+
+### G. Resource and budget discipline
+
+**Deployment is not training.** A small quantized model can require far more memory to train. Separate artifact bytes, total resident memory, peak process-tree memory, context/working state, tools, index, model parameters and available device headroom.
+
+- **Development control:** TinyTest and 50M-scale studies first; no larger-than-150M training until corpus, learning curves, evaluation and an explicit compute budget pass review.
+- **First product profile:** one named CPU machine with 4 GB available to the process tree, targeting peak use <=3 GB and >=1 GB headroom. This is a proposed measurement target, not a current guarantee. Do not claim a 4 GB total-RAM device is equivalent.
+- **Initial proposed budget for small repair tasks:** 120 seconds wall time, <=8 tool calls, <=2 repair attempts; freeze before comparison and report completion vs budget curves. A slower but correct system may need a different product profile, not hidden extra retries.
+- **Training memory:** approximate FP32 Adam persistent tensors at roughly 16 bytes/parameter for weights, gradients and two moments, before activations, temporary buffers and runtime. Mixed precision/offload/optimizer choices change this. Measure rather than infer a training budget from Q4 file size.
+- **Weight lower bound:** N parameters at b bits need approximately N*b/8 bytes before scales, metadata, unquantized tensors, runtime and state. MoE active-parameter count is not the storage parameter count.
+- **Training work:** `6*N*T` FLOPs is only a rough dense-Transformer planning estimate for N parameters and T tokens, not a validated KSC/MoE cost formula. Use measured step time and peak memory on the actual architecture for budget approval.
+
+Before each run declare hardware, maximum GPU/CPU-hours, disk/RAM ceiling, spend cap and stop criteria. Pilot 1M–10M tokens only to debug loss/data/throughput; evaluate learning curves before approving 100M+ token studies. These are experiment sizes, not sufficient-data claims for frontier competence.
+
+For the published GPT-6 standard price [RESEARCH S1], a purely illustrative 200-task x 3-repeat run averaging 10k billed input + 2k billed output tokens per task costs about **$120** in token charges before extra reasoning/tool/retry charges and cache effects. Input counts include every billed call. Actual billable usage and access must be checked; this is not a spending authorization. Local cost includes amortized hardware, energy and execution overhead, not “free” inference.
+
+Nano/Mobile/Pro/Ultra and <=2 GB package ambitions remain future product hypotheses. Do not rename implemented tier factories or promise frontier quality to make documentation appear complete. Android/NEON, GGUF/custom operators and quantization follow measured desktop value, not precede it.
+
+### H. Stop, simplify or scale
+
+- **Wrong evaluator:** halt model promotion until metrics are repaired and current artifacts reproduced.
+- **No learned baseline by M1:** reduce model/data/debugging scope; do not add MoE or new memory types.
+- **No benefit after two controlled ablations:** freeze the component as research-only; restore the simpler path.
+- **Memory/latency over budget:** measure operator and process-tree costs, then simplify; do not substitute parameter bytes for real memory.
+- **Unsafe isolation or data leak:** block execution-enabled release regardless of benchmark quality.
+- **No GPT-6 access/permission:** use an approved reference baseline, label it precisely, and leave the GPT-6 challenge unmeasured.
+- **Promising results:** replicate on independent tasks and hardware, then approve one larger experiment. Broader intelligence research remains open, but no automatic promotion from a narrow win.
+
+### I. Completion definition and reporting
+
+A milestone is done only with code revision, test command, environment, raw measurements, failure counts and acceptance review. Keep a capability ledger with states **planned / implemented / integrated / trained / evaluated / released**; a unit test cannot skip those states. Every weekly update lists one demonstrated gain, remaining blockers, actual compute/spend and the next decisive experiment. A negative result is progress when it prevents an expensive wrong direction.
+
+**This revision changes plans and documentation only.** It does not train weights, repair the executor, add a runtime backend or achieve the proposed gates.
 
 ---
+
+## Historical v5 research backlog (not the active execution order)
+
+The following text is preserved from the 2026-08-28 plan. Its ambitions, statuses, examples and duplicated appendices are historical proposals; the active plan above overrides conflicts. In particular, “complete”, “safe sandbox”, statistical thresholds and hard tier claims below are not current certification.
 
 ## Executive Summary
 

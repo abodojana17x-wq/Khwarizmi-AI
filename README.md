@@ -1,10 +1,31 @@
-# Khwarizmi AI: Highly Intelligent, Fully Offline Reasoning & Project Assistant
-**Project Name:** Khwarizmi AI (formerly RAFIQ foundation)  
-**Version:** 2.5.0 (Phase 5 Adaptive Compute & Learned Halting Complete)  
-**Date:** 2026-08-13  
-**Status:** Phase 5 Complete (Adaptive Compute / ARRC per-token ACT halting — implemented, verified & benchmarked)  
+# Khwarizmi AI: Offline Intelligence Research & Verifiable Project Assistance
+
+**Project:** Khwarizmi AI (formerly RAFIQ foundation)
+
+**Planning review:** 2026-09-05 — roadmap v6.0; not a runtime version bump.
+
+**Current status:** Research prototypes and local tooling. Useful trained assistant capability, release-grade isolation and GPT-6 superiority have **not** been established by the inspected evidence.
+
+## Start here: the updated strategy
+
+- **[الخطة العربية](./الخطة%20.md):** الفكرة المحسنة، خطة 90 يوم، الموارد، وما الذي يمكن إثباته فعلًا.
+- **[ROADMAP.md — active plan](./ROADMAP.md):** Two-track strategy, first ten tickets, milestone dependencies, owners, acceptance/stop gates and resource budgets.
+- **[RESEARCH.md](./RESEARCH.md):** Official GPT-6 Astra sources reviewed on 2026-09-05, their limitations, repository observations and controlled research hypotheses.
+- **[BENCHMARKS.md — active protocol](./BENCHMARKS.md):** Planned held-out 200-case challenge, fair tool/budget comparisons, contamination controls and statistical claim rules.
+
+**Mission:** maximize useful intelligence per unit of compute and memory, with private offline operation. The general-architecture research ambition remains; the first proposed proof of value is a Python project assistant that returns a minimal patch, current project decisions and evidence from checks actually performed.
+
+**No inflated claim:** There is no head-to-head GPT-6 result here. A narrow task win, an efficiency win and offline deployment suitability are different claims. No 90-day promise of general frontier intelligence is made.
+
+**Preserved constraint:** Original KSC research remains from scratch. An optional pretrained, open-weight local backend is only a proposal for a separate practical-system track and requires owner approval and license review. No model download, paid training/API call or private-data upload is authorized by these documents.
+
+**Safety boundary:** `khwarizmi/coding/execution_sandbox.py` is a restricted same-process executor, not a reviewed OS isolation boundary. Do not use it to execute untrusted model-generated code. Safe execution is a blocking implementation milestone, not a feature delivered by this planning update.
+
+**Evidence boundary:** Existing phase descriptions below are historical implementation notes. “Complete” does not establish integration, training, semantic capability or current passing tests. Archived reality-check artifacts include unsupported measurements and inconsistent summaries. PyTorch is absent from the planning-review environment; neural tests were not rerun. Follow the active roadmap/protocol when older documents conflict.
 
 ---
+
+## Historical architecture and implementation notes
 
 ## 1. Executive Summary
 
@@ -28,10 +49,10 @@ Following the **Phase 0 Architecture Reset** and **Phase 1 Foundational Architec
 | Document | Description |
 | :--- | :--- |
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | **System Architecture Blueprint:** Complete specification of the Khwarizmi State Cell (KSC), Dual Memory, Cognitive Router, Sparse MoE, Adaptive Compute, and Layered Tool Architecture. |
-| **[ROADMAP.md](./ROADMAP.md)** | **16-Phase Execution Roadmap:** Detailed phase-by-phase deliverables, dependencies, success/failure gates, and progress tracking. |
-| **[RESEARCH.md](./RESEARCH.md)** | **Architectural Research Comparison:** Exhaustive analysis of Mamba, RWKV, xLSTM, DeltaNet, Titans, LNNs, MoE, Adaptive Compute, and frontier principles (GPT/Claude/Kimi), distinguishing *Fact, Finding, Hypothesis,* and *Design Decision*. |
+| **[ROADMAP.md](./ROADMAP.md)** | **Active 90-Day Plan:** Research/product tracks, milestone gates, resource budgets and prioritized tickets, followed by the historical architecture backlog. |
+| **[RESEARCH.md](./RESEARCH.md)** | **Evidence-Led Research:** Official GPT-6 sources, repository reality audit, corrected engineering claims and minimal ablation hypotheses. |
 | **[EXPERIMENTS.md](./EXPERIMENTS.md)** | **Experimental & Ablation Protocol:** Mandatory ablation testing ladder (Tier 0–Tier 5), statistical reporting rules, and component pruning gates. |
-| **[BENCHMARKS.md](./BENCHMARKS.md)** | **Evaluation Strategy & Threshold Gates:** 5-pillar evaluation suite (Intelligence, Project Intelligence, Efficiency, Memory, Adaptive Compute) across 4 model tiers. |
+| **[BENCHMARKS.md](./BENCHMARKS.md)** | **Active Evaluation Protocol:** Proposed held-out task suite, controlled baselines, statistical decision rules and clearly separated historical measurements. |
 | **[TRAINING.md](./TRAINING.md)** | **12-Stage Training & Dataset Strategy:** Low-resource training (QLoRA, micro-batching, Colab limits), multi-lingual dataset ingestion, MinHash deduplication, and benchmark de-contamination. |
 | **[MEMORY.md](./MEMORY.md)** | **Dual Memory Architecture:** Mathematical specification of Short-Term Working State ($S_t$) and Utility-Gated Persistent KV / Symbolic DAG Store with learned `READ`, `WRITE`, `UPDATE`, and `FORGET` gates. |
 | **[PHYSICS_ART_CREATIVITY_PLAN.md](./PHYSICS_ART_CREATIVITY_PLAN.md)** | **Physics, Art & Creativity Blueprint:** Domain expansion plan for simulation-aware science, structured aesthetic reasoning, and divergent innovation workflows. |

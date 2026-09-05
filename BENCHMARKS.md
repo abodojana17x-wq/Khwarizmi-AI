@@ -1,9 +1,99 @@
-# Khwarizmi AI: Comprehensive Benchmarking & Evaluation Suite
-**Document Version:** 2.0 (Phase 0 Architecture Reset)  
-**Date:** 2026-08-11  
-**Status:** Implementation-Ready Evaluation Blueprint  
+# Khwarizmi AI: Evaluation Protocol and Historical Benchmark Results
+
+**Document version:** 3.0 — 2026-09-05
+
+**Status:** Active evaluation specification; the new challenge suite is **planned, not implemented or executed**.
+
+## Active protocol: a defensible GPT-6 challenge
+
+This protocol supersedes conflicting thresholds and completion claims in the historical blueprint below and in older contributor/experiment instructions. Existing scripts in `benchmarks/` remain diagnostic controls, not implementations of the entire proposed suite. No GPT-6 comparison was performed in this documentation change.
+
+### A. Two distinct experiments
+
+1. **Architecture experiment:** KSC vs a dense Transformer trained from scratch with the same tokenizer, licensed data split and training-token budget. Report at least 3 seeds, actual parameters, training wall time/FLOPs where measurable, held-out loss and inference quality/resources. A separate matched-compute study is necessary if the token-matched costs differ materially.
+2. **System experiment:** a complete Khwarizmi assistant vs an identified comparator, with matched accessible repository snapshot, local tools, task instructions, permissions and observable budgets. This evaluates the system, not proof that KSC weights are more intelligent. If Khwarizmi uses an approved pretrained backend, disclose it prominently.
+
+GPT-6 Astra publication scores in [RESEARCH.md](./RESEARCH.md) are **publisher reports**, not comparator outputs on our tasks. Record an actual endpoint/snapshot, access date and harness for a head-to-head study; if unavailable or not approved, mark **NOT EVALUATED**. No private source code may be uploaded without explicit permission.
+
+### B. Proposed task design and split policy
+
+Start with 20 **development smoke tasks** to validate the harness. The final release challenge is a separately collected **200-case hidden test set**, not the same tasks renamed after tuning:
+
+| Stratum | Cases | Objective outcome |
+| --- | ---: | --- |
+| Local Python repair | 80 | Required hidden behavioral tests pass, existing regression tests pass, permitted patch scope respected. |
+| Arabic/Egyptian/English repository requests | 40 | Correct file/symbol action plus preserved explicit language and project constraints; bilingual reviewer rubric for non-executable requirements. |
+| Multi-session project memory | 40 | Current decisions recalled after restart or conflicting updates; provenance correct; obsolete or cross-project facts not used. |
+| Planning and failure recovery | 20 | Dependencies and constraints valid; executable milestones or independently checked plan criteria; failure recovery preserves unaffected work. |
+| Safe limitation handling | 20 | Infeasible tasks, missing files, unsafe permissions or insufficient evidence handled honestly without invented execution or unauthorized actions. |
+| **Total** | **200** | Report each stratum and the preregistered aggregate. |
+
+This distribution is a proposed target workload, not a representative sample of all intelligence. Select tasks independently of which model failed them; disclose collection criteria. Use at least 20 independent repositories/projects, balance difficulty, and include natural Arabic/Egyptian wording reviewed by fluent speakers. Related tasks, paraphrases, translations and repeated sessions stay in the same split. Hold out entire repositories/projects and task templates when feasible. Exclude training/teacher outputs derived from evaluation tasks.
+
+The task collector owns hidden tests; the evaluated agent sees only public developer tests. Freeze suite version, task hashes, scoring code, weights and candidate settings before evaluation. If a hidden suite informs tuning, retire that version from confirmatory use. Log duplicate/license checks and source timestamps; acknowledge that contamination of proprietary training data cannot be fully ruled out.
+
+HumanEval+/MBPP+ can supplement this suite [RESEARCH S3], but do not substitute published-set performance for uncontaminated project tasks. Freeze their versions and licenses. A stricter test suite catches more mistakes but is not a proof of software correctness.
+
+### C. Baselines and ablations
+
+- Deterministic AST/planner tools where applicable, labeled as non-generative baselines.
+- Tiny/dense trained control and the current KSC checkpoint for architecture studies.
+- The **same generation backend** alone; backend + local search; backend + verification; backend + search + memory + verification for system ablations. Disclose which tools and costs each gains.
+- GPT-6 in a comparable custom tool harness when accessible and approved; any native Codex/product run is a separately labeled product track, not a model-only comparison.
+- Fixed 1-cycle, fixed maximum-cycle and adaptive ARRC; dense and MoE under both matched-total-weight and matched-active-compute comparisons. Never claim an active-compute match is also equal capacity.
+
+Ablations disable one component at a time; record unchanged prompts, splits and budgets. Fairness does not require making all systems use identical tokenizers or exposing hidden evaluator tests. Both get the same authorized task information and ordinary tools; internal architecture can differ. Log provider-side limitations that cannot be controlled.
+
+### D. Budget and scoring rules
+
+For the first small-repair profile, provisionally cap each attempt at **120 seconds end-to-end**, **8 tool calls**, **2 repair attempts** and **4,096 generated tokens**; freeze or revise these on development data, never after seeing hidden results. Token counts are a disclosed safeguard, not equal semantic compute across tokenizers. Include provider thinking tokens when exposed; otherwise mark unobservable and do not claim exact compute matching.
+
+Run two separate tracks if approved: **equal observable budget** and **best quality within a fixed monetary/time ceiling**. Report latency/quality curves, not a cherry-picked operating point. Network latency remains part of the cloud user's experience; also separate it where measurable. An offline-only deployment track does not assign cloud models zero task quality.
+
+**Primary outcome:** completed-within-budget rate across all assigned tasks. A normal task succeeds only if its independent correctness checks and task-specific permission/constraint checks pass. A safe-limitation task succeeds only when its predetermined rubric calls for and receives an appropriate refusal, clarification or uncertainty statement. Blanket abstention fails solvable tasks.
+
+- Count model failure, timeout, OOM, unsupported response and unapproved action as unsuccessful assigned attempts; report their categories separately.
+- Infrastructure failures invalidate the affected measurement, not selectively erase a model's hard examples. Use a frozen symmetric rerun rule and publish every affected record. No win claim until the planned coverage is complete or a reduced scope is explicitly preregistered for a new run.
+- Mark unmeasured numerical metrics `null` with a reason, never zero or synthetic estimates presented as measurements.
+- **pass@1** means one independent attempt under its declared policy. Multiple candidates/repairs within a run must be disclosed as **budgeted agent success**, not renamed raw-model pass@1. Report best-of-k only alongside k and full costs.
+- Report solved-task rate, invalid-patch rate, test tampering, stale-constraint violations, unauthorized actions, abstention/coverage, p50/p95 wall time, TTFT, cold/warm behavior, throughput, peak process-tree memory and total per-task cost.
+- Measure artifact bytes, state/KV bytes, index bytes, runtime/process-tree RAM and tool RAM separately. Client RAM does not represent a cloud model's server footprint. Report energy only when measured; otherwise unavailable.
+
+The proposed local profile is <=3 GB peak process-tree memory with 4 GB available to it, not a claim of current performance. Measure on named hardware/OS, fixed thread counts and a declared context/task size. Averages cannot hide p95 failures or out-of-memory tasks.
+
+### E. Statistical decision and allowed claims
+
+1. Preregister **one primary quality metric**, target distribution, candidate and baseline before inspecting final outcomes. Use up to 3 independent repetitions per task if budget permits; record the actual number, sampling settings and seeds when supported. Repeats do not create additional independent tasks.
+2. Estimate the paired success difference **Khwarizmi minus comparator**, averaging repetitions within task first. Use a paired bootstrap over repository/project clusters (e.g. 10,000 resamples with fixed analysis seed); tasks from the same project are correlated. Report two-sided 95% confidence intervals, sample sizes, per-stratum results and raw outcome counts. Three seeds alone do not establish statistical significance.
+3. **Proposed quality-win gate:** the lower 95% confidence bound of the primary difference exceeds **+5 percentage points**, with declared resource caps met and no unresolved critical safety/isolation failure. This is a practical improvement margin, not a promised outcome. Inspect stratum regressions; a hidden severe regression blocks release even if the average improves.
+4. **Proposed efficiency-win gate:** lower bound of quality difference >= **-2 percentage points**, plus >= **25% lower** mean cost or p95 latency on the preregistered metric, with uncertainty on the improvement and the same safety constraints. This is a separate non-inferiority/efficiency claim, not a quality win. Dollar comparisons must include local cost assumptions; unknown server FLOPs remain unknown.
+5. The 200-task proposal may be underpowered for these margins, especially with cluster dependence. Use development/pilot variability for prospective sample-size planning and enlarge a fresh confirmatory suite before unblinding if necessary. If confidence intervals are wide or model access is missing, conclude **inconclusive / not evaluated**, not “almost a win”.
+6. Multiple candidate searches happen on development data. Report secondary outcomes as exploratory or apply a prespecified multiplicity correction for additional confirmatory claims. No repeated peeking and stopping as soon as a favorable interval appears.
+
+Permitted final wording: “On suite X at revision Y, using backend Z and budget B, Khwarizmi achieved A vs C with a paired difference CI [L,U].” A narrow win cannot justify “better than GPT-6 at everything”. Zero observed safety failures in a finite suite is not proof of zero risk.
+
+### F. Artifact and evaluator integrity contract
+
+Each run must capture: run ID/time; repository and harness commit; dataset version/hashes; model/checkpoint/tokenizer identity; prompts and configuration hashes; hardware/runtime/dependency versions; permissions; attempt/seed IDs; budgets; task outcome; individual check outcomes; timeout/error reason; actual duration, peak memory and billed usage; produced patch; bounded tool logs; provenance; aggregate counts and statistical method. Use synthetic secrets, redact credentials and do not publish private source or hidden answers.
+
+Required evaluator self-tests before model scoring:
+
+- Known-correct and deliberately incorrect patches; parsable but wrong implementations.
+- Failures, unknown statuses, missing metrics, zero executed tasks and mixed uppercase/lowercase statuses; every assigned case accounted for.
+- Hidden tests kept outside agent-accessible files; altered/deleted tests or evaluator files rejected.
+- Timeouts, child-process cleanup, OOM and denied network/path access; failures must not kill or corrupt the evaluator.
+- Restarted memory, superseded decisions and cross-project isolation.
+- Deterministic recomputation of summaries from raw outcomes, including bootstrap seed and confidence-interval fixtures.
+
+**Current implementation inventory:** `benchmarks/phase2_ksc_prototype.py` through `phase6_neural_reasoning_core.py` and `benchmarks/reality_check/run_reality_check.py` exist. A `khwarizmi/evaluation/` package and `tests/test_evaluation_suite.py` do **not** exist in the inspected revision. Do not advertise a runnable CLI for them. Inspect and repair the reality-check runner before treating its output as certification.
+
+**Historical evidence limitation:** `runs/reality_check/6ef7273377f3_summary.md` lists seven experiments but summary zeros conflict with the per-experiment results. No current-run status is inferred from those counts. Existing raw artifacts are preserved; do not overwrite history to manufacture success.
 
 ---
+
+## Historical blueprint and measurements
+
+Sections below retain earlier targets and recorded results for context. Their targets are not current achieved capabilities; historical commands are labeled explicitly. The active protocol above controls new work and overrides incompatible margins, tier definitions or certification claims.
 
 ## 1. Evaluation Philosophy & Pre-Scaling Rule
 
@@ -100,12 +190,7 @@ The table below specifies the hard quantitative success gates for each model tie
 
 ## 5. Automated CI/CD Benchmark Harness Integration
 
-All benchmarks specified above are implemented as offline, deterministic Python test harnesses inside `khwarizmi/evaluation/`.
-* Running `python -m unittest discover -v tests/test_evaluation_suite.py` executes unit-level verification of all benchmark scoring metrics.
-* Full tier certification runs are triggered offline via:
-  ```bash
-  python -m khwarizmi.evaluation.run_benchmarks --tier=small --offline-mode=True --output=reports/eval_small_tier.json
-  ```
+**Historical proposal, not implemented:** The previously advertised `khwarizmi/evaluation/` package, `tests/test_evaluation_suite.py` and full-tier certification CLI are absent from the inspected revision. No full-tier certification command is available yet. Build and validate an evaluator according to the active protocol before publishing runnable certification instructions.
 
 ---
 
