@@ -220,9 +220,22 @@ class KhwarizmiModel(nn.Module):
         read_mask = pathway_flags.use_memory_read.to(dtype=x.dtype).view(-1, 1, 1)
         x = x + read_mask * mem_read_out.unsqueeze(1)
 
+        # Phase 7 full-core boundary captures (detached scalars only — these are
+        # pure diagnostics and must never carry gradient through the loss path).
+        _p7_read_active = bool(pathway_flags.use_memory_read.any().item())
+        _p7_mem_read_norm = float(
+            torch.mean(torch.norm(mem_read_out.detach(), dim=-1)).item()
+        )
+        _p7_pre_ksc_norm = float(
+            torch.mean(torch.norm(x.detach(), dim=-1)).item()
+        )
+
         # 5. KSC Sequence Layers (with optional MoE sublayers)
         curr_state = short_term_state["recurrent_state"]
+        _p7_pre_ksc_state_norm = float(torch.norm(curr_state.detach()).item())
         total_moe_loss = torch.tensor(0.0, device=x.device, dtype=x.dtype)
+        _p7_moe_layer_executed = 0
+        _p7_ksc_layers = len(self.layers)
 
         for layer_idx, layer in enumerate(self.layers):
             use_moe_in_layer = (
@@ -236,6 +249,15 @@ class KhwarizmiModel(nn.Module):
             )
             if moe_loss is not None:
                 total_moe_loss = total_moe_loss + moe_loss
+            if use_moe_in_layer:
+                _p7_moe_layer_executed += 1
+
+        _p7_post_ksc_norm = float(
+            torch.mean(torch.norm(x.detach(), dim=-1)).item()
+        )
+        _p7_post_ksc_state_norm = float(
+            torch.norm(curr_state.detach()).item()
+        )
 
         # 6. Adaptive Recurrent Reasoning Cycles (ARRC)
         if self.reasoner is not None:
@@ -260,12 +282,19 @@ class KhwarizmiModel(nn.Module):
         # self-correction operating on the ARRC-refined representation. This is
         # a genuine trainable latent mechanism (no textual chain-of-thought);
         # it consumes the Phase 5 compute budget output and preserves dims.
+        _p7_post_arrc_norm = float(
+            torch.mean(torch.norm(reasoned_x.detach(), dim=-1)).item()
+        )
         if self.reasoning_core is not None:
             reasoning_out = self.reasoning_core(reasoned_x)
+            _p7_pre_reasoning_norm = float(
+                torch.mean(torch.norm(reasoned_x.detach(), dim=-1)).item()
+            )
             reasoned_x = reasoning_out.refined_state
             reasoning_loss = reasoning_out.total_reasoning_loss
             reasoning_diag = reasoning_out.diagnostics
         else:
+            _p7_pre_reasoning_norm = _p7_post_arrc_norm
             reasoning_loss = torch.tensor(0.0, device=x.device, dtype=x.dtype)
             reasoning_diag = {
                 "reasoning_core_enabled": False,
@@ -276,6 +305,9 @@ class KhwarizmiModel(nn.Module):
                 "consistency_score": 0.0,
                 "latent_delta_norm": 0.0,
             }
+        _p7_post_reasoning_norm = float(
+            torch.mean(torch.norm(reasoned_x.detach(), dim=-1)).item()
+        )
 
         # 8. Update Short-Term Working State
         updated_short_term = self.short_term_state_handler.update(
@@ -300,6 +332,12 @@ class KhwarizmiModel(nn.Module):
         updated_long_term = self.long_term_memory.forget(
             memory_table=updated_long_term,
             g_forget=mem_gates["forget"],
+        )
+        _p7_memory_stored_before = int(
+            torch.sum(long_term_table["valid_mask"]).item()
+        )
+        _p7_memory_stored_after = int(
+            torch.sum(updated_long_term["valid_mask"]).item()
         )
 
         # 10. Output Pathway
@@ -340,6 +378,40 @@ class KhwarizmiModel(nn.Module):
             ),
         }
 
+        # Phase 7: structured full-core diagnostics namespace (additive only).
+        # Exposes the contribution/status of each subsystem in one inspectable,
+        # numerical structure. All values are detached scalars/ints/bools so
+        # they can never carry gradient or mutate the training path. Emitted
+        # only when config.enable_full_neural_core is True; when False the
+        # diagnostics dict is identical to the pre-Phase-7 contract.
+        if self.config.enable_full_neural_core:
+            diagnostics["full_core"] = self._build_full_core_diagnostics(
+                batch_size=batch_size,
+                seq_len=seq_len,
+                selected_pathways=selected_pathways,
+                pathway_flags=pathway_flags,
+                read_active=_p7_read_active,
+                mem_read_norm=_p7_mem_read_norm,
+                pre_ksc_norm=_p7_pre_ksc_norm,
+                pre_ksc_state_norm=_p7_pre_ksc_state_norm,
+                post_ksc_norm=_p7_post_ksc_norm,
+                post_ksc_state_norm=_p7_post_ksc_state_norm,
+                ksc_layers=_p7_ksc_layers,
+                moe_layers_executed=_p7_moe_layer_executed,
+                post_arrc_norm=_p7_post_arrc_norm,
+                pre_reasoning_norm=_p7_pre_reasoning_norm,
+                post_reasoning_norm=_p7_post_reasoning_norm,
+                reasoner_diag=reasoner_diag,
+                reasoning_diag=reasoning_diag,
+                memory_stored_before=_p7_memory_stored_before,
+                memory_stored_after=_p7_memory_stored_after,
+                moe_loss=total_moe_loss,
+                ponder_loss=ponder_loss,
+                reasoning_loss=reasoning_loss,
+                logits=logits,
+                confidence=confidence,
+            )
+
         return KhwarizmiOutput(
             logits=logits,
             confidence=confidence,
@@ -351,6 +423,161 @@ class KhwarizmiModel(nn.Module):
             losses=losses,
             diagnostics=diagnostics,
         )
+
+    def _build_full_core_diagnostics(
+        self,
+        batch_size: int,
+        seq_len: int,
+        selected_pathways: torch.Tensor,
+        pathway_flags: Any,
+        read_active: bool,
+        mem_read_norm: float,
+        pre_ksc_norm: float,
+        pre_ksc_state_norm: float,
+        post_ksc_norm: float,
+        post_ksc_state_norm: float,
+        ksc_layers: int,
+        moe_layers_executed: int,
+        post_arrc_norm: float,
+        pre_reasoning_norm: float,
+        post_reasoning_norm: float,
+        reasoner_diag: Dict[str, Any],
+        reasoning_diag: Dict[str, Any],
+        memory_stored_before: int,
+        memory_stored_after: int,
+        moe_loss: torch.Tensor,
+        ponder_loss: torch.Tensor,
+        reasoning_loss: torch.Tensor,
+        logits: torch.Tensor,
+        confidence: torch.Tensor,
+    ) -> Dict[str, Any]:
+        """
+        Assemble the Phase 7 structured full-core diagnostics namespace.
+
+        This is a pure read-out of the unified forward path: it exposes, in one
+        inspectable structure, the contribution/status of every subsystem
+        (KSC, MoE, Memory, ARRC, Neural Reasoning, Full Core). All values are
+        detached scalars/ints/bools — diagnostics never carry gradient, never
+        store textual chain-of-thought, and never mutate caller tensors.
+
+        Args:
+            batch_size, seq_len: Input shape (for boundary tensor contracts).
+            selected_pathways: Router pathway selections per batch element.
+            pathway_flags: PathwayExecutionFlags from the dispatcher.
+            read_active: Whether the memory READ path was eligible this step.
+            mem_read_norm: Mean L2 norm of the memory read vector (detached).
+            pre_ksc_norm, post_ksc_norm: Embedding norm before/after KSC stack.
+            pre_ksc_state_norm, post_ksc_state_norm: KSC recurrent state norm.
+            ksc_layers: Number of KSC residual blocks in the stack.
+            moe_layers_executed: How many MoE sublayers actually ran.
+            post_arrc_norm: Norm of the ARRC-refined representation.
+            pre_reasoning_norm, post_reasoning_norm: Norm around reasoning core.
+            reasoner_diag: ARRC diagnostics dict.
+            reasoning_diag: Neural reasoning core diagnostics dict.
+            memory_stored_before/after: Valid memory slot counts around WRITE.
+            moe_loss, ponder_loss, reasoning_loss: Subsystem auxiliary losses.
+            logits, confidence: Final output tensors (read-only, detached).
+
+        Returns:
+            Structured diagnostics dictionary (numerical only).
+        """
+        # KSC contribution/status.
+        ksc_info = {
+            "enabled": True,
+            "n_layers": int(ksc_layers),
+            "pre_norm": float(pre_ksc_norm),
+            "post_norm": float(post_ksc_norm),
+            "state_delta_norm": float(abs(post_ksc_state_norm - pre_ksc_state_norm)),
+            "post_state_norm": float(post_ksc_state_norm),
+            # Recurrent state shape is fixed by config; expose numerically.
+            "recurrent_state_shape": [
+                batch_size,
+                self.config.n_heads,
+                self.config.d_k,
+                self.config.d_expansion,
+            ],
+        }
+
+        # Sparse MoE contribution/status (router remains authoritative).
+        moe_enabled = self.shared_moe_layer is not None
+        last_routed = (
+            list(self.shared_moe_layer.last_routed_experts)
+            if moe_enabled and hasattr(self.shared_moe_layer, "last_routed_experts")
+            else []
+        )
+        moe_info = {
+            "enabled": moe_enabled,
+            "num_experts": int(self.config.num_experts) if moe_enabled else 0,
+            "top_k_experts": int(self.config.top_k_experts) if moe_enabled else 0,
+            "moe_layers_executed": int(moe_layers_executed),
+            "experts_executed_last": [int(e) for e in last_routed],
+            "aux_loss": float(moe_loss.detach().item()) if moe_enabled else 0.0,
+        }
+
+        # Dual Memory contribution/status. The gating regularization scalar is
+        # already computed on the live forward path (``memory_gate_loss``); it is
+        # surfaced in the losses dict, so it is not re-computed here.
+        memory_info = {
+            "read_active": bool(read_active),
+            "read_vector_norm": float(mem_read_norm),
+            "write_active": bool(pathway_flags.use_memory_write.any().item()),
+            "stored_slots_before": int(memory_stored_before),
+            "stored_slots_after": int(memory_stored_after),
+            "max_slots": int(self.config.memory_slots),
+        }
+
+        # ARRC contribution/status (preserves existing diagnostics).
+        arrc_info = {
+            "enabled": self.reasoner is not None,
+            "mean_cycles": float(reasoner_diag.get("mean_cycles", 0.0)),
+            "mean_remainder": float(reasoner_diag.get("mean_remainder", 0.0)),
+            "post_norm": float(post_arrc_norm),
+            "ponder_loss": float(ponder_loss.detach().item()),
+        }
+
+        # Neural Reasoning contribution/status (latent, no textual trace).
+        reasoning_info = {
+            "enabled": self.reasoning_core is not None,
+            "reasoning_steps": int(reasoning_diag.get("reasoning_steps", 0)),
+            "correction_count": int(reasoning_diag.get("correction_count", 0)),
+            "converged": bool(reasoning_diag.get("converged", False)),
+            "confidence": float(reasoning_diag.get("confidence", 0.0)),
+            "latent_delta_norm": float(reasoning_diag.get("latent_delta_norm", 0.0)),
+            "pre_norm": float(pre_reasoning_norm),
+            "post_norm": float(post_reasoning_norm),
+            "reasoning_loss": float(reasoning_loss.detach().item()),
+        }
+
+        # Full-core execution summary.
+        full_core_info = {
+            "batch_size": int(batch_size),
+            "seq_len": int(seq_len),
+            "d_model": int(self.config.d_model),
+            "selected_pathways": [int(p.item()) for p in selected_pathways],
+            "output_logits_shape": [int(s) for s in logits.shape],
+            "mean_output_confidence": float(
+                torch.mean(confidence.detach()).item()
+            ),
+            "total_aux_loss": float(
+                (moe_loss + ponder_loss + reasoning_loss).detach().item()
+            ),
+            "components_integrated": {
+                "ksc": True,
+                "moe": moe_enabled,
+                "memory": True,
+                "arrc": self.reasoner is not None,
+                "reasoning": self.reasoning_core is not None,
+            },
+        }
+
+        return {
+            "ksc": ksc_info,
+            "moe": moe_info,
+            "memory": memory_info,
+            "arrc": arrc_info,
+            "reasoning": reasoning_info,
+            "full_core": full_core_info,
+        }
 
     def count_parameters(self) -> int:
         """Return total number of trainable parameters in the model."""
